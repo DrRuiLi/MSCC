@@ -23,6 +23,7 @@ formula_calculate_lc8 <- function(Formula1 = "C2H4O1S2P1",Formula2 = "N1H1O-1",s
 isotopes_pattern_enviPat <- function(chemform) {
   #chemform <- "C80[13]C3H33[2]H12"
   data("isotopes",package = "enviPat")
+  data("elem_table",package = "lc8")
   isopat <-
     enviPat::isopattern(isotopes = isotopes,
                         chemforms = chemform,
