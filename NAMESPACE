@@ -2,5 +2,6 @@
 
 export(chemform_formate)
 export(chemform_mz_lc8)
-export(expand_adduct_from_formula)
+export(expand_isoadduct_from_formula)
 export(isotopes_pattern_enviPat)
+export(match_isoadduct_to_features)
