@@ -1,4 +1,4 @@
-#' @title  Expand compound to adduct
+#' @title  expand_isoadduct_from_formula
 #' @description Using formula, exact.mass and ion_mode, expand adduct by enviPat::adduct
 #'
 #' @param chem_formula a chemical formula, such as "C4H4Cl1N3O1".
@@ -9,7 +9,9 @@
 #' @export
 #'
 #' @examples
-expand_adduct_from_formula <- function(chem_formula, ion_mode = "positive") {
+expand_isoadduct_from_formula <- function(chem_formula,
+                                          adduct.table = adduct.table,
+                                          ion_mode = "positive") {
 
 
   #ion_mode <- "positive"
@@ -62,3 +64,79 @@ expand_adduct_from_formula <- function(chem_formula, ion_mode = "positive") {
   return(x_adduct)
 
 }
+
+
+
+
+
+
+
+
+
+
+
+#' @title match_adduct_to_features
+#'
+#' @param MS.network
+#' @param xcms.features
+#' @param ppm.thresh
+#'
+#' @return
+#' @export
+#'
+#' @examples
+match_isotopes_to_features <-
+  function(isotopes.network , xcms.xcms, ppm.thresh = 10,rt.tol = 10)
+  {
+
+
+    xcms.features <- featureDefinitions(xcms.xcms)%>%as.data.frame()
+    xcms.features.intb.mean <- apply(featureValues(xcms.xcms , missing = "rowmin_half"),
+                                2,mean)
+    xcms.features.intb <-featureValues(xcms.xcms , missing = "rowmin_half")[,which.max(xcms.features.intb.mean)]
+    match.isotope <-function(x){
+      # x <- MS.network[[2]]
+      isotope.candidate <- x
+      isotope.mz <- isotope.candidate$m.z
+      feature.mz <- xcms.features$mzmed
+      feature.id <-rownames(xcms.features)
+      isotope.matrix <- matrix(rep(isotope.mz,length(feature.mz)) , nrow = length(isotope.mz))
+      feature.matrix <- matrix(rep(feature.mz,length(isotope.mz)) ,
+                               nrow = length(isotope.mz),
+                               byrow = T)
+      sub.matrix <- isotope.matrix - feature.matrix
+      tol.matrix <- feature.matrix * ppm.thresh*1e-6
+      pass.matrix <- abs(sub.matrix) < tol.matrix
+
+      matched.id <- which(pass.matrix,arr.ind = T)
+      matched.id
+
+      if (nrow(matched.id)==0) {
+        return(NULL)
+      }
+
+      isotope <- data.frame( isotope.candidate[matched.id[,1],],
+                            feature.mz = xcms.features[matched.id[,2],"mzmed"],
+                            feature.id = feature.id[matched.id[,2]],
+                            feature.rt = xcms.features[matched.id[,2],"rtmed"],
+                            feature.intb = xcms.features.intb[matched.id[,2]])%>%
+        dplyr::mutate(feature.error = (feature.mz-m.z)/m.z*1e6, .before = feature.id)
+      rt_max <- isotope$feature.rt[which.max(isotope$feature.intb)]
+      isotope <- isotope%>%
+        dplyr::mutate(rt.filter = case_when(abs(feature.rt - rt_max) <rt.tol ~ T,
+                                            T ~F ))%>%
+        dplyr::filter(rt.filter)%>%
+        dplyr::mutate(intensity.ratio = feature.intb/feature.intb[which.min(m.z)]*100)%>%
+        dplyr::group_by(feature.id)%>%
+        dplyr::mutate(theory_ratio = sum(abundance))
+
+
+      isotope
+      return(isotope)
+    }
+
+    MS.network <- lapply(isotopes.network ,match.isotope )
+
+    return(MS.network)
+  }
+
