@@ -4,7 +4,11 @@
 \alias{expand_isoadduct_from_formula}
 \title{expand_isoadduct_from_formula}
 \usage{
-expand_isoadduct_from_formula(chem_formula, ion_mode = "positive")
+expand_isoadduct_from_formula(
+  chem_formula,
+  adduct.table = adduct.table,
+  ion_mode = "positive"
+)
 }
 \arguments{
 \item{chem_formula}{a chemical formula, such as "C4H4Cl1N3O1".

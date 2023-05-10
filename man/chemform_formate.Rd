@@ -4,7 +4,7 @@
 \alias{chemform_formate}
 \title{chemform_formate}
 \usage{
-chemform_formate(chemform = "C11H22NO4")
+chemform_formate(chemform = "C11H22NO4D")
 }
 \arguments{
 \item{chemform}{}
@@ -12,6 +12,7 @@ chemform_formate(chemform = "C11H22NO4")
 \description{
 formate a chemical formula:
 \enumerate{
+\item add 1 after single element
 \item replace \code{D} with \verb{[1]H}
 }
 }
