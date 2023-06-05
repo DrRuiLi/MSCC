@@ -2,7 +2,7 @@
 % Please edit documentation in R/dev_envipat_lc8.R
 \name{chemform_adduct}
 \alias{chemform_adduct}
-\title{chemform_adduct}
+\title{chemform_adduct_formula}
 \usage{
 chemform_adduct(chemform = chem_formula_template, adduct = "[M+H]+")
 }

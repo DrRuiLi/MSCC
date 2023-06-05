@@ -61,3 +61,86 @@ ggplot(b)+
 
 open_ggplot_win(p,5,3)
 
+
+MSDEV
+
+
+
+
+
+
+
+
+
+
+rt.v <- isotope.matched$feature.rt
+
+rt.dist <- dist(rt.v)
+
+rt.clust <- hclust(rt.dist)
+plot(rt.clust)
+rect.hclust(rt.clust, h = 5)
+
+a <- isotope.matched%>%
+  dplyr::mutate(x = cutree(hclust(dist( feature.rt )),h = 10)   )%>%
+  dplyr::distinct(feature.id,.keep_all = T)%>%
+  dplyr::arrange(x,-abundance)
+
+
+msdev <- load_as_var("d:/MSCC.test/MSdev_2023_05_04.Rdata")
+compound.table <- readxl::read_excel("d:/MSCC.test/MSCC.compound.xlsx")%>%
+  dplyr::rowwise()%>%
+  dplyr::mutate(Chem_formula = chemform_formate(Chem_formula),
+                Chem_formula_adduct = chemform_adduct(Chem_formula , Adduct)
+  )
+xcms.xcms <- msdev@xcmsData$positiveMS1
+isotopes.table <- chemform_isotopes_pattern_enviPat(compound.table$Chem_formula_adduct[3])
+isotopes.table <- match_isotopes_to_featuredef(isotopes.table,
+                                                 msdev@xcmsData$positiveFeature)
+isotopes.calced <- match_isotopes_to_featureval(isotopes.table,
+                                                featureValues(msdev@xcmsData$positiveMS1))
+
+"C23H39D7NO7P" -> chemform
+chemform <- chemform_formate(chemform)
+chemform
+gsub(pattern = "([[:alpha:]](?![0-9^a-z]))" ,replacement = "\\11",x=chemform,perl = T)
+
+
+
+isotopes.table %>%
+  dplyr::filter()
+
+
+a <- isotope.candidate %>%
+  MSdev:::add_multi_column(unique(isotopes.matched$rt.cluster))%>%
+  tidyr::pivot_longer(as.character(unique(isotopes.matched$rt.cluster)),names_to = "rt.cluster")%>%
+  dplyr::select(-value)%>%
+  dplyr::mutate(rt.cluster = as.numeric(rt.cluster))%>%
+  dplyr::bind_rows(isotopes.matched)%>%
+  dplyr::group_by(rt.cluster,formula)%>%
+  dplyr::arrange(rt.cluster,feature.mz)%>%
+  dplyr::slice_head(n=1)%>%
+  dplyr::ungroup()%>%
+  dplyr::arrange(rt.cluster,-abundance)
+
+chemform[!is.na(chemform)] <- chemform_calculate_lc8(Formula1 = chemform[!is.na(chemform)],
+                       Formula2 = "H1",
+                       sign = 1)%>%
+                        as.vector()%>%
+                        chemform_formate()
+chemform[is.na(chemform)]  <- NA
+
+
+
+data(add)
+
+
+
+
+download.file(MONA.URL,destfile = "a.zip",
+              method = "wget",)
+
+
+
+
+

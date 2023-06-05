@@ -4,7 +4,7 @@
 \alias{chemform_mz_lc8}
 \title{chemform_mz_lc8}
 \usage{
-chemform_mz_lc8(chemform = "C2H4O1S2P1")
+chemform_mz_lc8(chemform = "C2H4O1S2P1", charge = 0)
 }
 \arguments{
 \item{chemform, }{such as \code{"C2H4"}}

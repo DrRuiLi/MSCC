@@ -4,7 +4,7 @@
 \alias{chemform_isotopes_pattern_enviPat}
 \title{chemform_isotopes_pattern_enviPat}
 \usage{
-chemform_isotopes_pattern_enviPat(chemform)
+chemform_isotopes_pattern_enviPat(chemform, thresh = 0.1)
 }
 \arguments{
 \item{chemform}{chemical formula}
