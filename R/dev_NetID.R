@@ -16,13 +16,13 @@ expand_isoadduct_from_formula <- function(chem_formula,
 
   #ion_mode <- "positive"
   #chem_formula <- chem_formula_template[1]
-  adduct.rule <- adduct.table %>%
+  adduct.rule <- MSCC::adduct.table %>%
     dplyr::filter(Ion_mode == ion_mode)
 
 
     x.formula <- chem_formula
     x.mass <- enviPat::check_chemform(isotopes,x.formula)$monoisotopic_mass
-    x.isopat <- isotopes_pattern_enviPat(x.formula)%>%
+    x.isopat <- chemform_isotopes_pattern_enviPat(x.formula)%>%
       mutate(form = paste0(isotope_element , "M"))
 
     x_adduct <-data.frame()
@@ -35,9 +35,9 @@ expand_isoadduct_from_formula <- function(chem_formula,
         rowwise() %>%
         mutate(
           formula =  enviPat::multiform(formula_in = m_formula , fact = Multi),
-          formula = formula_calculate_lc8(formula , Formula_diff),
-          adduct = Name,
-          adduct = sub(pattern = "M",replacement = m_form , x = adduct),
+          formula = chemform_calculate_lc8(formula , Formula_diff),
+          adduct = Adduct,
+          isoadduct = sub(pattern = "M",replacement = m_form , x = adduct),
           charge = Charge,
           multi = Multi,
           ion_mode = Ion_mode,
@@ -85,8 +85,8 @@ expand_isoadduct_from_formula <- function(chem_formula,
 #' @export
 #'
 #' @examples
-match_isotopes_to_features <-
-  function(isotopes.network , xcms.xcms, ppm.thresh = 10,rt.tol = 10)
+match_isotopes_to_xcms <-
+  function(isotopes.network , xcms.xcms, ppm.thresh = 20,rt.tol = 10)
   {
 
 
@@ -139,4 +139,130 @@ match_isotopes_to_features <-
 
     return(MS.network)
   }
+
+
+match_isotopes_to_featuredef <- function(isotopes.table,
+                                         featuredef,
+                                         ppm.thresh = 20,
+                                         rt.tol = 10){
+
+
+    isotope.candidate <- isotopes.table
+    isotope.mz <- isotope.candidate$m.z
+    feature.mz <- featuredef$mzmed
+    feature.id <-rownames(featuredef)
+    isotope.matrix <- matrix(rep(isotope.mz,length(feature.mz)) , nrow = length(isotope.mz))
+    feature.matrix <- matrix(rep(feature.mz,length(isotope.mz)) ,
+                             nrow = length(isotope.mz),
+                             byrow = T)
+    sub.matrix <- isotope.matrix - feature.matrix
+    tol.matrix <- feature.matrix * ppm.thresh*1e-6
+    pass.matrix <- abs(sub.matrix) < tol.matrix
+
+    matched.id <- which(pass.matrix,arr.ind = T)
+    matched.id
+
+    if (nrow(matched.id)==0) {
+      return(NULL)
+    }
+    isotopes.matched <- data.frame( isotope.candidate[matched.id[,1],],
+                                    feature.id = feature.id[matched.id[,2]],
+                                    feature.mz = featuredef[matched.id[,2],"mzmed"],
+                                    feature.rt = featuredef[matched.id[,2],"rtmed"])
+    if (nrow(isotopes.matched) >1) {
+      isotopes.matched <- isotopes.matched%>%
+        dplyr::mutate(rt.cluster =   cutree(hclust(dist( feature.rt )),h = rt.tol))
+
+    }else{
+      isotopes.matched <- isotopes.matched%>%
+        dplyr::mutate(rt.cluster =   1)
+    }
+
+    isotopes.matched <- isotopes.matched%>%
+      dplyr::mutate(feature.mz.error = abs(feature.mz-m.z)/m.z*1e6)%>%
+      dplyr::group_by(rt.cluster)%>%
+      dplyr::filter(any(""%in% isotope_element ))%>%
+      dplyr::arrange(rt.cluster,-abundance)%>%
+      dplyr::ungroup()%>%
+      dplyr::group_by(rt.cluster,isotope_element)%>%
+      dplyr::slice_min(feature.mz.error)%>%
+      dplyr::ungroup()
+
+
+
+    isotopes.table <- isotope.candidate %>%
+      MSdev:::add_multi_column(unique(isotopes.matched$rt.cluster))%>%
+      tidyr::pivot_longer(as.character(unique(isotopes.matched$rt.cluster)),names_to = "rt.cluster")%>%
+      dplyr::select(-value)%>%
+      dplyr::mutate(rt.cluster = as.numeric(rt.cluster))%>%
+      dplyr::bind_rows(isotopes.matched)%>%
+      dplyr::group_by(rt.cluster,formula)%>%
+      dplyr::arrange(rt.cluster,feature.mz)%>%
+      dplyr::slice_head(n=1)%>%
+      dplyr::ungroup()%>%
+      dplyr::arrange(rt.cluster,-abundance)
+
+
+    return(isotopes.table)
+
+
+
+
+
+
+
+
+
+}
+
+
+match_isotopes_to_featureval <- function(isotopes.table,
+                                         featureval){
+
+  featureval.sample <- featureval[,!grepl(pattern = "blank",x = colnames(featureval),ignore.case = T)]
+  isotopes.rtcluster <-isotopes.table
+
+
+  isotopes.calced <- list()
+
+  for (i in unique(isotopes.rtcluster$rt.cluster)) {
+
+    isotopes.this.rtcluster <- isotopes.rtcluster%>%
+      dplyr::filter(rt.cluster == i)%>%
+      dplyr::group_by(feature.id)%>%
+      dplyr::mutate(theory.abundance = sum(abundance) )%>%
+      #dplyr::distinct(feature.id,.keep_all = T)%>%
+      dplyr::ungroup()
+
+    feature.base <- isotopes.this.rtcluster %>%
+      dplyr::filter(isotope_element=="")%>%
+      dplyr::pull(feature.id)
+
+    matrix.int <- featureval.sample[isotopes.this.rtcluster$feature.id,colnames(featureval.sample),drop=F]
+
+    matrix.int.normal <- t(t(matrix.int)/(matrix.int[feature.base,]))*100
+
+    matrix.theory <- rep(isotopes.this.rtcluster$theory.abundance,ncol(matrix.int))%>%
+      matrix(ncol = ncol(matrix.int))%>%
+      `rownames<-`(isotopes.this.rtcluster$feature.id)
+
+    matrix.diff <- abs(matrix.theory - matrix.int.normal)
+
+    isotopes.this.rtcluster <- isotopes.this.rtcluster%>%
+      dplyr::mutate(relative.intensity = apply(matrix.int.normal,1,mean))%>%
+      dplyr::mutate(feature.isotopes = feature.base,.after = feature.id)%>%
+      dplyr::arrange(-theory.abundance)
+    isotopes.calced[[i]] <- isotopes.this.rtcluster
+  }
+
+
+  isotopes.calced <- do.call("rbind",isotopes.calced)
+
+  return(isotopes.calced)
+
+
+
+}
+
+
 

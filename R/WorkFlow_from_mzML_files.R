@@ -16,7 +16,6 @@ work_flow_mzML <- function(project.dir = "D:/MSCC.test/",
                                                                                 prefilter = c(3, 1000)))
 
 
-
   compound.table <- readxl::read_excel("d:/MSCC.test/MSCC.compound.xlsx")%>%
     dplyr::rowwise()%>%
     dplyr::mutate(Chem_formula = chemform_formate(Chem_formula),
