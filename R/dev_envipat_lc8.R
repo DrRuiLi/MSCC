@@ -82,10 +82,11 @@ chemform_calculate_vector <- function(Formula1 = chem_formula_template  ,
 chemform_isotopes_pattern_enviPat <- function(chemform,thresh = 0.1) {
   #chemform <- "C80[13]C3H33[2]H12"
   #data("isotopes",package = "enviPat")
-  data("elem_table")
+ # data("elem_table")
+  elem_table <- MSCC::elem_table
   isopat <-
     enviPat::isopattern(isotopes = MSCC::isotopes,
-                        chemforms = chemform,
+                        chemforms = chemform_formate(chemform),
                         verbose =F,emass = 0.00054858,
                         threshold = thresh)[[1]]
   iso.matrix <- isopat[, 3:ncol(isopat)]
@@ -121,7 +122,11 @@ chemform_isotopes_pattern_enviPat <- function(chemform,thresh = 0.1) {
   }
   formula_raw <- chemform
   select_elemet <- function(x ){
-    ele_table <- lc8::my_break_formula(x)%>%as.data.frame()%>%
+    if (is.na(x)) {
+      return(NA)
+    }
+    ele_table <- lc8::my_break_formula(x)%>%
+      as.data.frame()%>%
       dplyr::filter(count >0)%>%
       dplyr::mutate(f = paste0(elem,count))%>%
       dplyr::pull(f)%>%
@@ -131,7 +136,7 @@ chemform_isotopes_pattern_enviPat <- function(chemform,thresh = 0.1) {
   isopata <- data.frame(formula = formulat_list ,
                        isopat[, 1:2])%>%
     dplyr::rowwise()%>%
-    dplyr::mutate(isotope_element = chemform_calculate_lc8(formula,formula_raw , -1),
+    dplyr::mutate(isotope_element = chemform_calculate_matrix(formula,formula_raw , -1),
            isotope_element = select_elemet(isotope_element))%>%
     dplyr::arrange(-abundance)
 
@@ -164,40 +169,6 @@ chemform_mz_lc8 <- function(chemform = "C2H4O1S2P1",charge = 0){
 }
 
 
-
-#' @title chemform_formate
-#' @description
-#' formate a chemical formula:
-#' 1. add 1 after single element
-#' 2. replace `D` with `[1]H`
-#'
-#' @param chemform
-#'
-#' @return
-#' @export
-#'
-#' @examples
-chemform_formate <- function(chemform = "C11H22NO4D"){
-
-
-  ### add 1 after elements
-  chemform <- gsub(pattern = "([[:alpha:]](?![0-9^a-z]))" ,replacement = "\\11",x=chemform,perl = T)%>%
-    gsub(pattern = "D(?=[0-9])",replacement = "[2]H",perl = T)
-
-
-  ### remove error
-  chemform[is.na(chemform)] <-"NA"###
-  idx.error <- enviPat::check_chemform(isotopes = MSCC::isotopes,
-                                       chemforms = chemform)
-  chemform[which(idx.error$warning)] <-NA
-
-  return(chemform)
-  ### Replace D with [2]H
-  #chemform <- enviPat::check_chemform(chemforms = chemform,isotopes=isotopes )$new_formula
-
-
-  #chemform
-}
 
 
 
