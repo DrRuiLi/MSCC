@@ -144,3 +144,205 @@ download.file(MONA.URL,destfile = "a.zip",
 
 MS_demo <- load
 
+
+chemform_isotopes_pattern_enviPat()
+
+system.time(
+  enviPat::check_chemform(isotopes = MSCC::isotopes,
+                          chemforms = rep("CH2COOH",100000))->a
+  )
+
+
+system.time(
+  chemform_parse.for(chemform = rep(chem_formula_template,100))->a
+)
+
+
+system.time(
+  chemform_parse.sapple(chemform = rep(chem_formula_template,100))->a
+)
+
+
+system.time(
+  chemform_parse.for(chemform = rep(chem_formula_template,1000))->a
+)
+
+
+system.time(
+  chemform_formate(chemform = rep(chem_formula_template,10000))->a
+)
+
+
+
+
+chemform <- gsub(pattern = "([[:alpha:]](?![0-9^a-z]))" ,replacement = "\\11",x=chemform,perl = T)%>%
+  gsub(pattern = "D(?=[0-9])",replacement = "[2]H",perl = T)
+
+
+
+
+grep(pattern = "[[:alpha:]](?=[0-9^a-z])",x=chemform,perl = T, value = T)
+
+gregexec(pattern = "[[:alpha:]](?=[0-9^a-z])",text =chemform,perl = T)
+
+
+
+gsub(pattern = "([[:alpha:]](?![0-9^a-z]))" ,replacement = "\\11",x=chemform,perl = T)%>%
+  gsub(pattern = "D(?=[0-9])",replacement = "[2]H",perl = T)
+
+str_extract_all(string = chemform,pattern = "[[:alpha:]]((?=[0-9^a-z])|(?![A-Z]))" )
+
+lc8::my_break_formula()
+chemform <- chem_formula_template
+
+chemform.ele <- str_extract_all(string = chemform,pattern = "[[:alpha:]]+((?=[0-9^a-z])|(?![A-Z]))" )
+
+
+for (i in 1:length(chemform)) {
+
+  elements <- unique(chemform.ele[[i]])
+  str_extract_all(string = chemform[i],
+                  pattern = paste0("(?<=",elements,")[0-9]+"))
+
+
+
+}
+
+### 1. number missing
+chemform <-"CH2O"
+
+
+### 2. duplicated
+chemform <-"CH3COOHBr[13]CD[14]Br"
+
+
+# Wed Jun 14 14:49:22 2023 ------------------------------
+chemform <- gsub(pattern = "([[:alpha:]](?![0-9^a-z]))" ,replacement = "\\11",x=chemform,perl = T)%>%
+  gsub(pattern = "D(?=[0-9])",replacement = "[2]H",perl = T)
+
+str_extract_all(string = chemform,pattern = "[[A-Z]](?=[0-9^A-Z])|[A-Z][a-z]|\\[[0-9]+\\][A-Z](?=[0-9^A-Z])|\\[[0-9]+\\][A-Z][a-z]")%>%
+  `names<-`(chemform)->chemform.ele
+
+
+str_extract_all(string = chemform[i],
+                pattern = paste0("(?<=",elements,")[0-9]+"))
+
+
+system.time(
+  chemform_add_num(chemform = rep(chem_formula_template,1000000))->a
+)
+
+###
+
+x <- list()
+for (i in 1:length(chemform)) {
+
+  elements <- unique(chemform.ele[[i]])
+  elements.exp <- elements
+  elements.exp[grepl("\\[",elements)] <- gsub(x = elements.exp[grepl(pattern = "\\[",x = elements.exp)],
+                                              pattern = "[",
+                                              replacement = "\\[",fixed = T)
+  elements.exp[grepl("\\[",elements)]  <- gsub(x = elements.exp[grepl(pattern = "\\[",x = elements.exp)],
+                                               pattern = "]",
+                                               replacement = "\\]",fixed = T)
+
+  str_extract_all(string = chemform[i],
+                  pattern = paste0("(?<=",elements.exp,")[0-9]+"))%>%
+    `names<-`(elements)%>%
+    sapply(function(x){sum(as.numeric(x))})->x[[i]]
+
+
+
+}
+
+
+
+####
+
+.get.ele.num <- function(i ){
+  elements <- unique(chemform.ele[[i]])
+  elements.exp <- elements
+  elements.exp[grepl("\\[",elements)] <- gsub(x = elements.exp[grepl(pattern = "\\[",x = elements.exp)],
+                                              pattern = "[",
+                                              replacement = "\\[",fixed = T)
+  elements.exp[grepl("\\[",elements)]  <- gsub(x = elements.exp[grepl(pattern = "\\[",x = elements.exp)],
+                                               pattern = "]",
+                                               replacement = "\\]",fixed = T)
+
+  str_extract_all(string = chemform[i],
+                  pattern = paste0("(?<=",elements.exp,")[0-9]+"))%>%
+    `names<-`(elements)%>%
+    sapply(function(x){sum(as.numeric(x))})->x[[i]]
+
+
+
+}
+sapply(1:length(chemform),.get.ele.num)
+
+
+# Wed Jun 14 15:55:43 2023 ------------------------------
+
+paste0( "((?<!\\]",elements.exp[!grepl("\\[",elements)],")(?<=",elements.exp[!grepl("\\[",elements)],"))[0-9]+")
+
+str_extract_all(string = chemform,
+                pattern = paste0( "((?<!\\]",elements.exp[!grepl("\\[",elements)],")(?<=",elements.exp[!grepl("\\[",elements)],"))[0-9]+"))
+
+
+
+
+
+chemform <- hmdb_compound_df$chemical_formula
+
+
+envipat.result <- enviPat::check_chemform(isotopes,chemforms = chemform)
+
+envipat.result <- chemform_formate("(C14H21N1O11)n1H2O1")
+
+
+envipat.result <- dplyr::mutate(envipat.result,aaaa = new_formula == MSCC)
+
+
+
+grepl(pattern = "[^A-z0-9]",x = "C13H21[13](N1)O10")
+
+
+chemform <- hmdb_compound_df$chemical_formula
+
+a <- chemform_formate(chemform,return = "data.frame")
+
+
+
+b <- cbind(a , chemform_parse(chemform , return = "data.frame"))
+
+
+
+
+##################### mz
+chemform <- chemform_formate(chem_formula_template)
+a <- chemform_mz_lc8(chemform)
+b <- chemform_mz(chemform)
+
+
+ccc <- data.frame(a,b)%>%
+  mutate(id = a==b,
+         c = abs(a-b))
+
+
+chemform <- chemform_formate(chem_formula_template)
+system.time(
+  chemform_mz_lc8(chemform = rep(chemform,100))->a
+)
+system.time(
+  chemform_mz(chemform = rep(chemform,100))->a
+)
+
+
+
+
+
+
+
+
+
+
+
