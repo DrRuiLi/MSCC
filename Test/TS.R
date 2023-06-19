@@ -338,11 +338,87 @@ system.time(
 
 
 
+system.time(
+  a <- data.frame(
+    c1 = chem_formula_template[sample(1:107,10000,replace = T)],
+    c2 = chem_formula_template[sample(1:107,10000,replace = T)]
+  )%>%
+    dplyr::mutate(merged = chemform_calc(c1,c2))
+
+)
+
+system.time(
+  a <- data.frame(
+    c1 = chem_formula_template[sample(1:107,10000,replace = T)],
+    c2 = "CH2"
+  )%>%
+    dplyr::mutate(merged = chemform_calc(c1,c2))
+
+)
+
+
+
+lapply(1:length(chemform),.get.ele.num)%>%
+  do.call("rbind",.)
+
+
+chemform_parse(chemform,"matrix")
+
+sapply(x, names) %>% unlist() %>% unique()
+
+
+chemform2.matrix <- chemform_parse(chemform2)
+
+matrix(rep(chemform2.matrix,length(chemform1)),ncol = ncol(chemform2.matrix),byrow = T,
+       dimnames = list(NULL,colnames(chemform2.matrix)))
+
+
+chemform_calc(chem_formula_template,c(""))
+
+
+system.time(
+  a <- chemform_calc(chem_formula_template,
+                               chem_formula_template,
+                               ".-")
+  )
+
+
+chemform_calc(
+  chem_formula_template[1],
+              chem_formula_template[1:5],".-")->a
+
+chemform<- "[13]CH-1HHHC-2HD-"
 
 
 
 
 
 
+
+chemform_formate()
+
+
+
+elements.exp[!grepl("\\[",elements)] <- paste0( "((?<!\\]",elements.exp[!grepl("\\[",elements)],")(?<=",elements.exp[!grepl("\\[",elements)],"))[\\-0-9]+")
+elements.exp[grepl("\\[",elements)] <- gsub(x = elements.exp[grepl(pattern = "\\[",x = elements)],
+                                            pattern = "[",
+                                            replacement = "\\[",fixed = T)
+elements.exp[grepl("\\[",elements)]  <- gsub(x = elements.exp[grepl(pattern = "\\[",x = elements)],
+                                             pattern = "]",
+                                             replacement = "\\]",fixed = T)
+elements.exp[grepl("\\[",elements)]  <- paste0("(?<=",elements.exp[grepl("\\[",elements)] ,")[\\-0-9]+")
+# elements.exp[!repl("\\[",elements)] <- paste0("(?<!)")
+
+str_extract_all(string = chemform[i],
+                pattern =elements.exp )%>%
+  `names<-`(elements)->ele.num
+
+
+
+
+a <- data.frame(cf = chem_formula_template,
+                  adduct = sample(adduct.table$Adduct,replace = T,size = length(chem_formula_template)))%>%
+  dplyr::mutate(chemform_adduct(chemform = cf,
+                                adduct = adduct))
 
 
