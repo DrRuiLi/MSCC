@@ -4,15 +4,11 @@
 \alias{chemform_formate}
 \title{chemform_formate}
 \usage{
-chemform_formate(chemform = chem_formula_template)
+chemform_formate(chemform = chem_formula_template, return = "chemform")
 }
 \arguments{
 \item{chemform}{}
 }
 \description{
-formate a chemical formula:
-\enumerate{
-\item add 1 after single element
-\item replace \code{D} with \verb{[1]H}
-}
+formate a chemical formula
 }

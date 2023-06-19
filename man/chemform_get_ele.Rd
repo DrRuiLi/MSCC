@@ -15,7 +15,7 @@ char considered as a element should follow one of:
 \item uppercase with uppercase or number after it
 \item continuous uppercase and lowercase
 \item continuous [n] and uppercase with uppercase or number after it
-\item continuous \link{n} and uppercase and lowercase
+\item continuous [n] and uppercase and lowercase
 }
 }
 \examples{
