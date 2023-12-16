@@ -199,7 +199,8 @@ chemform_from_ele_matrix <- function(x){
 #' @export
 #'
 #' @examples
-chemform_mz <- function(chemform = chem_formula_template){
+chemform_mz <- function(chemform = chem_formula_template,
+                        charge = 0){
 
   chemform <- chemform_formate(chemform)
   chemform.matrix <- chemform_parse(chemform,return = "matrix")
@@ -210,6 +211,8 @@ chemform_mz <- function(chemform = chem_formula_template){
   mass.matrix <- t(t(chemform.matrix) * ele.mass)
   mass.matrix[is.na(mass.matrix)] <- 0
   chemform.mz <- apply(mass.matrix,1 ,sum )
+  e_mass = 0.00054857990943
+  chemform.mz = chemform.mz - e_mass * charge
   return(chemform.mz)
 
 }
