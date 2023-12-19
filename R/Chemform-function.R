@@ -1,14 +1,13 @@
 
-
 chemform_add_num <- function(chemform){
 
   ### add number 1 after a char follow:
   #### 1. An alpha, not any lowercase or number exist after it
   ### replace D with [H]
 
-  chemform <- gsub(pattern = "([[:alpha:]](?![0-9^a-z\\-]))" ,replacement = "\\11",x=chemform,perl = T)%>%
-    gsub(pattern = "[\\-](?![0-9])",replacement = "\\-1",perl = T)%>%
-    gsub(pattern = "D(?=[0-9\\-])",replacement = "[2]H",perl = T)
+  chemform <- gsub(pattern = "([[:alpha:]](?![0-9^a-z\\-]))",x= chemform ,replacement = "\\11",perl = T)
+  chemform<- gsub(pattern = "[\\-](?![0-9])",x= chemform ,replacement = "\\-1",perl = T)
+  chemform<-   gsub(pattern = "D(?=[0-9\\-])",x= chemform ,replacement = "[2]H",perl = T)
 
 
   return(chemform)
@@ -38,7 +37,7 @@ chemform_get_ele <- function(chemform){
   chemform <- chemform_add_num(chemform)
 
 
-  chemform.ele <- str_extract_all(string = chemform,pattern = "[[A-Z]](?=[0-9\\-^A-Z])|[A-Z][a-z]|\\[[0-9]+\\][A-Z](?=[0-9\\-^A-Z])|\\[[0-9]+\\][A-Z][a-z]")%>%
+  chemform.ele <- stringr::str_extract_all(string = chemform,pattern = "[[A-Z]](?=[0-9\\-^A-Z])|[A-Z][a-z]|\\[[0-9]+\\][A-Z](?=[0-9\\-^A-Z])|\\[[0-9]+\\][A-Z][a-z]")%>%
     `names<-`(chemform)
   return(chemform.ele)
 }
@@ -82,7 +81,7 @@ chemform_parse <- function(chemform = chem_formula_template,return = "list"){
     elements.exp[grepl("\\[",elements)]  <- paste0("(?<=",elements.exp[grepl("\\[",elements)] ,")[0-9\\-]+")
    # elements.exp[!repl("\\[",elements)] <- paste0("(?<!)")
 
-    str_extract_all(string = chemform[i],
+    stringr::str_extract_all(string = chemform[i],
                     pattern =elements.exp )%>%
       `names<-`(elements)->ele.num
 
@@ -145,7 +144,7 @@ chemform_formate <- function(chemform = chem_formula_template,
   chemform.ele <- chemform_get_ele(chemform)
   ele.all <- MSCC::elem_table$element
   ele.valid <- sapply(chemform.ele,function(x){
-    if (is_empty(x)) {
+    if (rlang::is_empty(x)) {
       return(FALSE)
     }
     all(x%in% ele.all)
@@ -200,7 +199,35 @@ chemform_from_ele_matrix <- function(x){
 #'
 #' @examples
 chemform_mz <- function(chemform = chem_formula_template,
-                        charge = 0){
+                        charge = 1){
+
+  if (length(charge)==1 ) {
+    charge <- rep(charge,length(chemform))
+  }
+  ### parallel
+  {
+
+    if (length(chemform) > 1e5) {
+      ncore <- parallel::detectCores() -1
+      if (length(chemform)/ncore > 0.8e5 ) {
+        ncore <- ceiling(length(chemform)/0.8e5)
+      }
+      chemform_split <- split(x=1:length(chemform),
+                              f=sample(1:ncore,length(chemform),replace = T  ))
+      .f <- function(x){
+        data.frame(id = x,
+                   mz = chemform_mz(chemform[x], charge[x] ))
+      }
+      chemform_df <- BiocParallel::bplapply(chemform_split,.f,
+                    BPPARAM = BiocParallel::SnowParam(workers = parallel::detectCores() -1,
+                                        progressbar = T))%>%
+        data.table::rbindlist()%>%
+        dplyr::arrange(id)
+      return(chemform_df$mz)
+
+    }
+  }
+
 
   chemform <- chemform_formate(chemform)
   chemform.matrix <- chemform_parse(chemform,return = "matrix")
@@ -212,7 +239,7 @@ chemform_mz <- function(chemform = chem_formula_template,
   mass.matrix[is.na(mass.matrix)] <- 0
   chemform.mz <- apply(mass.matrix,1 ,sum )
   e_mass = 0.00054857990943
-  chemform.mz = chemform.mz - e_mass * charge
+  chemform.mz = (chemform.mz - e_mass * charge)/abs(charge)
   return(chemform.mz)
 
 }

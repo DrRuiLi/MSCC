@@ -111,12 +111,15 @@ chemform_adduct <- function(chemform = chem_formula_template,
                             adduct = "[M+H]+",
                             value = "all"){
 
+
+
   chemform <- chemform_formate(chemform)
 
   if (length(adduct)==1 ) {
     adduct <- rep(adduct,length(chemform))
   }
   #adduct <- sample(MSCC::adduct.table$Adduct,replace = T,length(chemform))
+
 
   adduct.check <- chemform_adduct_check(adduct)
 
@@ -125,9 +128,10 @@ chemform_adduct <- function(chemform = chem_formula_template,
                         adduct = adduct.check$adduct.formated)%>%
     dplyr::mutate(chemform = chemform,
                   MSCC::adduct.table[match(adduct,MSCC::adduct.table$Adduct),c("Formula_diff","Multi","Charge")],
-                  chemform.adduct = chemform_calc(chemform,Formula_diff,calc = "+"),
-                  chemform.adduct.mass = chemform_mz(chemform.adduct),
-                  chemform.adduct.mz = chemform.adduct.mass*Multi/abs(Charge)
+                  chemform.adduct = case_when(!is.na(chemform)~chemform_multi(chemform,Multi)),
+                  chemform.adduct = case_when(!is.na(chemform)~chemform_calc(chemform.adduct,Formula_diff,calc = "+")),
+                  chemform.adduct.mz = case_when(!is.na(chemform)~chemform_mz(chemform.adduct,Charge)),
+                  chemform.adduct.mass = case_when(!is.na(chemform)~chemform.adduct.mz * abs(Charge))
     )
 
 
@@ -145,7 +149,28 @@ chemform_adduct <- function(chemform = chem_formula_template,
 }
 
 
+chemform_multi <- function(chemform = chem_formula_template,
+                           multi = 1){
+  if (length(multi)==1 ) {
+    multi <- rep(multi,length(chemform))
+  }
 
+  .cm <- function(c,m){
+    cf <- ""
+    if (m<1|is.na(m)) {
+      return(NA)
+    }
+    for (i in 1:m) {
+      cf <- chemform_calc(cf,c,calc = "+")
+    }
+    return(cf)
+  }
+
+  sapply(1:length(chemform),function(i){
+    .cm(chemform[i],multi[i])
+  })
+
+}
 
 
 

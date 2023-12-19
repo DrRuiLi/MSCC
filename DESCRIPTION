@@ -13,7 +13,9 @@ BugReports: https://github.com/WallFcerLR/MSCC/issues
 RoxygenNote: 7.2.3
 Depends: 
     R (>= 2.10),
-    tidyverse
+    tidyverse,
+    magrittr,
+    stringr
 Roxygen: list(markdown = TRUE)
 Suggests: 
     knitr,
