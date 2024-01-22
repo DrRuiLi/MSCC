@@ -204,29 +204,6 @@ chemform_mz <- function(chemform = chem_formula_template,
   if (length(charge)==1 ) {
     charge <- rep(charge,length(chemform))
   }
-  ### parallel
-  {
-
-    if (length(chemform) > 1e5) {
-      ncore <- parallel::detectCores() -1
-      if (length(chemform)/ncore > 0.8e5 ) {
-        ncore <- ceiling(length(chemform)/0.8e5)
-      }
-      chemform_split <- split(x=1:length(chemform),
-                              f=sample(1:ncore,length(chemform),replace = T  ))
-      .f <- function(x){
-        data.frame(id = x,
-                   mz = chemform_mz(chemform[x], charge[x] ))
-      }
-      chemform_df <- BiocParallel::bplapply(chemform_split,.f,
-                    BPPARAM = BiocParallel::SnowParam(workers = parallel::detectCores() -1,
-                                        progressbar = T))%>%
-        data.table::rbindlist()%>%
-        dplyr::arrange(id)
-      return(chemform_df$mz)
-
-    }
-  }
 
 
   chemform <- chemform_formate(chemform)
