@@ -8,7 +8,7 @@ get.adduct.table.from.enviPat <- function(){
 
   adduct.table <- adducts%>%
     dplyr::add_row(Name = "M-H2O+H",calc = "M-14.987089588",
-                   Charge=-1,Mult=1,Mass=chemform_mz_lc8("H-1O-1"),Ion_mode="positive",
+                   Charge=1,Mult=1,Mass=chemform_mz_lc8("H-1O-1"),Ion_mode="positive",
                    Formula_add="FALSE",Formula_ded="H1O1",Multi=1)%>%
     dplyr::filter(Name != "2M+3H2O+2H")%>%
     dplyr::rowwise()%>%
