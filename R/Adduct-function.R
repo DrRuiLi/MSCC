@@ -10,20 +10,25 @@ get.adduct.table.from.enviPat <- function(){
     dplyr::add_row(Name = "M-H2O+H",calc = "M-14.987089588",
                    Charge=1,Mult=1,Mass=chemform_mz_lc8("H-1O-1"),Ion_mode="positive",
                    Formula_add="FALSE",Formula_ded="H1O1",Multi=1)%>%
+    dplyr::add_row(Name = "M+H2O+H",calc = "M+19.01838972",
+                   Charge=1,Mult=1,Mass=chemform_mz_lc8("H3O1"),Ion_mode="positive",
+                   Formula_add="H3O1",Formula_ded="FALSE",Multi=1)%>%
     dplyr::filter(Name != "2M+3H2O+2H")%>%
     dplyr::rowwise()%>%
     dplyr::mutate(a=case_when(Formula_add=="FALSE"~"C0",
                               T~ Formula_add),
                   b=case_when(Formula_ded=="FALSE"~"C0",
                               T~ Formula_ded),
-                  Formula_diff = chemform_calculate_vector(
+                  c = case_when(abs(Charge) == 1~ "",
+                                T~ as.character(abs(Charge))),
+                  Formula_diff = chemform_calc(
                     chemform_formate(a),
                     chemform_formate(b),
-                    -1
+                    "-",return = "chemform"
                   ),
-                  Adduct = paste0("[",Name,"]",ifelse(Ion_mode=="positive","+","-"))
+                  Adduct = paste0("[",Name,"]",c,ifelse(Ion_mode=="positive","+","-"))
     )%>%
-    dplyr::select(-a,-b)
+    dplyr::select(-a,-b,-c,-Mult)
 
   ### custom
   {
@@ -39,7 +44,9 @@ get.adduct.table.from.enviPat <- function(){
 
 
                       T~Adduct_Syn
-                    ))
+                    ))%>%
+      dplyr::mutate(Formula_diff = case_when(Formula_diff==""~"C0",
+                                             T~Formula_diff))
 
     }
 
@@ -53,17 +60,17 @@ get.adduct.table.from.enviPat <- function(){
 
 
 
-#' @chemform_adduct_check
+#' @title chemform_adduct_check
 #' @description
 #' check if string is a adduct (match in adduct.table)
 #'
 #'
 #' @param adduct.to.check
 #'
-#' @return
+#' @return df
 #' @export
 #'
-#' @examples
+
 chemform_adduct_check <- function(adduct.to.check ){
 
   .check_adduct <- function(x){
@@ -103,10 +110,10 @@ chemform_adduct_check <- function(adduct.to.check ){
 #' @param chemform chemical formula
 #' @param adduct adduct form, such as "[M+H]+"
 #'
-#' @return
+#' @return mz or df
 #' @export
 #'
-#' @examples
+
 chemform_adduct <- function(chemform = chem_formula_template,
                             adduct = "[M+H]+",
                             value = "all"){
@@ -115,24 +122,30 @@ chemform_adduct <- function(chemform = chem_formula_template,
 
   chemform <- chemform_formate(chemform)
 
-  if (length(adduct)==1 ) {
-    adduct <- rep(adduct,length(chemform))
-  }
-  #adduct <- sample(MSCC::adduct.table$Adduct,replace = T,length(chemform))
-
-
   adduct.check <- chemform_adduct_check(adduct)
+  adduct.check <- adduct.check[!adduct.check$warning,]
 
+  chem_df <- expand.grid(chemform = chemform,
+                        adduct = adduct.check$adduct.formated)
+  chem_df <- cbind(chem_df,
+                   MSCC::adduct.table[match(chem_df$adduct,
+                                            MSCC::adduct.table$Adduct),c("Formula_diff","Multi","Charge")]
+                   )
+  chemform.matrix <- chemform_parse(chemform)
+  adduct.matrix <- chemform_parse(unique(chem_df$Formula_diff))
 
-  chem_df <- data.frame(chemform = chemform,
-                        adduct = adduct.check$adduct.formated)%>%
-    dplyr::mutate(chemform = chemform,
-                  MSCC::adduct.table[match(adduct,MSCC::adduct.table$Adduct),c("Formula_diff","Multi","Charge")],
-                  chemform.adduct = case_when(!is.na(chemform)~chemform_multi(chemform,Multi)),
-                  chemform.adduct = case_when(!is.na(chemform)~chemform_calc(chemform.adduct,Formula_diff,calc = "+")),
-                  chemform.adduct.mz = case_when(!is.na(chemform)~chemform_mz(chemform.adduct,Charge)),
-                  chemform.adduct.mass = case_when(!is.na(chemform)~chemform.adduct.mz * abs(Charge))
-    )
+  chemform.matrix <- chemform.matrix[chem_df$chemform ,,drop=F ]
+  adduct.matrix <- adduct.matrix[chem_df$Formula_diff,,drop=F ]
+  chemform.matrix.multi <- chemform_matrix_multi(chemform.matrix,
+                                                 chem_df$Multi,return = "matrix")
+  chemform.matrix.calc <- chemform_matrix_calc(chemform.matrix.multi,
+                                               adduct.matrix,
+                                               calc = "+",
+                                               return = "matrix")
+  chemform.matrix.mz <- chemform_matrix_mz(chemform.matrix.calc,
+                                           charge = chem_df$Charge)
+  chem_df$chemform.adduct <- chemform_from_ele_matrix(chemform.matrix.calc)
+  chem_df$chemform.adduct.mz <- chemform.matrix.mz
 
 
 
@@ -149,28 +162,6 @@ chemform_adduct <- function(chemform = chem_formula_template,
 }
 
 
-chemform_multi <- function(chemform = chem_formula_template,
-                           multi = 1){
-  if (length(multi)==1 ) {
-    multi <- rep(multi,length(chemform))
-  }
-
-  .cm <- function(c,m){
-    cf <- ""
-    if (m<1|is.na(m)) {
-      return(NA)
-    }
-    for (i in 1:m) {
-      cf <- chemform_calc(cf,c,calc = "+")
-    }
-    return(cf)
-  }
-
-  sapply(1:length(chemform),function(i){
-    .cm(chemform[i],multi[i])
-  })
-
-}
 
 
 
