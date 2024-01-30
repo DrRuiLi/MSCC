@@ -83,7 +83,8 @@ chemform_adduct_check <- function(adduct.to.check ){
 
     data.frame(warning = sum(x.exist )!= 1,
                adduct.input = x,
-               adduct.formated = adduct.formated )
+               adduct.formated = adduct.formated )%>%
+      dplyr::mutate(MSCC::adduct.table[match(adduct.formated,MSCC::adduct.table$Adduct),]  )
 
   }
 
@@ -125,8 +126,10 @@ chemform_adduct <- function(chemform = chem_formula_template,
   adduct.check <- chemform_adduct_check(adduct)
   adduct.check <- adduct.check[!adduct.check$warning,]
 
-  chem_df <- expand.grid(chemform = chemform,
-                        adduct = adduct.check$adduct.formated)
+  chem_df <- expand.grid(id = 1:length(chemform),
+                        adduct = adduct.check$adduct.formated,
+                        stringsAsFactors = F)%>%
+    dplyr::mutate(chemform = chemform[id])
   chem_df <- cbind(chem_df,
                    MSCC::adduct.table[match(chem_df$adduct,
                                             MSCC::adduct.table$Adduct),c("Formula_diff","Multi","Charge")]
