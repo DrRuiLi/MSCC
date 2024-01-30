@@ -25,11 +25,11 @@ chemform_add_num <- function(chemform){
 #'
 #' @param chemform
 #'
-#' @return
+#' @return list of elements
 #' @export
 #'
-#' @examples
-#' chemform_get_ele("CCC[13]C")
+
+
 chemform_get_ele <- function(chemform){
 
 
@@ -49,17 +49,32 @@ chemform_get_ele <- function(chemform){
 #' parse given chemform to a vector of elements and count
 #'
 #'
-#' @param chemform
-#' @param return
+#' @param chemform formula
+#' @param return return type
 #'
-#' @return
+#' @return ele matrix of list
 #' @export
 #'
-#' @examples
-chemform_parse <- function(chemform = chem_formula_template,return = "list"){
+
+chemform_parse <- function(chemform = chem_formula_template,return = "matrix"){
 
 
-  chemform <- chemform_add_num(chemform)
+
+  chemform <- chemform_formate(chemform)
+  ### unique
+  if (any(duplicated(chemform))) {
+    chemform_uni <- unique(chemform)
+    chemform.parsed <- chemform_parse(chemform_uni,return=return)
+    chemform[is.na(chemform)] <- "NA"
+    if (return== "matrix"){
+      return(chemform.parsed[chemform,,drop =F])
+  }else{
+    return(chemform.parsed[chemform])
+    }
+  }
+
+
+
   chemform.ele <- chemform_get_ele(chemform)
 
 
@@ -79,10 +94,10 @@ chemform_parse <- function(chemform = chem_formula_template,return = "list"){
                                                  pattern = "]",
                                                  replacement = "\\]",fixed = T)
     elements.exp[grepl("\\[",elements)]  <- paste0("(?<=",elements.exp[grepl("\\[",elements)] ,")[0-9\\-]+")
-   # elements.exp[!repl("\\[",elements)] <- paste0("(?<!)")
+    # elements.exp[!repl("\\[",elements)] <- paste0("(?<!)")
 
     stringr::str_extract_all(string = chemform[i],
-                    pattern =elements.exp )%>%
+                             pattern =elements.exp )%>%
       `names<-`(elements)->ele.num
 
     for (j in 1:length(ele.num)) {
@@ -95,16 +110,11 @@ chemform_parse <- function(chemform = chem_formula_template,return = "list"){
 
 
 
-  if (length(chemform) >1) {
+
     chemform.ele.count <-
       lapply(1:length(chemform),.get.ele.num) %>%
       `names<-`(chemform)
 
-  }else{
-    chemform.ele.count <- .get.ele.num(1)
-    chemform.ele.matrix <-matrix(chemform.ele.count,nrow = 1,dimnames = list(chemform,names(chemform.ele.count)))
-    return(chemform.ele.matrix)
-  }
 
   if (return== "matrix") {
     chemform.ele.matrix <- MSdev::list2df(chemform.ele.count)%>%as.matrix()
@@ -125,15 +135,29 @@ chemform_parse <- function(chemform = chem_formula_template,return = "list"){
 #'
 #' @param chemform
 #'
-#' @return
+#' @return str or df
 #' @export
 #'
-#' @examples
+
 chemform_formate <- function(chemform = chem_formula_template,
                              return = "chemform"){
 
-  chemform.raw <- chemform
+  ### unique
+  if (any(duplicated(chemform))) {
+    chemform_uni <- unique(chemform)
+    chemform.formated <- chemform_formate(chemform_uni,return=return)
+    if (return== "chemform"){
+      chemform.formated <- chemform.formated[match(chemform,chemform_uni)]
+      return(chemform.formated)
+    }else{
+      chemform.formated <- chemform.formated[match(chemform,chemform.formated$chemform),]
+      return(chemform.formated)
+    }
+  }
 
+
+
+  chemform.raw <- chemform
   chemform <- chemform_add_num(chemform)
 
   ### is char valid
@@ -148,7 +172,7 @@ chemform_formate <- function(chemform = chem_formula_template,
       return(FALSE)
     }
     all(x%in% ele.all)
-  })
+  })%>%unname()
 
 
   ### remove non valid
@@ -161,7 +185,7 @@ chemform_formate <- function(chemform = chem_formula_template,
   }else{
 
 
-    return(data.frame(chemform=chemform.raw,
+    return(data.frame(chemform = chemform.raw,
                       formated = chemform,
                       ele.valid ,char.valid))
 
@@ -194,10 +218,10 @@ chemform_from_ele_matrix <- function(x){
 #'
 #' @param chemform
 #'
-#' @return
+#' @return mz
 #' @export
 #'
-#' @examples
+
 chemform_mz <- function(chemform = chem_formula_template,
                         charge = 0){
 
@@ -205,9 +229,19 @@ chemform_mz <- function(chemform = chem_formula_template,
     charge <- rep(charge,length(chemform))
   }
 
-
-  chemform <- chemform_formate(chemform)
   chemform.matrix <- chemform_parse(chemform,return = "matrix")
+
+  chemform.mz <- chemform_matrix_mz(chemform.matrix,charge)
+  return(chemform.mz)
+
+}
+
+
+chemform_matrix_mz <- function(chemform.matrix = chemform_parse(chem_formula_template),
+                               charge = 0){
+  if (length(charge)==1 ) {
+    charge <- rep(charge,nrow(chemform.matrix))
+  }
 
   ele.mass <- MSCC::elem_table$mass[match(colnames(chemform.matrix),MSCC::elem_table$element)]%>%
     `names<-`(colnames(chemform.matrix))
@@ -222,10 +256,8 @@ chemform_mz <- function(chemform = chem_formula_template,
   chemform.mz = (chemform.mz - e_mass * e_diff)/e_charge
   return(chemform.mz)
 
+
 }
-
-
-
 
 
 #' chemform_calc
@@ -242,11 +274,12 @@ chemform_mz <- function(chemform = chem_formula_template,
 #' @return chemform vector or matrix
 #' @export
 #'
-#' @examples
+
 chemform_calc <- function(chemform1 = chem_formula_template ,
                           chemform2 = rev(chem_formula_template),
-                          calc = "+" ){
-
+                          calc = "+" ,
+                          return = c("matrix","chemform")){
+  return <- match.arg(return)
   if (length(chemform1)!=length(chemform2)&length(chemform2)!=1&calc%in% c("+","-")) {
     stop(crayon::yellow("chemform_calc input error: when calc as + or - , length of chemform2 should be 1 or same with chemform1"))
 
@@ -262,8 +295,27 @@ chemform_calc <- function(chemform1 = chem_formula_template ,
 
   }
 
+  chemform.calced <- chemform_matrix_calc(chemform1.matrix,
+                                          chemform2.matrix,
+                                          calc= calc,
+                                          return=return)
+
+  return(chemform.calced)
+
+
+}
+
+
+
+chemform_matrix_calc <- function(chemform1.matrix,
+                                 chemform2.matrix,
+                                 calc = "+",
+                                 return = c("matrix","chemform")
+){
+  return <- match.arg(return)
   ele.all <- union(colnames(chemform1.matrix),
                    colnames(chemform2.matrix))
+
 
   chemform1.matrix <- cbind(chemform1.matrix,
                             matrix(data = 0,nrow = nrow(chemform1.matrix),
@@ -272,10 +324,10 @@ chemform_calc <- function(chemform1 = chem_formula_template ,
                                                    setdiff(ele.all,colnames(chemform1.matrix))))
   )
   chemform2.matrix <- cbind(chemform2.matrix,
-             matrix(data = 0,nrow = nrow(chemform2.matrix),
-                    ncol = length(setdiff(ele.all,colnames(chemform2.matrix))),
-                    dimnames = list(rownames(chemform2.matrix),
-                                    setdiff(ele.all,colnames(chemform2.matrix))))
+                            matrix(data = 0,nrow = nrow(chemform2.matrix),
+                                   ncol = length(setdiff(ele.all,colnames(chemform2.matrix))),
+                                   dimnames = list(rownames(chemform2.matrix),
+                                                   setdiff(ele.all,colnames(chemform2.matrix))))
   )
 
   chemform1.matrix <- chemform1.matrix[,ele.all,drop = F]
@@ -283,12 +335,18 @@ chemform_calc <- function(chemform1 = chem_formula_template ,
 
   if (calc == "+") {
     chemform.matrix.calced <- chemform1.matrix+chemform2.matrix
+    if (return == "matrix") {
+      return(chemform.matrix.calced)
+    }
     chemform.calced <- chemform_from_ele_matrix(chemform.matrix.calced)
     names(chemform.calced) <-NULL
   }
 
   if (calc == "-") {
     chemform.matrix.calced <- chemform1.matrix-chemform2.matrix
+    if (return == "matrix") {
+      return(chemform.matrix.calced)
+    }
     chemform.calced <- chemform_from_ele_matrix(chemform.matrix.calced)
     names(chemform.calced) <-NULL
   }
@@ -300,8 +358,8 @@ chemform_calc <- function(chemform1 = chem_formula_template ,
     chemform.matrix.expand.calced <- chemform1.matrix.expand+chemform2.matrix.expand
     chemform.expand.calced <- chemform_from_ele_matrix(chemform.matrix.expand.calced)
     chemform.calced <- matrix(chemform.expand.calced,
-                                     nrow = length(chemform1),byrow = T,
-                                     dimnames = list(chemform1,chemform2))
+                              nrow = length(chemform1),byrow = T,
+                              dimnames = list(chemform1,chemform2))
   }
 
   if (calc == ".-") {
@@ -317,8 +375,34 @@ chemform_calc <- function(chemform1 = chem_formula_template ,
 
   return(chemform.calced)
 
-
 }
 
 
 
+chemform_multi <- function(chemform = chem_formula_template,
+                           multi = 1,
+                           return = c("matrix","chemform")){
+  return <- match.arg(return)
+  if (length(multi)==1 ) {
+    multi <- rep(multi,length(chemform))
+  }
+  chemform.matrix <- chemform_parse(chemform)
+  chemform_matrix_multi(chemform.matrix , multi = multi,return = return)
+
+
+}
+
+chemform_matrix_multi <- function(chemform.matrix = chemform_parse(chem_formula_template),
+                                  multi = 1,
+                                  return = c("chemform","matrix")){
+  return <- match.arg(return)
+  if (length(multi)==1 ) {
+    multi <- rep(multi,nrow(chemform.matrix))
+  }
+  chemform.matrix <- chemform.matrix*multi
+  if (return == "chemform") {
+    return(chemform_from_ele_matrix(chemform.matrix))
+  }
+  return(chemform.matrix)
+
+}
