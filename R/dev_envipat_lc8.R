@@ -1,84 +1,13 @@
-#' @title chemical formula calculation
-#' @description
-#' two vector of `chemform`, return a matrix
-#'
-#'
-#' @param Formula1
-#' @param Formula2
-#' @param sign
-#' @param Valid_formula
-#'
-#' @return
-#' @export
-#'
-#' @examples
-chemform_calculate_matrix <- function(Formula1 = "C2H4O1S2P1",Formula2 = "N1H1O-1",sign = 1,Valid_formula = FALSE ){
-
-  to.return <- lc8::my_calculate_formula(Formula1 ,Formula2 ,sign ,Valid_formula )
-  ### when formula calculate result to 0, such as "CH - CH = NULL", it will return "NANA"
-  to.return[to.return == "NANA"] <- NA
-  return(to.return)
-
-
-}
-
-#' @title chemical formula calculation
-#' @description
-#' two vector of `chemform`, must be same length,return a vector
-#'
-#' @param Formula1
-#' @param Formula2
-#' @param sign
-#'
-#' @return
-#' @export
-#'
-#' @examples
-chemform_calculate_vector <- function(Formula1 = chem_formula_template  ,
-                                      Formula2 = chem_formula_template ,
-                                      sign = sample(1,replace = T,length(Formula1)) ){
-  if (length(sign)==1 ) {
-    sign <- rep(sign,length(Formula1))
-  }
-  any.na <- is.na(Formula1)|is.na(Formula2)|is.na(sign)
-
-  to.return <- Formula1
-  if (any(any.na)) {
-    to.return[any.na] <-NA
-   to.return[!any.na] <-chemform_calculate_vector(
-    Formula1[!any.na],
-    Formula2[!any.na] ,
-    sign[!any.na]
-    )
-
-  }else{
-    to.return <- sapply(1:length(Formula1),function(x){
-      lc8::my_calculate_formula(Formula1[x] ,Formula2[x] ,sign[x] ,Valid_formula = F )
-  })
-  }
-
-  to.return
-  ### when formula calculate result to 0, such as "CH - CH = NULL", it will return "NANA"
-  to.return[to.return == "NANA"] <- NA
-  return(to.return)
-
-}
-
-
-
-
-
-
 
 #' @title chemform_isotopes_pattern_enviPat
 #' @description update of enviPat::isopattern, which do not output the formula of isotopologues
 #' this function return isotopologues with abundance more than 0.01%
 #' @param chemform chemical formula
 #'
-#' @return
+#' @return isotopes pattern
 #' @export
 #'
-#' @examples
+
 chemform_isotopes_pattern_enviPat <- function(chemform,thresh = 0.1) {
   #chemform <- "C80[13]C3H33[2]H12"
   #data("isotopes",package = "enviPat")
@@ -155,10 +84,10 @@ chemform_isotopes_pattern_enviPat <- function(chemform,thresh = 0.1) {
 #'
 #' @param chemform, such as `"C2H4"`
 #'
-#' @return
+#' @return mz
 #' @export
 #'
-#' @examples
+
 chemform_mz_lc8 <- function(chemform = "C2H4O1S2P1",charge = 0){
 
 
