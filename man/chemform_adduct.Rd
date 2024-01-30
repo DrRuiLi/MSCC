@@ -15,6 +15,9 @@ chemform_adduct(
 
 \item{adduct}{adduct form, such as "\link{M+H}+"}
 }
+\value{
+mz or df
+}
 \description{
 get chemical formula with adduct
 }

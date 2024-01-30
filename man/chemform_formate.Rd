@@ -9,6 +9,9 @@ chemform_formate(chemform = chem_formula_template, return = "chemform")
 \arguments{
 \item{chemform}{}
 }
+\value{
+str or df
+}
 \description{
 formate a chemical formula
 }

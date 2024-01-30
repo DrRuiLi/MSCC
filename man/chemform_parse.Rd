@@ -4,10 +4,15 @@
 \alias{chemform_parse}
 \title{chemform_parse}
 \usage{
-chemform_parse(chemform = chem_formula_template, return = "list")
+chemform_parse(chemform = chem_formula_template, return = "matrix")
 }
 \arguments{
-\item{return}{}
+\item{chemform}{formula}
+
+\item{return}{return type}
+}
+\value{
+ele matrix of list
 }
 \description{
 parse given chemform to a vector of elements and count

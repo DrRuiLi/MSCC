@@ -9,6 +9,9 @@ chemform_get_ele(chemform)
 \arguments{
 \item{chemform}{}
 }
+\value{
+list of elements
+}
 \description{
 char considered as a element should follow one of:
 \enumerate{
@@ -17,7 +20,4 @@ char considered as a element should follow one of:
 \item continuous [n] and uppercase with uppercase or number after it
 \item continuous [n] and uppercase and lowercase
 }
-}
-\examples{
-chemform_get_ele("CCC[13]C")
 }

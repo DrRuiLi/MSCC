@@ -9,6 +9,9 @@ chemform_isotopes_pattern_enviPat(chemform, thresh = 0.1)
 \arguments{
 \item{chemform}{chemical formula}
 }
+\value{
+isotopes pattern
+}
 \description{
 update of enviPat::isopattern, which do not output the formula of isotopologues
 this function return isotopologues with abundance more than 0.01\%

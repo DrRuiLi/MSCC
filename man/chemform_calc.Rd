@@ -7,7 +7,8 @@
 chemform_calc(
   chemform1 = chem_formula_template,
   chemform2 = rev(chem_formula_template),
-  calc = "+"
+  calc = "+",
+  return = c("matrix", "chemform")
 )
 }
 \arguments{

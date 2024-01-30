@@ -9,6 +9,9 @@ chemform_mz_lc8(chemform = "C2H4O1S2P1", charge = 0)
 \arguments{
 \item{chemform, }{such as \code{"C2H4"}}
 }
+\value{
+mz
+}
 \description{
 calculate mz of a given chemical formula
 }

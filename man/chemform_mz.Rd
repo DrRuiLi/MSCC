@@ -4,10 +4,13 @@
 \alias{chemform_mz}
 \title{chemform_mz}
 \usage{
-chemform_mz(chemform = chem_formula_template, charge = 1)
+chemform_mz(chemform = chem_formula_template, charge = 0)
 }
 \arguments{
 \item{chemform}{}
+}
+\value{
+mz
 }
 \description{
 calculate mz of a given chemform
