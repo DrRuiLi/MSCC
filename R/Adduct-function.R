@@ -69,7 +69,7 @@ get.adduct.table.from.enviPat <- function(){
 #'
 #' @return df
 #' @export
-#'
+#' @import tidyverse
 
 chemform_adduct_check <- function(adduct.to.check ){
 
@@ -110,7 +110,7 @@ chemform_adduct_check <- function(adduct.to.check ){
 #'
 #' @param chemform chemical formula
 #' @param adduct adduct form, such as "[M+H]+"
-#'
+#' @import tidyverse
 #' @return mz or df
 #' @export
 #'

@@ -16,7 +16,9 @@ chemform_calc(
 
 \item{chemform2}{vector of chemform, length as n}
 
-\item{calc}{}
+\item{calc}{\itemize{
+\item or -
+}}
 }
 \value{
 chemform vector or matrix

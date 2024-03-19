@@ -51,7 +51,7 @@ chemform_get_ele <- function(chemform){
 #'
 #' @param chemform formula
 #' @param return return type
-#'
+#' @import tidyverse
 #' @return ele matrix of list
 #' @export
 #'
@@ -138,7 +138,7 @@ chemform_parse <- function(chemform = chem_formula_template,return = "matrix"){
 #' @return str or df
 #' @export
 #'
-
+#' @import tidyverse
 chemform_formate <- function(chemform = chem_formula_template,
                              return = "chemform"){
 
@@ -220,6 +220,7 @@ chemform_from_ele_matrix <- function(x){
 #'
 #' @return mz
 #' @export
+#' @import tidyverse
 #'
 
 chemform_mz <- function(chemform = chem_formula_template,
@@ -269,8 +270,8 @@ chemform_matrix_mz <- function(chemform.matrix = chemform_parse(chem_formula_tem
 #'
 #' @param chemform1 vector of chemform, length as m
 #' @param chemform2 vector of chemform, length as n
-#' @param calc
-#'
+#' @param calc + or -
+#' @import tidyverse
 #' @return chemform vector or matrix
 #' @export
 #'
