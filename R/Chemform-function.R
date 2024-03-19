@@ -26,6 +26,7 @@ chemform_add_num <- function(chemform){
 #' @param chemform
 #'
 #' @return list of elements
+#' @import magrittr
 #' @export
 #'
 
@@ -51,7 +52,7 @@ chemform_get_ele <- function(chemform){
 #'
 #' @param chemform formula
 #' @param return return type
-#' @import tidyverse
+#' @import tidyverse magrittr
 #' @return ele matrix of list
 #' @export
 #'
@@ -271,7 +272,7 @@ chemform_matrix_mz <- function(chemform.matrix = chemform_parse(chem_formula_tem
 #' @param chemform1 vector of chemform, length as m
 #' @param chemform2 vector of chemform, length as n
 #' @param calc + or -
-#' @import tidyverse
+#' @import tidyverse magrittr
 #' @return chemform vector or matrix
 #' @export
 #'
