@@ -308,7 +308,7 @@ chemform_calc <- function(chemform1 = chem_formula_template ,
 }
 
 
-
+### foundation of chemform_calc()
 chemform_matrix_calc <- function(chemform1.matrix,
                                  chemform2.matrix,
                                  calc = "+",
@@ -355,23 +355,21 @@ chemform_matrix_calc <- function(chemform1.matrix,
 
 
   if (calc == ".+") {
-    chemform1.matrix.expand <-chemform1.matrix[rep(1:nrow(chemform1.matrix),each = length(chemform2)),]
-    chemform2.matrix.expand<- chemform2.matrix[rep(1:nrow(chemform2.matrix),times = length(chemform1)),]
+    chemform1.matrix.expand <-chemform1.matrix[rep(1:nrow(chemform1.matrix),each = nrow(chemform2.matrix)),]
+    chemform2.matrix.expand<- chemform2.matrix[rep(1:nrow(chemform2.matrix),times = nrow(chemform1.matrix)),]
     chemform.matrix.expand.calced <- chemform1.matrix.expand+chemform2.matrix.expand
     chemform.expand.calced <- chemform_from_ele_matrix(chemform.matrix.expand.calced)
     chemform.calced <- matrix(chemform.expand.calced,
-                              nrow = length(chemform1),byrow = T,
-                              dimnames = list(chemform1,chemform2))
+                              nrow = length(chemform1),byrow = T)
   }
 
   if (calc == ".-") {
-    chemform1.matrix.expand <-chemform1.matrix[rep(1:nrow(chemform1.matrix),each = length(chemform2)),]
-    chemform2.matrix.expand<- chemform2.matrix[rep(1:nrow(chemform2.matrix),times = length(chemform1)),]
+    chemform1.matrix.expand <-chemform1.matrix[rep(1:nrow(chemform1.matrix),each = nrow(chemform2.matrix)),]
+    chemform2.matrix.expand<- chemform2.matrix[rep(1:nrow(chemform2.matrix),times = nrow(chemform1.matrix)),]
     chemform.matrix.expand.calced <- chemform1.matrix.expand - chemform2.matrix.expand
     chemform.expand.calced <- chemform_from_ele_matrix(chemform.matrix.expand.calced)
     chemform.calced <- matrix(chemform.expand.calced,
-                              nrow = length(chemform1),byrow = T,
-                              dimnames = list(chemform1,chemform2))
+                              nrow = nrow(chemform1.matrix),byrow = T)
   }
 
 

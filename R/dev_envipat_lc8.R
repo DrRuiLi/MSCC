@@ -54,19 +54,16 @@ chemform_isotopes_pattern_enviPat <- function(chemform,thresh = 0.1) {
     if (is.na(x)) {
       return(NA)
     }
-    ele_table <- lc8::my_break_formula(x)%>%
-      as.data.frame()%>%
-      dplyr::filter(count >0)%>%
-      dplyr::mutate(f = paste0(elem,count))%>%
-      dplyr::pull(f)%>%
-      paste0(collapse = "")
-    ele_table
+    x.ele.m <- chemform_parse(x)
+    x.ele.m[x.ele.m<0] <- 0
+    chemform_from_ele_matrix(x.ele.m)
   }
   isopata <- data.frame(formula = formulat_list ,
                        isopat[, 1:2])%>%
     dplyr::rowwise()%>%
-    dplyr::mutate(isotope_element = chemform_calculate_matrix(formula,formula_raw , -1),
-           isotope_element = select_elemet(isotope_element))%>%
+    dplyr::mutate(
+      isotope_element = chemform_calc(formula,formula_raw , "-",return = "chemform"),
+      isotope_element = select_elemet(isotope_element))%>%
     dplyr::arrange(-abundance)
 
 
