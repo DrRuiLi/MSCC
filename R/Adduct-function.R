@@ -117,49 +117,82 @@ chemform_adduct_check <- function(adduct.to.check ){
 
 chemform_adduct <- function(chemform = chem_formula_template,
                             adduct = "[M+H]+",
-                            value = "all"){
+                            value = c("all","mz","chemfrom")){
+
+  ### formate and unique
+  {
+    chemfrom_raw <- chemform
+    chemform <- chemform_formate(chemform)
+    chemform.f <- factor(chemform)
+
+  }
+
+
+  ###construct df
+  {
+
+    adduct.check <- chemform_adduct_check(adduct)
+    adduct.check <- adduct.check[!adduct.check$warning,]
+
+    chem_df <- expand.grid(id = 1:length(chemform),
+                           adduct = 1:nrow(adduct.check),
+                           stringsAsFactors = F)%>%
+      dplyr::mutate(chemform = chemform[id],
+                    adduct.check[adduct,c("Formula_diff","Multi","Charge")]
+                    )
+
+  }
+
+  ### matrix calculation
+  {
+    chemform.matrix <- chemform_parse(chemform)
+    adduct.matrix <- chemform_parse(adduct.check$Formula_diff)
+
+    chemform.matrix <- chemform.matrix[chem_df$id ,,drop=F ]
+    adduct.matrix <- adduct.matrix[chem_df$adduct,,drop=F ]
+    chemform.matrix.multi <- chemform_matrix_multi(chemform.matrix,
+                                                   chem_df$Multi,return = "matrix")
+    chemform.matrix.calc <- chemform_matrix_calc(chemform.matrix.multi,
+                                                 adduct.matrix,
+                                                 calc = "+",
+                                                 return = "matrix")
+
+    chemform.matrix.mz <- chemform_matrix_mz(chemform.matrix.calc,
+                                             charge = chem_df$Charge)
+  }
+
+  ### remove and return
+  {
+
+    chem_df$chemform.adduct <- chemform_from_ele_matrix(chemform.matrix.calc)
+    chem_df$chemform.adduct.mz <- chemform.matrix.mz
+    chem_df$chemform.raw <- chemfrom_raw[chem_df$id]
+    chem_df$adduct <- adduct.check$Adduct[chem_df$adduct]
+    ele.count.valid <- apply(chemform.matrix.calc, 1, function(x){
+      all(x>=0)
+    } )
+    idx.error <- !ele.count.valid|is.na(chem_df$chemform)
+    chem_df$chemform.adduct.mz[idx.error] <- NA
+    chem_df$chemform.adduct[idx.error] <- NA
+
+  }
+
+
+  ### rerturn
+  {
+    to.return <- switch (value,
+                         "all" = chem_df[-idx.error,],
+                         "mz" = chem_df$chemform.adduct.mz,
+                         "chemform" = chem_df$chemform.adduct
+    )
+
+    return(to.return)
 
 
 
-  chemform <- chemform_formate(chemform)
-
-  adduct.check <- chemform_adduct_check(adduct)
-  adduct.check <- adduct.check[!adduct.check$warning,]
-
-  chem_df <- expand.grid(id = 1:length(chemform),
-                        adduct = adduct.check$adduct.formated,
-                        stringsAsFactors = F)%>%
-    dplyr::mutate(chemform = chemform[id])
-  chem_df <- cbind(chem_df,
-                   MSCC::adduct.table[match(chem_df$adduct,
-                                            MSCC::adduct.table$Adduct),c("Formula_diff","Multi","Charge")]
-                   )
-  chemform.matrix <- chemform_parse(chemform)
-  adduct.matrix <- chemform_parse(unique(chem_df$Formula_diff))
-
-  chemform.matrix <- chemform.matrix[chem_df$chemform ,,drop=F ]
-  adduct.matrix <- adduct.matrix[chem_df$Formula_diff,,drop=F ]
-  chemform.matrix.multi <- chemform_matrix_multi(chemform.matrix,
-                                                 chem_df$Multi,return = "matrix")
-  chemform.matrix.calc <- chemform_matrix_calc(chemform.matrix.multi,
-                                               adduct.matrix,
-                                               calc = "+",
-                                               return = "matrix")
-  chemform.matrix.mz <- chemform_matrix_mz(chemform.matrix.calc,
-                                           charge = chem_df$Charge)
-  chem_df$chemform.adduct <- chemform_from_ele_matrix(chemform.matrix.calc)
-  chem_df$chemform.adduct.mz <- chemform.matrix.mz
+  }
 
 
-
-
-  to.return <- switch (value,
-    "all" = chem_df,
-    "mz" = chem_df$chemform.adduct.mz,
-    "chemform" = chem_df$chemform.adduct
-  )
-
-  return(to.return)
 
 
 }

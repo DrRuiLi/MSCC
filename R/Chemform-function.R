@@ -141,7 +141,9 @@ chemform_parse <- function(chemform = chem_formula_template,return = "matrix"){
 #'
 #' @import tidyverse
 chemform_formate <- function(chemform = chem_formula_template,
-                             return = "chemform"){
+                             return = c("chemform","all")){
+
+  return <- match.arg(return)
 
   ### unique
   if (any(duplicated(chemform))) {
@@ -158,22 +160,28 @@ chemform_formate <- function(chemform = chem_formula_template,
 
 
 
-  chemform.raw <- chemform
-  chemform <- chemform_add_num(chemform)
 
-  ### is char valid
-  char.valid <- !grepl(pattern =  "[^A-z0-9\\-]",x = chemform)
+  ### valid
+  {
+    chemform.raw <- chemform
+    chemform <- chemform_add_num(chemform)
+
+    ### is char valid
+    char.valid <- !grepl(pattern =  "[^A-z0-9\\-]",x = chemform)
 
 
-  ### is element valid
-  chemform.ele <- chemform_get_ele(chemform)
-  ele.all <- MSCC::elem_table$element
-  ele.valid <- sapply(chemform.ele,function(x){
-    if (rlang::is_empty(x)) {
-      return(FALSE)
-    }
-    all(x%in% ele.all)
-  })%>%unname()
+    ### is element valid
+    chemform.ele <- chemform_get_ele(chemform)
+    ele.all <- MSCC::elem_table$element
+    ele.valid <- sapply(chemform.ele,function(x){
+      if (rlang::is_empty(x)) {
+        return(FALSE)
+      }
+      all(x%in% ele.all)
+    })%>%unname()
+
+  }
+
 
 
   ### remove non valid
