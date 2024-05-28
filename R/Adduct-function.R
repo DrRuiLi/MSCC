@@ -117,8 +117,9 @@ chemform_adduct_check <- function(adduct.to.check ){
 
 chemform_adduct <- function(chemform = chem_formula_template,
                             adduct = "[M+H]+",
-                            value = c("all","mz","chemfrom")){
+                            value = c("mz","chemfrom","all")){
 
+  value <- match.arg(value)
   ### formate and unique
   {
     chemfrom_raw <- chemform
@@ -181,7 +182,7 @@ chemform_adduct <- function(chemform = chem_formula_template,
   ### rerturn
   {
     to.return <- switch (value,
-                         "all" = chem_df[-idx.error,],
+                         "all" = chem_df[!idx.error,],
                          "mz" = chem_df$chemform.adduct.mz,
                          "chemform" = chem_df$chemform.adduct
     )
