@@ -4,7 +4,10 @@
 \alias{chemform_formate}
 \title{chemform_formate}
 \usage{
-chemform_formate(chemform = chem_formula_template, return = "chemform")
+chemform_formate(
+  chemform = chem_formula_template,
+  return = c("chemform", "all")
+)
 }
 \arguments{
 \item{chemform}{}

@@ -117,12 +117,12 @@ chemform_adduct_check <- function(adduct.to.check ){
 
 chemform_adduct <- function(chemform = chem_formula_template,
                             adduct = "[M+H]+",
-                            value = c("mz","chemfrom","all")){
+                            value = c("mz","chemform","all")){
 
   value <- match.arg(value)
   ### formate and unique
   {
-    chemfrom_raw <- chemform
+    chemform_raw <- chemform
     chemform <- chemform_formate(chemform)
     chemform.f <- factor(chemform)
 
@@ -167,7 +167,7 @@ chemform_adduct <- function(chemform = chem_formula_template,
 
     chem_df$chemform.adduct <- chemform_from_ele_matrix(chemform.matrix.calc)
     chem_df$chemform.adduct.mz <- chemform.matrix.mz
-    chem_df$chemform.raw <- chemfrom_raw[chem_df$id]
+    chem_df$chemform.raw <- chemform_raw[chem_df$id]
     chem_df$adduct <- adduct.check$Adduct[chem_df$adduct]
     ele.count.valid <- apply(chemform.matrix.calc, 1, function(x){
       all(x>=0)

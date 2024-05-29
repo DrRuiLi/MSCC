@@ -7,7 +7,7 @@
 chemform_adduct(
   chemform = chem_formula_template,
   adduct = "[M+H]+",
-  value = "all"
+  value = c("mz", "chemform", "all")
 )
 }
 \arguments{
