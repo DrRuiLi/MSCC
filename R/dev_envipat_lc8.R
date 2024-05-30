@@ -20,8 +20,8 @@ chemform_isotopes_pattern_enviPat <- function(chemform,thresh = 0.1) {
                         threshold = thresh)[[1]]
   iso.matrix <- isopat[, 3:ncol(isopat)]
   if (is.null(nrow(iso.matrix))) {
-    isopata <- tibble(formula = chemform,
-                          m.z = chemform_mz_lc8(chemform),
+    isopata <- tibble::tibble(formula = chemform,
+                          m.z = chemform_mz(chemform),
                           abundance =100,
                           isotope_element = ""
 
