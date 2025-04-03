@@ -387,18 +387,6 @@ chemform_matrix_calc <- function(chemform1.matrix,
 
 
 
-chemform_multi <- function(chemform = chem_formula_template,
-                           multi = 1,
-                           return = c("matrix","chemform")){
-  return <- match.arg(return)
-  if (length(multi)==1 ) {
-    multi <- rep(multi,length(chemform))
-  }
-  chemform.matrix <- chemform_parse(chemform)
-  chemform_matrix_multi(chemform.matrix , multi = multi,return = return)
-
-
-}
 
 chemform_matrix_multi <- function(chemform.matrix = chemform_parse(chem_formula_template),
                                   multi = 1,
@@ -414,3 +402,5 @@ chemform_matrix_multi <- function(chemform.matrix = chemform_parse(chem_formula_
   return(chemform.matrix)
 
 }
+
+
