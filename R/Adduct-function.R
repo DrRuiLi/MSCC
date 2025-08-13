@@ -73,6 +73,10 @@ get.adduct.table.from.enviPat <- function(){
 
 chemform_adduct_check <- function(adduct.to.check ){
 
+
+  adduct.to.check[adduct.to.check=="+"] <- "[M+H]+"
+  adduct.to.check[adduct.to.check=="-"] <- "[M-H]-"
+
   .check_adduct <- function(x){
 
     grepl(x = MSCC::adduct.table$Adduct_Syn,
@@ -118,6 +122,8 @@ chemform_adduct_check <- function(adduct.to.check ){
 chemform_adduct <- function(chemform = chem_formula_template,
                             adduct = "[M+H]+",
                             value = c("mz","chemform","all")){
+
+
 
   value <- match.arg(value)
   ### formate and unique

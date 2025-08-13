@@ -7,7 +7,7 @@
 #'
 #' @examples chemform_sum(chem_formula_template)
 chemform_sum <- function(...,return =  c("chemform","matrix")){
-
+  return <- match.arg(return)
   chemform.list <- list(...)
   chemform.list <- unlist(chemform.list,recursive = T)
   chemfomr.m <- chemform_parse(chemform.list,return = "matrix")
