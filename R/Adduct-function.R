@@ -118,7 +118,7 @@ chemform_adduct_check <- function(adduct.to.check ){
 #' get chemical formula with adduct
 #'
 #' @param chemform chemical formula
-#' @param adduct adduct form, such as "[M+H]+"
+#' @param adduct adduct form, such as "\[M+H\]+"
 #' @import tidyverse
 #' @return mz or df
 #' @export

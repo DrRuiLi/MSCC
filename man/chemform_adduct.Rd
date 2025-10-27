@@ -13,7 +13,7 @@ chemform_adduct(
 \arguments{
 \item{chemform}{chemical formula}
 
-\item{adduct}{adduct form, such as "\link{M+H}+"}
+\item{adduct}{adduct form, such as "[M+H]+"}
 }
 \value{
 mz or df
