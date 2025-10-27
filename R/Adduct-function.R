@@ -8,10 +8,10 @@ get.adduct.table.from.enviPat <- function(){
 
   adduct.table <- adducts%>%
     dplyr::add_row(Name = "M-H2O+H",calc = "M-14.987089588",
-                   Charge=1,Mult=1,Mass=chemform_mz_lc8("H-1O-1"),Ion_mode="positive",
+                   Charge=1,Mult=1,Mass=chemform_mz("H-1O-1"),Ion_mode="positive",
                    Formula_add="FALSE",Formula_ded="H1O1",Multi=1)%>%
     dplyr::add_row(Name = "M+H2O+H",calc = "M+19.01838972",
-                   Charge=1,Mult=1,Mass=chemform_mz_lc8("H3O1"),Ion_mode="positive",
+                   Charge=1,Mult=1,Mass=chemform_mz("H3O1"),Ion_mode="positive",
                    Formula_add="H3O1",Formula_ded="FALSE",Multi=1)%>%
     dplyr::filter(Name != "2M+3H2O+2H")%>%
     dplyr::rowwise()%>%
@@ -37,7 +37,7 @@ get.adduct.table.from.enviPat <- function(){
                     Adduct_Syn = case_when(
                       Name == "M+Hac-H" ~paste0( Adduct_Syn,"[M+CH3COO]-;[M+CH3COOH-H]-;"),
                       Name == "2M+Hac-H" ~paste0( Adduct_Syn,"[2M+CH3COO]-;"),
-                      Name == "M+FA-H" ~paste0( Adduct_Syn,"[M+HCOO]-;"),
+                      Name == "M+FA-H" ~paste0( Adduct_Syn,"[M+HCOO]-;[M+HCOOH-H]-;"),
                       Name == "M+" ~paste0( Adduct_Syn,"[M]+;"),
                       Name == "M-" ~paste0( Adduct_Syn,"[M]-;"),
                       Name == "M-H2O+H"~paste0( Adduct_Syn,"[M+H-H2O]+;"),
@@ -79,9 +79,14 @@ chemform_adduct_check <- function(adduct.to.check ){
 
   .check_adduct <- function(x){
 
-    grepl(x = MSCC::adduct.table$Adduct_Syn,
-          pattern = paste0(x,";"),
-          fixed = T)->x.exist
+    x.exist <- sapply(MSCC::adduct.table$Adduct_Syn,function(z){
+      z <- str_split(z,pattern = ";")[[1]]
+      x %in% z
+    })
+
+    #grepl(x = MSCC::adduct.table$Adduct_Syn,
+    #      pattern = paste0(x,";"),
+    #      fixed = T)->x.exist
     adduct.formated <- ifelse(any(x.exist),
                               MSCC::adduct.table$Adduct[x.exist],NA)
 
