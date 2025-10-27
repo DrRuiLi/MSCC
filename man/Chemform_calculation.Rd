@@ -5,7 +5,7 @@
 \alias{chemform_multi}
 \title{Chemform Calculation}
 \usage{
-chemform_sum(...)
+chemform_sum(..., return = c("chemform", "matrix"))
 
 chemform_multi(
   chemform = chem_formula_template,
