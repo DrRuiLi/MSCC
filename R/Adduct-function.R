@@ -119,7 +119,7 @@ chemform_adduct_check <- function(adduct.to.check ){
 #'
 #' @param chemform chemical formula
 #' @param adduct adduct form, such as "\[M+H\]+"
-#' @import tidyverse
+#' @import tidyverse data.table
 #' @return mz or df
 #' @export
 #'
@@ -135,7 +135,25 @@ chemform_adduct <- function(chemform = chem_formula_template,
   {
     chemform_raw <- chemform
     chemform <- chemform_formate(chemform)
-    chemform.f <- factor(chemform)
+
+    if (anyDuplicated(chemform)) {
+      chemform.f <- factor(chemform)
+      res.chemform.f <- chemform_adduct(levels(chemform.f),
+                                        adduct = adduct,
+                                        value = "all")
+      res.split <- split(res.chemform.f,res.chemform.f$id)
+      chem_df <- lapply(as.numeric(chemform.f),
+             function(x) res.split[[x]]  )%>%
+        rbindlist(idcol = "fid")
+      chem_df[,id:=fid][,fid:=NULL]
+      to.return <- switch (value,
+                           "all" = chem_df,
+                           "mz" = chem_df$chemform.adduct.mz,
+                           "chemform" = chem_df$chemform.adduct
+      )
+
+      return(to.return)
+    }
 
   }
 
@@ -143,15 +161,17 @@ chemform_adduct <- function(chemform = chem_formula_template,
   ###construct df
   {
 
-    adduct.check <- chemform_adduct_check(adduct)
-    adduct.check <- adduct.check[!adduct.check$warning,]
-
+    adduct.check <- chemform_adduct_check(adduct)%>%as.data.table()
+    adduct.check <- adduct.check[!adduct.check$warning ]
+    adduct.check <- adduct.check[, aid := 1 : .N]
     chem_df <- expand.grid(id = 1:length(chemform),
-                           adduct = 1:nrow(adduct.check),
-                           stringsAsFactors = F)%>%
-      dplyr::mutate(chemform = chemform[id],
-                    adduct.check[adduct,c("Formula_diff","Multi","Charge")]
-                    )
+                           aid = adduct.check$aid,
+                           stringsAsFactors = F )%>%
+      data.table::data.table()
+    chem_df <- chem_df[,chemform := chemform[id]]
+    setkey(chem_df,aid)
+    setkey(adduct.check,aid)
+    chem_df <- merge(chem_df,adduct.check,by = "aid")[,.(id,aid,adduct,chemform,Formula_diff,Multi,Charge)]
 
   }
 
@@ -161,7 +181,7 @@ chemform_adduct <- function(chemform = chem_formula_template,
     adduct.matrix <- chemform_parse(adduct.check$Formula_diff)
 
     chemform.matrix <- chemform.matrix[chem_df$id ,,drop=F ]
-    adduct.matrix <- adduct.matrix[chem_df$adduct,,drop=F ]
+    adduct.matrix <- adduct.matrix[chem_df$aid,,drop=F ]
     chemform.matrix.multi <- chemform_matrix_multi(chemform.matrix,
                                                    chem_df$Multi,return = "matrix")
     chemform.matrix.calc <- chemform_matrix_calc(chemform.matrix.multi,
@@ -171,6 +191,8 @@ chemform_adduct <- function(chemform = chem_formula_template,
 
     chemform.matrix.mz <- chemform_matrix_mz(chemform.matrix.calc,
                                              charge = chem_df$Charge)
+
+
   }
 
   ### remove and return
@@ -178,8 +200,7 @@ chemform_adduct <- function(chemform = chem_formula_template,
 
     chem_df$chemform.adduct <- chemform_from_ele_matrix(chemform.matrix.calc)
     chem_df$chemform.adduct.mz <- chemform.matrix.mz
-    chem_df$chemform.raw <- chemform_raw[chem_df$id]
-    chem_df$adduct <- adduct.check$Adduct[chem_df$adduct]
+    chem_df$adduct <- adduct.check$Adduct[chem_df$aid]
     ele.count.valid <- apply(chemform.matrix.calc, 1, function(x){
       all(x>=0)
     } )
@@ -188,6 +209,7 @@ chemform_adduct <- function(chemform = chem_formula_template,
     chem_df$chemform.adduct[idx.error] <- NA
 
   }
+
 
 
   ### rerturn
