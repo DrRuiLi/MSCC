@@ -38,7 +38,7 @@ chemform_isotopes_pattern_enviPat <- function(chemform,thresh = 0.1) {
     formulat_list[i] <-
       data.frame(element = ele ,
                  n = iso.matrix[i, ]) %>%
-      dplyr::mutate(element = elem_table$element[match(element , elem_table$isotope)]) %>%
+      dplyr::mutate(element = MSCC::elem_table$element[match(element , MSCC::elem_table$isotope)]) %>%
       #mutate(element = paste0("[",element,"]")) %>%
       dplyr::group_by(element) %>%
       dplyr::summarise(sum(n)) %>%

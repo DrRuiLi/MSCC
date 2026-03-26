@@ -29,7 +29,7 @@ chemform_sum <- function(...,return =  c("chemform","matrix")){
 #' @export
 #'
 #' @examples chemform_multi("C6H12O6",1)
-chemform_multi <- function(chemform = chem_formula_template,
+chemform_multi <- function(chemform = MSCC::chem_formula_template,
                            multi = 1,
                            return = c("matrix","chemform")){
   return <- match.arg(return)
