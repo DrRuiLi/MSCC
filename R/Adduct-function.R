@@ -80,7 +80,7 @@ chemform_adduct_check <- function(adduct.to.check ){
   .check_adduct <- function(x){
 
     x.exist <- sapply(MSCC::adduct.table$Adduct_Syn,function(z){
-      z <- str_split(z,pattern = ";")[[1]]
+      z <- stringr::str_split(z,pattern = ";")[[1]]
       x %in% z
     })
 
