@@ -14,7 +14,7 @@ chemform_isotopes_pattern_enviPat <- function(chemform,thresh = 0.1) {
  # data("elem_table")
   elem_table <- MSCC::elem_table
   isopat <-
-    enviPat::isopattern(isotopes = MSCC::isotopes,
+    enviPat::isopattern(isotopes = MSCC::isotopes_from_envipat,
                         chemforms = chemform_formate(chemform),
                         verbose =F,emass = 0.00054858,
                         threshold = thresh)[[1]]

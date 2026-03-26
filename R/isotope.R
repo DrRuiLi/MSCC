@@ -10,7 +10,7 @@
 #' @examples isotope_mass_diff("[13]C")
 #' isotope_mass_diff("[2]H")
 isotope_mass_diff <- function(isotope) {
-  iso_data <- MSCC::isotopes
+  iso_data <- MSCC::elem_table
 
   mass_num <- stringr::str_extract(isotope, "[0-9]+")
   element <- stringr::str_extract(isotope, "[A-Z][a-z]?")
