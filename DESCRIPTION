@@ -1,7 +1,7 @@
 Package: MSCC
 Type: Package
 Title: Mass Spectrometry Chemical Calculation 
-Version: 0.1.0
+Version: 1.0.0
 Author: Rui Li
 Maintainer: <lirui3@shanghaitech.edu.cn>
 Description: Chemical formula, isotopes calculation, and some more function developing
