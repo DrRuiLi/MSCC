@@ -35,7 +35,7 @@ isotope_mass_diff <- function(isotope) {
 #'
 #' @param ... named arguments of element counts, e.g. `C = 3, N = 2, O = 5`
 #'
-#' @return data.frame with columns `chemform_diff` and `mass_diff`
+#' @return data.table with columns `chemform_diff` and `mass_diff`
 #' @export
 #'
 #' @examples get_isotope_mass_diff(C = 3, N = 2, O = 1)
@@ -56,7 +56,7 @@ get_isotope_mass_diff <- function(...) {
   elements <- elements[has_iso]
   counts <- counts[has_iso]
   if (length(elements) == 0) {
-    return(data.frame(chemform_diff = character(0), mass_diff = numeric(0), stringsAsFactors = FALSE))
+    return(data.table::data.table(chemform_diff = character(0), mass_diff = numeric(0)))
   }
   iso_minor <- iso_minor[has_iso]
   mass_single <- mapply(isotope_mass_diff, iso_minor)
@@ -65,22 +65,11 @@ get_isotope_mass_diff <- function(...) {
   names(ranges) <- elements
   grid <- expand.grid(ranges)
 
-  all_zero <- rowSums(grid) == 0
-  if (any(!all_zero)) {
-    grid <- grid[!all_zero, , drop = FALSE]
-  }
-
   chemform_diff <- apply(grid, 1, function(row) {
-    parts <- character(0)
-    for (i in seq_along(elements)) {
-      if (row[i] > 0) {
-        parts <- c(parts, paste0(iso_minor[i], row[i]))
-      }
-    }
-    paste(parts, collapse = "")
+    paste0(iso_minor, row, collapse = "")
   })
 
   mass_diff <- as.numeric(as.matrix(grid) %*% mass_single)
 
-  data.frame(chemform_diff = chemform_diff, mass_diff = mass_diff, stringsAsFactors = FALSE)
+  data.table::data.table(chemform_diff = chemform_diff, mass_diff = mass_diff)
 }
