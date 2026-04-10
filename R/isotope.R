@@ -87,7 +87,9 @@ get_isotope_mass_diff <- function(...) {
 #' @export
 #'
 #' @examples chemform_isotope_label("C6H12O6", "[13]C", 3)
-chemform_isotope_label <- function(chemform, ele, count) {
+chemform_isotope_label <- function(chemform = chem_formula_template,
+                                    ele = "[13]C",
+                                    count = 1) {
   mass_num <- stringr::str_extract(ele, "[0-9]+")
   element  <- stringr::str_extract(ele, "[A-Z][a-z]?")
 
