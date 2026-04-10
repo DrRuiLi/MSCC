@@ -73,3 +73,48 @@ get_isotope_mass_diff <- function(...) {
 
   data.table::data.table(chemform_diff = chemform_diff, mass_diff = mass_diff)
 }
+
+
+#' @title chemform_isotope_label
+#' @description
+#' replace a specified number of atoms of an element with an isotope in a chemical formula
+#'
+#' @param chemform chemical formula
+#' @param ele isotope notation, e.g. `\\[13\\]C`, `\\[2\\]H`
+#' @param count number of atoms to replace with the isotope
+#'
+#' @return character, the labeled chemical formula
+#' @export
+#'
+#' @examples chemform_isotope_label("C6H12O6", "[13]C", 3)
+chemform_isotope_label <- function(chemform, ele, count) {
+  mass_num <- stringr::str_extract(ele, "[0-9]+")
+  element  <- stringr::str_extract(ele, "[A-Z][a-z]?")
+
+  if (is.na(mass_num) || is.na(element)) {
+    stop("Invalid isotope format: ", ele)
+  }
+
+  chemform.formated <- chemform_formate(chemform)
+  chemform.matrix <- chemform_parse(chemform.formated, return = "matrix")
+
+  iso_map <- c(C = "[13]C", H = "[2]H", O = "[18]O", N = "[15]N", S = "[34]S")
+  iso_minor <- iso_map[element]
+  if (is.na(iso_minor)) {
+    iso_minor <- ele
+  }
+
+  sapply(seq_len(nrow(chemform.matrix)), function(i) {
+    ele_count <- chemform.matrix[i, element, drop = TRUE]
+    if (is.na(ele_count)) ele_count <- 0
+    actual_count <- min(count, ele_count)
+    chemform.matrix[i, element] <- ele_count - actual_count
+    chemform.major <- chemform_from_ele_matrix(chemform.matrix[i, , drop = FALSE])[1]
+    chemform.matrix[i, element] <- ele_count
+    if (actual_count > 0) {
+      paste0(iso_minor, actual_count, chemform.major)
+    } else {
+      chemform.major
+    }
+  })
+}
