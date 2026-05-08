@@ -16,7 +16,7 @@ chemform_isotopes_pattern_enviPat <- function(chemform,thresh = 0.1) {
   isopat <-
     enviPat::isopattern(isotopes = MSCC::isotopes_from_envipat,
                         chemforms = chemform_formate(chemform),
-                        verbose =F,emass = 0.00054858,
+                        verbose =F,emass = 0.00054857990924,
                         threshold = thresh)[[1]]
   iso.matrix <- isopat[, 3:ncol(isopat)]
   if (is.null(nrow(iso.matrix))) {
