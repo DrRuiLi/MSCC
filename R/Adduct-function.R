@@ -215,7 +215,7 @@ chemform_adduct <- function(chemform = MSCC::chem_formula_template,
   ### rerturn
   {
     to.return <- switch (value,
-                         "all" = chem_df[!idx.error,],
+                         "all" = chem_df,
                          "mz" = chem_df$chemform.adduct.mz,
                          "chemform" = chem_df$chemform.adduct
     )
