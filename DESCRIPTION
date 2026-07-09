@@ -3,21 +3,32 @@ Type: Package
 Title: Mass Spectrometry Chemical Calculation 
 Version: 1.0.0
 Author: Rui Li
-Maintainer: <lirui3@shanghaitech.edu.cn>
+Maintainer: <rli@sinh.ac.cn>
 Description: Chemical formula, isotopes calculation, and some more function developing
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 URL: https://github.com/WallFcerLR/MSCC
 BugReports: https://github.com/WallFcerLR/MSCC/issues
-RoxygenNote: 7.3.3
 Depends: 
     R (>= 3.5),
     tidyverse,
     magrittr,
     stringr
+Imports:
+    data.table,
+    methods
 Roxygen: list(markdown = TRUE)
 Suggests: 
+    accucor,
+    CHNOSZ,
+    ChemmineR,
+    crayon,
+    enviPat,
+    igraph,
     knitr,
+    lc8,
+    nnls,
     rmarkdown
 VignetteBuilder: knitr
+Config/roxygen2/version: 8.0.0

@@ -118,7 +118,7 @@ chemform_parse <- function(chemform = MSCC::chem_formula_template,return = "matr
 
 
   if (return== "matrix") {
-    chemform.ele.matrix <- MSdev::list2df(chemform.ele.count)%>%as.matrix()
+    chemform.ele.matrix <- list2df(chemform.ele.count) %>% as.matrix()
 
     class(chemform.ele.matrix) <- "numeric"
     chemform.ele.matrix[is.na(chemform.ele.matrix)] <-0
