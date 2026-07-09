@@ -1,22 +1,3 @@
-if (!methods::isGeneric("vdata")) {
-  methods::setGeneric("vdata", function(object) standardGeneric("vdata"))
-}
-if (!methods::isGeneric("vdata<-")) {
-  methods::setGeneric("vdata<-", function(object, value) standardGeneric("vdata<-"))
-}
-if (!methods::isGeneric("edata")) {
-  methods::setGeneric("edata", function(object) standardGeneric("edata"))
-}
-if (!methods::isGeneric("edata<-")) {
-  methods::setGeneric("edata<-", function(object, value) standardGeneric("edata<-"))
-}
-if (!methods::isGeneric("atom")) {
-  methods::setGeneric("atom", function(object, element = "ANY") standardGeneric("atom"))
-}
-if (!methods::isGeneric("get_element")) {
-  methods::setGeneric("get_element", function(object, ...) standardGeneric("get_element"))
-}
-
 setClass("Molecule_igraph",
          slots = list(
            molecule_info = "list",
@@ -25,6 +6,8 @@ setClass("Molecule_igraph",
            isotopomer = "data.frame"
          ))
 
+#' @importClassesFrom ChemmineR SDF
+#' @export
 Molecule_igraph <- function(){
   new("Molecule_igraph")
 }

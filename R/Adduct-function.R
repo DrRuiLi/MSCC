@@ -65,7 +65,7 @@ get.adduct.table.from.enviPat <- function(){
 #' check if string is a adduct (match in adduct.table)
 #'
 #'
-#' @param adduct.to.check
+#' @param adduct.to.check Character vector of adduct strings to validate.
 #'
 #' @return df
 #' @export
@@ -117,8 +117,9 @@ chemform_adduct_check <- function(adduct.to.check ){
 #' @description
 #' get chemical formula with adduct
 #'
-#' @param chemform chemical formula
-#' @param adduct adduct form, such as "\[M+H\]+"
+#' @param chemform Chemical formula.
+#' @param adduct Adduct form, such as "\[M+H\]+".
+#' @param value Output type: m/z, formula, or full result table.
 #' @import tidyverse data.table
 #' @return mz or df
 #' @export

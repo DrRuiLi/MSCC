@@ -17,12 +17,13 @@ Depends:
     stringr
 Imports:
     data.table,
+    ChemmineR,
+    igraph,
     methods
 Roxygen: list(markdown = TRUE)
 Suggests: 
     accucor,
     CHNOSZ,
-    ChemmineR,
     crayon,
     enviPat,
     igraph,

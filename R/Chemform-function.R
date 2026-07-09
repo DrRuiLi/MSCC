@@ -23,7 +23,7 @@ chemform_add_num <- function(chemform){
 #' 3. continuous \[n] and uppercase with uppercase or number after it
 #' 4. continuous \[n] and uppercase and lowercase
 #'
-#' @param chemform
+#' @param chemform Character vector of chemical formulas.
 #'
 #' @return list of elements
 #' @import magrittr
@@ -134,7 +134,7 @@ chemform_parse <- function(chemform = MSCC::chem_formula_template,return = "matr
 #' @description
 #' formate a chemical formula
 #'
-#' @param chemform
+#' @param chemform Character vector of chemical formulas.
 #'
 #' @return str or df
 #' @export
@@ -225,7 +225,7 @@ chemform_from_ele_matrix <- function(x){
 #'
 #' calculate mz of a given chemform
 #'
-#' @param chemform
+#' @param chemform Character vector of chemical formulas.
 #'
 #' @return mz
 #' @export
