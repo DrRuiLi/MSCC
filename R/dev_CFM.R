@@ -824,6 +824,19 @@ heatmap_atom_iso_prob <- function(x){
 }
 
 
+#' Weight CFM Spectra Intensities by Fragment Group
+#' @title Weight CFM Spectra Intensities by Fragment Group
+#' @description Computes intensity-weighted mean isotopologue intensities for each
+#' fragment group across spectra, then appends a combined spectrum
+#' (\code{sp.id = "combined_sp"}) to the input data.
+#'
+#' @param sp.data Data frame of annotated spectrum peaks, typically from
+#'   \code{\link{CFM_annotate_isotopologues}}, with columns such as
+#'   \code{fragment_group}, \code{sp.id}, \code{iso}, \code{intensity}, and \code{mz}.
+#' @param iso_count Maximum isotope count (Mn) to include, as an integer.
+#'
+#' @return A data frame with the original peaks plus weighted combined peaks.
+#' @export
 CFM_spectra_data_int_weight <- function(sp.data,iso_count){
 
 
@@ -896,6 +909,21 @@ CFM_spectra_data_int_weight <- function(sp.data,iso_count){
   return(sp.data.weighted)
 }
 
+#' Merge CFM Spectra Isotopologue Ratios by Fragment Group
+#' @title Merge CFM Spectra Isotopologue Ratios by Fragment Group
+#' @description Merges per-spectrum isotopologue ratios within each fragment group
+#' using intensity-weighted means, and appends combined peaks
+#' (\code{sp.id = "combined_sp"}, \code{merged = TRUE}) with summary metrics
+#' (\code{int_sum}, \code{peaks_count}, \code{icc}, \code{cos}).
+#'
+#' @param sp.data Data frame of annotated spectrum peaks with fragment-group
+#'   ratios, typically from \code{\link{CFM_annotate_isotopologues}}, including
+#'   columns such as \code{fragment_group}, \code{sp.id}, \code{iso_count},
+#'   \code{ratio}, \code{int_sum}, and \code{mz}.
+#' @param iso_count Maximum isotope count (Mn) to include, as an integer.
+#'
+#' @return A data frame with original peaks plus merged combined peaks and metrics.
+#' @export
 CFM_spectra_data_merge <- function(sp.data,iso_count){
 
 
@@ -989,6 +1017,23 @@ CFM_spectra_data_merge <- function(sp.data,iso_count){
   return(sp.data.weighted)
 }
 
+#' Remove Natural Isotope Contribution from Combined CFM Spectra
+#' @title Remove Natural Isotope Contribution from Combined CFM Spectra
+#' @description Subtracts estimated natural isotopologue intensity from combined
+#' spectrum peaks (\code{sp.id = "combined_sp"}) using an isoform map and a
+#' natural-abundance scaling factor. Peaks with non-positive intensity after
+#' subtraction are set to zero; fragment groups that become all-zero are dropped
+#' from the combined spectrum.
+#'
+#' @param sp.data Data frame of spectrum peaks that may include a combined
+#'   spectrum from \code{\link{CFM_spectra_data_int_weight}} or
+#'   \code{\link{CFM_spectra_data_merge}}.
+#' @param natural.ratio Numeric scaling factor for the natural isotope contribution.
+#' @param if.map Object with an \code{isoform.map} slot used to derive the natural
+#'   isotopologue distribution.
+#'
+#' @return A data frame with natural contribution removed from combined peaks.
+#' @export
 CFM_spectra_data_remove_natural <-function(sp.data,
                                            natural.ratio,
                                            if.map){
