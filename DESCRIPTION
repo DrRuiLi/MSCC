@@ -19,7 +19,9 @@ Imports:
     data.table,
     ChemmineR,
     igraph,
-    methods
+    methods,
+    S4Vectors,
+    Spectra
 Roxygen: list(markdown = TRUE)
 Suggests: 
     accucor,
@@ -29,6 +31,7 @@ Suggests:
     igraph,
     knitr,
     lc8,
+    MSdev,
     nnls,
     rmarkdown
 VignetteBuilder: knitr

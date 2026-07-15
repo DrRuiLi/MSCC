@@ -263,8 +263,83 @@ CFM_annotate_by_fraggen <- function(
 }
 
 
-#' Predict and Annotate Mass Spectra using CFM-ID
-#' @title Predict and Annotate Mass Spectra using CFM-ID
+#' Convert CFM_data peak assignments to a Spectra object
+#'
+#' @title Convert CFM Data to Spectra Object
+#' @description Converts CFM (Competitive Fragmentation Modeling) peak assignment
+#'   data to a \code{Spectra} object with spectra at three collision energy levels
+#'   (10, 20, 40 eV for energy0/1/2).
+#' @param cfmd A \code{CFM_data} object containing \code{peak_assignment}.
+#'   Typically from \code{\link{read_CFM_predict_result}} /
+#'   \code{\link{CFM_annotate_by_predict}}.
+#'
+#' @return A \code{Spectra} object containing MS/MS spectra at three CE levels.
+#' @export
+get_CFM_data_Spectra <- function(cfmd) {
+  if (!methods::is(cfmd, "CFM_data")) {
+    stop("`cfmd` must be a CFM_data object.", call. = FALSE)
+  }
+  if (!requireNamespace("Spectra", quietly = TRUE)) {
+    stop("Package Spectra is required to build CFM Spectra.", call. = FALSE)
+  }
+  cfm.df <- cfmd@peak_assignment
+  if (is.null(cfm.df) || !nrow(cfm.df)) {
+    return(Spectra::Spectra())
+  }
+  sp.list <- list()
+  for (i in 0:2) {
+    this.sp.data <- cfm.df %>%
+      dplyr::filter(energy == paste0("energy", i)) %>%
+      dplyr::distinct(mz, intensity)
+    this.sp.df <- S4Vectors::DataFrame(
+      collisionEnergy = switch(as.character(i),
+                               "0" = 10,
+                               "1" = 20,
+                               "2" = 40)
+    )
+    this.sp.df$mz <- list(this.sp.data$mz)
+    this.sp.df$intensity <- list(this.sp.data$intensity)
+    sp.list[[paste0("energy", i)]] <- Spectra::Spectra(this.sp.df)
+  }
+  do.call(c, unname(sp.list))
+}
+
+#' Export a Spectra object to a CFM-ID peak-list text file
+#'
+#' Writes energy0/1/2 blocks (CE 10/20/40) for \code{\link{CFM_annotate}}.
+#'
+#' @param sp A \code{Spectra} object with \code{collisionEnergy}.
+#' @param file Output file path.
+#' @return Invisibly, \code{file}.
+#' @export
+export_Spectra_peak_list_for_cfm <- function(sp, file) {
+  if (!requireNamespace("Spectra", quietly = TRUE)) {
+    stop("Package Spectra is required.", call. = FALSE)
+  }
+  ce <- Spectra::collisionEnergy(sp)
+  readr::write_lines(character(0), file = file)
+  for (this_ce in unique(ce)) {
+    sp.this <- sp[ce == this_ce]
+    energy.type <- switch(
+      as.character(this_ce),
+      "10" = "energy0",
+      "20" = "energy1",
+      "40" = "energy2",
+      paste0("energy_", this_ce)
+    )
+    readr::write_lines(energy.type, file = file, append = TRUE)
+    peaks <- Spectra::peaksData(sp.this)
+    rows <- lapply(seq_along(peaks), function(i) {
+      m <- as.matrix(peaks[[i]])
+      if (!nrow(m)) return(character(0))
+      o <- order(m[, 1])
+      paste0(m[o, 1], " ", m[o, 2])
+    })
+    readr::write_lines(unlist(rows, use.names = FALSE), file = file, append = TRUE)
+  }
+  invisible(file)
+}
+
 #' @describeIn CFM predict and annotate
 #' @description
 #' Combines \code{\link{CFM_predict}} and \code{\link{CFM_annotate}} in a single workflow.
@@ -708,9 +783,9 @@ plot_CFM_annotated_Spectra <- function(cfmd){
   peak.assign <- cfmd@peak_assignment
   fragment.define <- cfmd@fragment_define
 
-  get_CFM_data_Spectra(cfmd)%>%
-    combineSpectra()%>%
-    plot_Spectra(label.top = 0)
+  get_CFM_data_Spectra(cfmd) %>%
+    Spectra::combineSpectra() %>%
+    MSdev::plot_Spectra(label.top = 0)
 
 }
 
@@ -1128,7 +1203,7 @@ get_CFM_data_from_smiles <- function(smiles = "NCC(O)=O",
     }
   }
 
-  message_with_time("CFM_annotate_by_predict")
+  message("[MSCC] CFM_annotate_by_predict")
   cfm_data <- CFM_annotate_by_predict(smiles_or_inchi = smiles,
                                   id = compound_id,
                                   ppm_mass_tol = ppm,
@@ -1255,7 +1330,7 @@ shiny_vis_cfmd_trans <- function(msipAtomMap){
 
       output$cfm_sp <- renderPlotly({
 
-        plotly_Spectra(get_CFM_data_Spectra(msipAtomMap))
+        MSdev::plotly_Spectra(get_CFM_data_Spectra(msipAtomMap))
 
       })
 
