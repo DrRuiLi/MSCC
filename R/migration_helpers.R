@@ -1,4 +1,19 @@
 # Internal schema harmonization for legacy MSdev chemistry callers.
+
+#' Zero-pad integers to fixed-width strings (MSCC-local; do not rely on MSdev)
+#' @keywords internal
+num2str <- function(x, n.digit = NA) {
+  if (length(x) == 0L) return(character(0))
+  if (is.na(n.digit)) n.digit <- max(nchar(as.character(x)), na.rm = TRUE)
+  sprintf(paste0("%0", n.digit, "d"), as.integer(x))
+}
+
+#' Extract first numeric token from strings (MSCC-local; do not rely on MSdev)
+#' @keywords internal
+str_extract_num <- function(x) {
+  as.numeric(stringr::str_extract(x, "[:digit:]+"))
+}
+
 .ensure_elem_table_schema <- function() {
   et <- MSCC::elem_table
   if (!is.data.frame(et)) return(et)

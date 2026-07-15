@@ -1300,14 +1300,7 @@ CFM_spectra_data_remove_natural <-function(sp.data,
 }
 
 
-get_CFM_data_MSIPFragmentMap<- function(msipAtomMap){
 
-  cfmd.sp <- get_CFM_data_Spectra(msipAtomMap)
-  cfmd.msip.core <- get_MSIPCoreData(cfmd.sp,msipAtomMap,0)
-  cfmd.fg.map <- cfmd.msip.core@MSIPFragmentMap
-
-  cfmd.fg.map
-}
 
 
 
