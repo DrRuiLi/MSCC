@@ -153,7 +153,14 @@ get_adduct_mass_diff <- function(pol = 0) {
 #' @return Integer polarity (`0` negative, `1` positive).
 #' @export
 get_polarity_from_adduct <- function(adduct) {
-  if (grepl("\\[M\\-H\\]", adduct) || grepl("\\[M\\-\\]", adduct)) {
+  if (is.numeric(adduct) || is.integer(adduct)) {
+    if (adduct == 0) return(0L)
+    if (adduct == 1) return(1L)
+  }
+  ad <- as.character(adduct)[[1]]
+  if (identical(ad, "0") || identical(ad, "-")) return(0L)
+  if (identical(ad, "1") || identical(ad, "+")) return(1L)
+  if (grepl("\\[M\\-H\\]", ad) || grepl("\\[M\\-\\]", ad)) {
     return(0L)
   }
   1L

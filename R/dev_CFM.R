@@ -11,10 +11,32 @@ CFM <- function(docker_run_param = "--rm",
 }
 
 
+#' Normalize CFM adduct input to \code{"[M+H]+"} / \code{"[M-H]-"}
+#'
+#' Accepts polarity shorthand: \code{0}/\code{"0"}/\code{"-"} -> \code{"[M-H]-"};
+#' \code{1}/\code{"1"}/\code{"+"} -> \code{"[M+H]+"}.
+#' @keywords internal
+.normalize_cfm_param_adduct <- function(param_adduct) {
+  if (length(param_adduct) != 1L) {
+    stop("param_adduct must be length 1", call. = FALSE)
+  }
+  if (is.numeric(param_adduct) || is.integer(param_adduct)) {
+    if (param_adduct == 0) return("[M-H]-")
+    if (param_adduct == 1) return("[M+H]+")
+    stop("param_adduct numeric must be 0 (negative) or 1 (positive)", call. = FALSE)
+  }
+  ad <- as.character(param_adduct)[[1]]
+  if (identical(ad, "-") || identical(ad, "0")) return("[M-H]-")
+  if (identical(ad, "+") || identical(ad, "1")) return("[M+H]+")
+  ad
+}
+
+
 CFM_get_param_config <- function(adduct = c("[M+H]+","[M-H]-"),
                                    param = T,
                                    config = T){
-  adduct = match.arg(adduct)
+  adduct <- .normalize_cfm_param_adduct(adduct)
+  adduct = match.arg(adduct, choices = c("[M+H]+", "[M-H]-"))
 
   param_file <- switch (adduct,
                         "[M+H]+" = " /trained_models_cfmid4.0/[M+H]+/param_output.log ",
@@ -86,7 +108,9 @@ get_polarity_suffix <- function(polarity) {
 #' @describeIn CFM predict
 #' @param smiles_or_inchi_or_file SMILES string, InChI string, or path to a file containing molecular structure
 #' @param prob_thresh Probability threshold for fragment prediction (default: 0.001)
-#' @param param_adduct Adduct type for prediction, e.g., "\[M+H\]+" or "\[M-H\]-" (default: "\[M+H\]+")
+#' @param param_adduct Adduct type for prediction, e.g., "\[M+H\]+" or "\[M-H\]-"
+#'   (default: "\[M+H\]+"). Also accepts \code{0}/\code{1} (0 = "\[M-H\]-", 1 = "\[M+H\]+")
+#'   and \code{"-"}/\code{"+"} as shorthand.
 #' @param annotate_fragments Logical, whether to annotate fragments (default: 1)
 #' @param output_file_or_dir Path to save results, or NULL to return results in memory (default: NULL)
 #' @param apply_postproc Logical, whether to apply post-processing (default: 0)
@@ -102,6 +126,8 @@ CFM_predict <- function(smiles_or_inchi_or_file = "[H]C1(O)O[C@]([H])(CO)[C@@]([
                           output_file_or_dir = NULL,
                           apply_postproc = 0,
                           suppress_exceptions = 1){
+
+  param_adduct <- .normalize_cfm_param_adduct(param_adduct)
 
   out.file <- ifelse(is.null(output_file_or_dir),
                                tempfile(),
@@ -145,7 +171,8 @@ CFM_predict <- function(smiles_or_inchi_or_file = "[H]C1(O)O[C@]([H])(CO)[C@@]([
 #' @param id Identifier for the compound (default: "AN_ID")
 #' @param ppm_mass_tol Mass tolerance in parts per million for matching (default: 5.0)
 #' @param abs_mass_tol Absolute mass tolerance in m/z units (default: 0)
-#' @param param_adduct Adduct type for annotation, e.g., "\[M+H\]+" or "\[M-H\]-" (default: "\[M+H\]+")
+#' @param param_adduct Adduct type for annotation, e.g., "\[M+H\]+" or "\[M-H\]-"
+#'   (default: "\[M+H\]+"). Also accepts \code{0}/\code{1} and \code{"-"}/\code{"+"}.
 #' @param output_file Path to save annotation results, or NULL to return results in memory (default: NULL)
 #' @param ... Additional arguments passed to underlying functions
 #'
@@ -161,6 +188,8 @@ CFM_annotate<- function(smiles_or_inchi = "[H]C1(O)O[C@]([H])(CO)[C@@]([H])(O)[C
                           abs_mass_tol = 0,
                           param_adduct = "[M+H]+",
                           output_file = NULL,...){
+
+  param_adduct <- .normalize_cfm_param_adduct(param_adduct)
 
   out.file <- ifelse(is.null(output_file),
                      tempfile(),
@@ -347,34 +376,142 @@ export_Spectra_peak_list_for_cfm <- function(sp, file) {
 #' with fragment assignments. This is useful for obtaining fully annotated spectral data
 #' for a given molecule.
 #'
+#' Optional disk cache (\code{check_cache}): stores/loads
+#' \code{<id>_positive_CFM_data.rds} / \code{<id>_negative_CFM_data.rds}
+#' under \code{cache_dir}.
+#'
 #' @param smiles_or_inchi SMILES string or InChI string of the molecule
-#' @param id Identifier for the compound (default: "AN_ID")
+#' @param id Compound identifier. If \code{NULL} or empty, a random id is generated
+#'   each call (cache will not be reusable across runs unless \code{id} is supplied).
 #' @param ppm_mass_tol Mass tolerance in ppm for annotation matching (default: 5.0)
 #' @param abs_mass_tol Absolute mass tolerance in m/z units (default: 0)
-#' @param param_adduct Adduct type, e.g., "\[M+H\]+" or "\[M-H\]-" (default: "\[M+H\]+")
+#' @param param_adduct Adduct type, e.g., "\[M+H\]+" or "\[M-H\]-" (default: "\[M+H\]+").
+#'   Also accepts \code{0}/\code{1} (0 = "\[M-H\]-", 1 = "\[M+H\]+") and \code{"-"}/\code{"+"}.
 #' @param output_file Path to save results, or NULL to return results in memory (default: NULL)
+#' @param check_cache Logical; if TRUE, reuse/save RDS cache under \code{cache_dir}
+#' @param cache_dir Cache directory (used when \code{check_cache} is TRUE).
+#'   Default \code{tempdir()}.
+#' @param force Logical; if TRUE, ignore existing cache and recompute
 #' @param ... Additional arguments passed to underlying functions
 #'
 #' @export
 CFM_annotate_by_predict <- function(
     smiles_or_inchi = "[H]C1(O)O[C@]([H])(CO)[C@@]([H])(O)[C@]([H])(O)[C@@]1([H])O",
-    id = "AN_ID",
+    id = NULL,
     ppm_mass_tol = 5.0,
     abs_mass_tol = 0,
     param_adduct = "[M+H]+",
-    output_file = NULL,...){
+    output_file = NULL,
+    check_cache = FALSE,
+    cache_dir = tempdir(),
+    force = FALSE,
+    ...){
 
-  cfm.pred <- CFM_predict(smiles_or_inchi,
-                            param_adduct = param_adduct)
-  cfm.pred.sp <- get_CFM_data_Spectra(cfm.pred)
-  cfm.anno <- CFM_annotate(smiles_or_inchi = smiles_or_inchi,id = id,
-               spectrum_file = cfm.pred.sp,
-               ppm_mass_tol=ppm_mass_tol,
-               abs_mass_tol=abs_mass_tol,
-               param_adduct=param_adduct   )
+  ### normalize param_adduct (0/1 -> [M-H]- / [M+H]+)
+  {
+    param_adduct <- .normalize_cfm_param_adduct(param_adduct)
+  }
+
+  ### resolve id (random if not supplied)
+  {
+    if (is.null(id) || !nzchar(as.character(id)[[1]]) || is.na(id)) {
+      id <- paste0(
+        "CFM_",
+        format(Sys.time(), "%Y%m%d%H%M%OS3"),
+        "_",
+        as.integer(runif(1, 1e8, 1e9 - 1))
+      )
+      message("[MSCC] CFM id not supplied; using random id: ", id)
+    } else {
+      id <- as.character(id)[[1]]
+    }
+  }
+
+  ### check_cache: resolve cache path
+  {
+    .cfm_cache_polarity_label <- function(adduct) {
+      pol <- tryCatch(get_polarity_from_adduct(adduct), error = function(e) NA_integer_)
+      if (identical(pol, 0L) || identical(pol, 0)) return("negative")
+      if (identical(pol, 1L) || identical(pol, 1)) return("positive")
+      # Fallback from common adduct strings
+      ad <- as.character(adduct)[[1]]
+      if (grepl("\\[M-H\\]-", ad, fixed = TRUE) || identical(ad, "-") || identical(ad, "0")) {
+        return("negative")
+      }
+      "positive"
+    }
+    .cfm_cache_path <- function(cache_dir, id, adduct) {
+      # Polarity label keeps [M+H]+ / [M-H]- distinct without MpHp-style tokens.
+      file.path(cache_dir, paste0(id, "_", .cfm_cache_polarity_label(adduct), "_CFM_data.rds"))
+    }
+    .cfm_cache_candidates <- function(cache_dir, id, adduct) {
+      # Prefer new positive/negative names; also accept legacy filenames.
+      ad_legacy <- as.character(adduct)
+      ad_legacy <- gsub("\\[|\\]", "", ad_legacy)
+      ad_legacy <- gsub("\\+", "p", ad_legacy)
+      ad_legacy <- gsub("-", "m", ad_legacy)
+      ad_legacy <- gsub("[^A-Za-z0-9_]+", "_", ad_legacy)
+      unique(c(
+        .cfm_cache_path(cache_dir, id, adduct),
+        file.path(cache_dir, paste0(id, "_", ad_legacy, "_CFM_data.rds")),
+        file.path(cache_dir, paste0(id, "_", adduct, "_CFM_data.rds"))
+      ))
+    }
+  }
+
+  ### check_cache: try load RDS
+  {
+    cache_file <- .cfm_cache_path(cache_dir, id, param_adduct)
+    if (isTRUE(check_cache) && !isTRUE(force)) {
+      if (!dir.exists(cache_dir)) {
+        dir.create(cache_dir, recursive = TRUE, showWarnings = FALSE)
+      }
+      hits <- .cfm_cache_candidates(cache_dir, id, param_adduct)
+      hits <- hits[file.exists(hits)]
+      if (length(hits)) {
+        cached <- tryCatch(readRDS(hits[[1]]), error = function(e) NULL)
+        if (inherits(cached, "CFM_data")) {
+          message("[MSCC] CFM cache hit: ", normalizePath(hits[[1]], winslash = "/", mustWork = FALSE))
+          return(cached)
+        }
+      }
+    }
+  }
+
+  ### predict + annotate
+  {
+    message("[MSCC] CFM_annotate_by_predict: ", id, " ", param_adduct)
+    cfm.pred <- CFM_predict(smiles_or_inchi,
+                              param_adduct = param_adduct)
+    cfm.pred.sp <- get_CFM_data_Spectra(cfm.pred)
+    cfm.anno <- CFM_annotate(smiles_or_inchi = smiles_or_inchi, id = id,
+                 spectrum_file = cfm.pred.sp,
+                 ppm_mass_tol = ppm_mass_tol,
+                 abs_mass_tol = abs_mass_tol,
+                 param_adduct = param_adduct)
+  }
+
+  ### check_cache: save RDS
+  {
+    if (isTRUE(check_cache) && inherits(cfm.anno, "CFM_data")) {
+      if (!dir.exists(cache_dir)) {
+        dir.create(cache_dir, recursive = TRUE, showWarnings = FALSE)
+      }
+      ok <- tryCatch({
+        saveRDS(cfm.anno, cache_file)
+        TRUE
+      }, error = function(e) {
+        warning("CFM cache save failed for ", id, " ", param_adduct, ": ",
+                conditionMessage(e), call. = FALSE)
+        FALSE
+      })
+      if (isTRUE(ok)) {
+        message("[MSCC] CFM cached: ", normalizePath(cache_file, winslash = "/", mustWork = FALSE))
+      }
+    }
+  }
+
   return(cfm.anno)
-
-
 }
 
 
@@ -383,6 +520,8 @@ CFM_fraggen <- function(smiles_or_inchi = "[H]C1(O)O[C@]([H])(CO)[C@@]([H])(O)[C
                         max_depth = 2,
                         param_adduct = "[M+H]+",
                         output_file_or_dir = NULL){
+
+  param_adduct <- .normalize_cfm_param_adduct(param_adduct)
 
   out.file <- ifelse(is.null(output_file_or_dir),
                      tempfile(),
@@ -1177,38 +1316,39 @@ get_CFM_data_MSIPFragmentMap<- function(msipAtomMap){
 #' @description Creates CFM_data object from SMILES by running CFM prediction and annotation.
 #'
 #' @param smiles SMILES string of the molecule
-#' @param compound_id Identifier for the compound (default: "temp_id")
+#' @param compound_id Identifier for the compound. If \code{NULL} or empty, a
+#'   random id is generated each call (see \code{\link{CFM_annotate_by_predict}}).
 #' @param ppm Mass tolerance in ppm (default: 5)
 #' @param adduct Adduct type (default: "\[M+H\]+"). Also accepts 0/1 (0 = "\[M-H\]-", 1 = "\[M+H\]+")
 #'   and '-'/'+' as shorthand.
+#' @param check_cache Logical; forward to \code{\link{CFM_annotate_by_predict}}
+#' @param cache_dir Cache directory; forward to \code{\link{CFM_annotate_by_predict}}
+#'   (default \code{tempdir()}).
+#' @param force Logical; ignore cache if TRUE
 #' @param ... Additional arguments
 #'
 #' @return A CFM_data object containing fragment data
 #' @export
 get_CFM_data_from_smiles <- function(smiles = "NCC(O)=O",
-                                     compound_id = "temp_id",
+                                     compound_id = NULL,
                                      ppm = 5,
                                      adduct = "[M+H]+",
+                                     check_cache = FALSE,
+                                     cache_dir = tempdir(),
+                                     force = FALSE,
                                      ...){
-  # Normalize adduct input (accept 0/1 and +/-)
-  if (length(adduct) == 1) {
-    if (is.numeric(adduct) || is.integer(adduct)) {
-      if (adduct == 0) adduct <- "[M-H]-"
-      if (adduct == 1) adduct <- "[M+H]+"
-    } else {
-      if (identical(adduct, "-")) adduct <- "[M-H]-"
-      if (identical(adduct, "+")) adduct <- "[M+H]+"
-      if (identical(adduct, "0")) adduct <- "[M-H]-"
-      if (identical(adduct, "1")) adduct <- "[M+H]+"
-    }
-  }
+  adduct <- .normalize_cfm_param_adduct(adduct)
 
-  message("[MSCC] CFM_annotate_by_predict")
-  cfm_data <- CFM_annotate_by_predict(smiles_or_inchi = smiles,
-                                  id = compound_id,
-                                  ppm_mass_tol = ppm,
-                                  abs_mass_tol = 0.005,
-                                  param_adduct = adduct )
+  cfm_data <- CFM_annotate_by_predict(
+    smiles_or_inchi = smiles,
+    id = compound_id,
+    ppm_mass_tol = ppm,
+    abs_mass_tol = 0.005,
+    param_adduct = adduct,
+    check_cache = check_cache,
+    cache_dir = cache_dir,
+    force = force
+  )
   return(cfm_data)
 }
 
