@@ -935,10 +935,16 @@ plot_CFM_annotated_Spectra <- function(cfmd){
 #' @description Annotates mass spectra with isotopologue information by matching peaks
 #' to expected isotope patterns. This function assigns fragment groups and isotope counts
 #' to observed peaks based on mass tolerance.
+#'
+#' Requires a \code{fragment_group} column on \code{peak_assignment} or
+#' \code{fragment_define}. For MSIPAtomMap workflows, prefer
+#' \code{MSIP::Spectra_annotate_MSIPAtomMap()} after
+#' \code{MSIP::MSIPAtomMap_get_FG_map()}.
 #' @describeIn MSIP annotate isotopologues
 #'
 #' @param sp A Spectra object containing experimental mass spectra data
 #' @param cfmd A CFM_data object containing fragment definitions and peak assignments
+#'   (raw CFM slots only). \code{fragment_group} must already be present as a column.
 #' @param iso_ele Isotope element specification, e.g., "\[13\]C" for carbon-13 (default: "\[13\]C")
 #' @param iso_count Maximum number of isotope incorporations to consider (default: 0)
 #' @param ppm Mass tolerance in parts per million for isotope matching (default: 20)
@@ -954,16 +960,14 @@ CFM_annotate_isotopologues <- function(sp,
                                  ppm = 20){
 
   # Check if fragment_group exists in peak_assignment
-  # For MSIPAtomMap, fragment_group should already be set by MSIPAtomMap_get_FG_map
   if (!"fragment_group" %in% colnames(cfmd@peak_assignment)) {
-    # If fragment_group is not in peak_assignment, try to match from fragment_define
     if ("fragment_group" %in% colnames(cfmd@fragment_define)) {
       cfmd@peak_assignment$fragment_group <-
         cfmd@fragment_define$fragment_group[match(
           cfmd@peak_assignment$fragment_id,
           cfmd@fragment_define$fragment_id)]
     } else {
-      warning("fragment_group not found. Run MSIPAtomMap_get_FG_map() first.")
+      warning("fragment_group not found on CFM_data. For MSIPAtomMap workflows use Spectra_annotate_MSIPAtomMap().")
     }
   }
 
@@ -1347,164 +1351,5 @@ get_CFM_data_from_smiles <- function(smiles = "NCC(O)=O",
 
 
 
-shiny_vis_cfmd_FG_map <- function(msipAtomMap){
 
-
-  .ui <- function(){
-    fluidPage(
-      column(width = 6,
-             shiny::plotOutput(outputId = "heatmap_atom_map",height  = "800px")),
-      column(width = 6,
-             selectInput(inputId = "fg_id",choices = sort(unique(msipAtomMap@fragment_define$fragment_group)),
-                         label = "Fragment group",selected = msipAtomMap@fragment_define$fragment_group[1]),
-             selectInput(inputId = "fragment",label = "fragment",
-                         choices = sort(unique(msipAtomMap@fragment_define$fragment_id)),
-                         selected = msipAtomMap@fragment_define$fragment_id[1] ),
-             visNetwork::visNetworkOutput(outputId = "atom_map",height  = "800px"))
-    )
-
-  }
-
-  .server <- function(){
-    function(input, output, session) {
-
-      output$heatmap_atom_map <- renderPlot({
-
-        message_with_time("heatmap_atom_map")
-        get_MSIPAtomMap_MSIPFragmentMap(msipAtomMap)%>%
-          heatmap_MSIPFragmentMap()
-      })
-
-      output$atom_map <- visNetwork::renderVisNetwork({
-        message_with_time("atom_map")
-        vis_MSIPAtomMap_fragment_atom_map(msipAtomMap ,input$fragment,show_id = F)
-      })
-
-      observeEvent(input$fg_id,{
-
-        message_with_time("fg_id")
-
-        x <- msipAtomMap@fragment_define%>%
-          dplyr::filter(fragment_group == input$fg_id)
-        updateSelectInput(inputId = "fragment",choices = x$fragment_id)
-      })
-
-    }
-  }
-
-  ### Start Shiny APP
-  {
-    shinyApp(ui = .ui(),
-             server = .server(),
-             options = list(host = "0.0.0.0",
-                            #port = 6548,
-                            launch.browser = T))
-  }
-
-
-}
-
-
-shiny_vis_cfmd_trans <- function(msipAtomMap){
-
-
-  .ui <- function(){
-    fluidPage(
-      column(width = 6,
-             visNetwork::visNetworkOutput(outputId = "vis_trans",height = "800px"),
-             style = "border: 1px solid #aaa; padding: 6px;"),
-      column(width = 6,
-             plotlyOutput(outputId = "cfm_sp"),
-             verbatimTextOutput("frag_info"),
-             visNetwork::visNetworkOutput(outputId = "atom_map" ))
-    )
-
-  }
-
-  .server <- function(){
-    function(input, output, session) {
-
-      output$vis_trans <-  visNetwork::renderVisNetwork({
-
-        message_with_time("get_MSIPAtomMap_trans_igraph")
-        vis_igraph(get_MSIPAtomMap_trans_igraph(msipAtomMap)) %>%
-          visOptions(nodesIdSelection =
-                       list(enabled  = T,
-                            selected  = msipAtomMap@fragment_define$fragment_id[1]))
-
-
-      })
-
-
-      output$frag_info <- renderText({
-
-        message_with_time("frag_info")
-        x <- input$vis_trans_selected
-        if(is.null(x)) return(NULL)
-        if(x==""){      return(NULL)  }
-        y <- msipAtomMap@fragment_define
-        paste0("Fragment: ",x,"\n",
-               "Formula: ",y[x,"formula"],"\n",
-               "mz: ",y[x,"fragment_mz"],"\n"  )
-
-      })
-      output$atom_map <-  visNetwork::renderVisNetwork({
-
-        message_with_time("get_MSIPAtomMap_trans_igraph")
-        x <- input$vis_trans_selected
-        if(is.null(x)) return(NULL)
-        if(x==""){      return(NULL)  }
-
-        vis_MSIPAtomMap_fragment_atom_map(msipAtomMap,input$vis_trans_selected,show_id = F)
-
-
-      })
-
-
-      output$cfm_sp <- renderPlotly({
-
-        MSdev::plotly_Spectra(get_CFM_data_Spectra(msipAtomMap))
-
-      })
-
-
-    }
-  }
-
-  ### Start Shiny APP
-  {
-    shinyApp(ui = .ui(),
-             server = .server(),
-             options = list(host = "0.0.0.0",
-                            #port = 6548,
-                            launch.browser = T))
-  }
-
-
-}
-
-
-
-
-get_cfmd_FG_map_check <- function(msipAtomMap){
-
-  fg.map <- get_MSIPAtomMap_MSIPFragmentMap(msipAtomMap)
-  fg.fragment.count <- table(msipAtomMap@fragment_define$fragment_group)
-  fg.certainty <- get_MSIPFragmentMap_certainty(fg.map)
-  fg.df <- data.frame(
-    fg = names(fg.certainty),
-    certainty =fg.certainty,
-    fragment.count = as.numeric(fg.fragment.count[names(fg.certainty)])
-  )
-
-  return(fg.df)
-
-}
-
-
-get_cfmd_map_evaluation <- function(cfmd){
-
-
-
-}
 

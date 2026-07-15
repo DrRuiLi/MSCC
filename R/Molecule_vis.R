@@ -109,59 +109,7 @@ vis_sdf_igraph <- function(sdf.igraph,show_id = F,...){
 
 }
 
-vis_cfm_data_fragment <- function(cfmd,fragment_id,
-                                  show_id= T,...){
-
-  ig <- cfmd@fragment_igraph[[fragment_id]]%>%
-    sdf_igraph_show_id(show_id )
-  vis_sdf_igraph(ig,show_id = show_id,...)
-
-}
-
-vis_cfm_data_FG_mapped <- function(cfmd,FG,
-                                   show_id= T){
-
-  atom.prob <- get_MSIPAtomMap_fragment_group_atom_map(cfmd,FG)
-  get_MSIPAtomMap_sdf_igraph(cfmd)%>%
-    sdf_igraph_add_border_color(value = atom.prob)%>%
-    vis_sdf_igraph(show_id)
-}
-
-vis_cfm_data_fragment_atom_map<- function(cfmd,fragment_id,
-                                          show_id= T){
-
-  maps <- cfmd@fragment_atom_map[[fragment_id]]
-
-  sdf.igraphA <- get_cfm_data_sdf_igraph(cfmd,1)%>%
-    sdf_igraph_add_border_color(value = rowSums(maps))%>%
-    sdf_igraph_show_id(show_id)
-  sdf.igraphB <- get_cfm_data_sdf_igraph(cfmd,fragment_id)%>%
-    sdf_igraph_add_border_color(value = colSums(maps))%>%
-    sdf_igraph_show_id(show_id)
-
-  sdf_igraph_merge(sdf.igraphA,sdf.igraphB)%>%
-    vis_sdf_igraph(show_id = show_id)
-
-}
-
-vis_cfm_data_trans_map<- function(cfmd,trans_id,
-                                          show_id= T){
-
-  maps <-get_CFM_data_trans_map(cfmd,trans_id )
-
-  fragment.trans <- cfmd@fragment_transition
-  sdf.igraphA <- get_cfm_data_sdf_igraph(cfmd,fragment.trans$from[trans_id])%>%
-    sdf_igraph_add_border_color(value = rowSums(maps))%>%
-    sdf_igraph_show_id(show_id)
-  sdf.igraphB <- get_cfm_data_sdf_igraph(cfmd,fragment.trans$to[trans_id])%>%
-    sdf_igraph_add_border_color(value = colSums(maps))%>%
-    sdf_igraph_show_id(show_id)
-
-  sdf_igraph_merge(sdf.igraphA,sdf.igraphB)%>%
-    vis_sdf_igraph(show_id = show_id)
-
-}
-
+#' @export
 sdf_igraph_add_border_color <- function(sdf.igraph,
                                         value,
                                         color.ramp = colramp(breaks = c(0,Inf,1),
@@ -192,6 +140,7 @@ sdf_igraph_add_background_color <- function(sdf.igraph,
 }
 
 
+#' @export
 sdf_igraph_show_id <- function(sdf.igraph,show_id){
 
   #message_with_time(show_id)
@@ -207,6 +156,7 @@ sdf_igraph_show_id <- function(sdf.igraph,show_id){
   return(sdf.igraph)
 }
 
+#' @export
 sdf_igraph_merge <- function(sdf.igraphA,sdf.igraphB){
 
 
@@ -334,18 +284,6 @@ sdf_igraph_merge_all <- function(...,vertical = T){
   col
 }
 
-
-
-vis_cfm_data_trans_net <- function(cfmd){
-
-  cfmd.trans.ig <- get_CFM_data_trans_igraph(cfmd)
-
-  visNetwork(nodes = vdata(cfmd.trans.ig),
-             edges = edata(cfmd.trans.ig))%>%
-    visEdges(smooth = F)
-
-
-}
 
 
 rotate_nodes_safe <- function(ig, angle_deg) {

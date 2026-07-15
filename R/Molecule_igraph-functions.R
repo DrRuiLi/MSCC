@@ -80,16 +80,6 @@ get_Molecule_igraph_from_smiles <- function(smiles = "NCC(O)=O",id ="A",canonica
 
 
 
-get_Molecule_igraph_from_MSIPAtomMap <- function(msipAtomMap, fragment.id = 1){
-
-  get_Molecule_igraph_from_sdf(msipAtomMap@fragment_sdf[[fragment.id]])
-}
-
-get_Molecule_igraph_from_cfmd <- function(cfmd, fragment.id = 1){
-  .Deprecated("get_Molecule_igraph_from_MSIPAtomMap")
-  get_Molecule_igraph_from_MSIPAtomMap(msipAtomMap = cfmd, fragment.id = fragment.id)
-}
-
 #' Add isotopomer to Molecule Igraph
 #'
 #' @description Adds an isotopomer to a Molecule_igraph object, updating its isotopomer data frame.
@@ -286,49 +276,6 @@ get_Molecule_igraph_MS1 <- function(Molecule_igraph,polarity=1,adduct = NULL){
 
 
 
-}
-
-get_Molecule_igraph_MS2 <- function(Molecule_igraph,cfmd){
-
-
-  isotopomers <- Molecule_igraph@isotopomer
-  FG.map <- cfmd@fragment_group_map
-
-  #### prob
-  {
-    FG.map[FG.map<0.5] <- 0
-    FG.map[FG.map>=0.5] <- 1
-  }
-
-  data(element_table)
-  isotopomers.eles <- as.matrix(Molecule_igraph@isotopomer[,atom(Molecule_igraph)])
-  ele.iso.diff <- make_vector(element_table$Mass_Dif,element_table$symbol)
-  isotopomers.mz.diff <- ele.iso.diff[isotopomers.eles]
-  dim(isotopomers.mz.diff) <- dim(isotopomers.eles)
-  dimnames(isotopomers.mz.diff) <- dimnames(isotopomers.eles)
-
-  isotopomers.mz.diff <- isotopomers.mz.diff[,colnames(FG.map)]
-  fg.isotopomers.mz.diff <- isotopomers.mz.diff %*% t(FG.map)
-
-
-  ms2.data <- cbind( cfmd@fragment_group,t(fg.isotopomers.mz.diff))%>%
-    dplyr::filter(fragment_mz > 0)%>%
-    tidyr::pivot_longer(rownames(isotopomers.eles),names_to = "isotopomer",values_to = "mzdiff")%>%
-    dplyr::mutate( isotopomers[match(isotopomer,isotopomers$isotopomer),
-                               c("isotopologue","label","abundance")],
-                   mz = fragment_mz +mzdiff)%>%
-    dplyr::group_by(mz)%>%
-    dplyr::mutate(intensity = sum(abundance))
-
-
-
-  return(ms2.data)
-
-
-}
-
-test_fun <- function(x){
-  x
 }
 
 Molecule_igraph_get_C_order <- function(Molecule_igraph){
