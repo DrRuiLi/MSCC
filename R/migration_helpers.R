@@ -14,6 +14,63 @@ str_extract_num <- function(x) {
   as.numeric(stringr::str_extract(x, "[:digit:]+"))
 }
 
+#' Named vector helper (MSCC-local; do not rely on MSdev)
+#' @keywords internal
+make_vector <- function(x = NA, name = NULL) {
+  if (length(x) == length(name)) {
+    names(x) <- name
+  }
+  if (length(x) == 1L && length(name)) {
+    x <- rep(x, length(name))
+    names(x) <- name
+  }
+  x
+}
+
+#' Subset igraph to selected vertices (MSCC-local)
+#' @keywords internal
+igraph_filter_vertex <- function(ig, v) {
+  if (is.numeric(v) || is.logical(v) || is.character(v)) {
+    v <- igraph::V(ig)[v]
+  }
+  igraph::delete.vertices(ig, setdiff(names(igraph::V(ig)), names(v)))
+}
+
+#' Keep vertices within graph distance of seeds (MSCC-local)
+#' @keywords internal
+igraph_filter_distance <- function(ig, from, dis = 1, ...) {
+  dis.matrix <- igraph::distances(ig, from)
+  dis.pass <- dis.matrix <= dis
+  id <- apply(dis.pass, 2, function(x) any(x))
+  igraph_filter_vertex(ig, id)
+}
+
+#' Index a matrix by rownames/colnames with NA fill (MSCC-local)
+#' @keywords internal
+get_matrix_value_fill_with_NA <- function(mat,
+                                          rownames_vec = rownames(mat),
+                                          colnames_vec = colnames(mat),
+                                          drop = TRUE) {
+  result_matrix <- matrix(NA,
+                          nrow = length(rownames_vec),
+                          ncol = length(colnames_vec))
+  rownames(result_matrix) <- rownames_vec
+  colnames(result_matrix) <- colnames_vec
+  for (i in seq_along(rownames_vec)) {
+    for (j in seq_along(colnames_vec)) {
+      rowname <- rownames_vec[i]
+      colname <- colnames_vec[j]
+      if (rowname %in% rownames(mat) && colname %in% colnames(mat)) {
+        result_matrix[i, j] <- mat[rowname, colname]
+      }
+    }
+  }
+  if (drop && length(result_matrix) == 1L) {
+    result_matrix <- as.vector(result_matrix)
+  }
+  result_matrix
+}
+
 .ensure_elem_table_schema <- function() {
   et <- MSCC::elem_table
   if (!is.data.frame(et)) return(et)

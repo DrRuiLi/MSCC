@@ -342,33 +342,34 @@ get_atom_map <- function(sdf.parent,
                      sdf.product,bu = 10)
   mcs.map <- MSCC::get_mcs_atom_map(mcs)
   mcs.map <- mcs.map.filter.duplicate(mcs.map,target_ele = MSCC::get_ele_uniso(iso_ele))
+  product_atoms <- MSCC::atom(sdf.product)
   atom.map.matrix <- matrix(nrow = length(mcs.map),
-                        ncol = length(atom(sdf.product)),
+                        ncol = length(product_atoms),
                         dimnames = list(seq_along(mcs.map),
-                                        atom(sdf.product)))
-  ring.diff <- length(rings(sdf.parent))- length(rings(sdf.product))
+                                        product_atoms))
+  ring.diff <- length(ChemmineR::rings(sdf.parent))- length(ChemmineR::rings(sdf.product))
   bond.score <- rep(0,length(mcs.map))
   for (j in seq_along(mcs.map)) {
     this.map <- mcs.map[[j]]
     this.mapv <-this.map$mc1.atom
     names(this.mapv) <- this.map$mc2.atom
-    this.mapv <- this.mapv[atom(sdf.product)]
-    names(this.mapv) <- atom(sdf.product)
+    this.mapv <- this.mapv[product_atoms]
+    names(this.mapv) <- product_atoms
 
 
     ### ring re-assign
     {
       ring.solved <- F
       if (ring.diff&sum(is.na(this.mapv))) {
-        ring.atom <- unname(unlist(rings(sdf.parent)))
+        ring.atom <- unname(unlist(ChemmineR::rings(sdf.parent)))
         ring.atom.to.assign <- ring.atom[!ring.atom%in% this.mapv]
         ring.atom.to.assign <- unique(ring.atom.to.assign)
         adj <- sapply(ring.atom.to.assign,function(x){
           #x <- ring.atom.to.assign
-          x.adj <- names(V(ig.parent))[distances(ig.parent,x)==1]
+          x.adj <- names(igraph::V(ig.parent))[igraph::distances(ig.parent,x)==1]
           x.adj <- x.adj[x.adj%in%this.mapv]
           y.adj <- names(this.mapv)[match(x.adj,this.mapv)]
-          y.candi <-apply(distances(ig.product,y.adj),1,function(z){
+          y.candi <-apply(igraph::distances(ig.product,y.adj),1,function(z){
             zz <- names(z)[which(z==1)]
              zz[!zz%in% names(na.omit(this.mapv))&
                   str_extract(zz,"[:alpha:]*")==str_extract(x,"[:alpha:]*")]
@@ -388,7 +389,7 @@ get_atom_map <- function(sdf.parent,
     {
       if (ring.diff&sum(is.na(this.mapv))&ring.solved){
 #
-        ring.nearest.to.assign <-apply(distances(ig.parent,ring.atom),
+        ring.nearest.to.assign <-apply(igraph::distances(ig.parent,ring.atom),
                         1,function(z){
           zz <- names(z)[which(z==1)]
           zz[!zz%in% (na.omit(this.mapv))]
@@ -396,10 +397,10 @@ get_atom_map <- function(sdf.parent,
 
         adj <- sapply(ring.nearest.to.assign,function(x){
           #x <- ring.nearest.to.assign
-          x.adj <- names(V(ig.parent))[distances(ig.parent,x)==1]
+          x.adj <- names(igraph::V(ig.parent))[igraph::distances(ig.parent,x)==1]
           x.adj <- x.adj[x.adj%in%this.mapv & x.adj%in%ring.atom]
           y.adj <- names(this.mapv)[match(x.adj,this.mapv)]
-          y.candi <-apply(distances(ig.product,y.adj),1,function(z){
+          y.candi <-apply(igraph::distances(ig.product,y.adj),1,function(z){
             zz <- names(z)[which(z==1)]
             zz[!zz%in% names(na.omit(this.mapv))&
                  str_extract(zz,"[:alpha:]*")==str_extract(x,"[:alpha:]*")]
@@ -420,13 +421,13 @@ get_atom_map <- function(sdf.parent,
     {
 
      if (sum(is.na(this.mapv))) {
-       non.match.to.assign <- setdiff(atom(sdf.parent),this.mapv)
+       non.match.to.assign <- setdiff(MSCC::atom(sdf.parent),this.mapv)
        adj <- sapply(non.match.to.assign,function(x){
          #x <- non.match.to.assign
-         x.adj <- names(V(ig.parent))[distances(ig.parent,x)==1]
+         x.adj <- names(igraph::V(ig.parent))[igraph::distances(ig.parent,x)==1]
          x.adj <- x.adj[x.adj%in%this.mapv]
          y.adj <- names(this.mapv)[match(x.adj,this.mapv)]
-         y.candi <-apply(distances(ig.product,y.adj),1,function(z){
+         y.candi <-apply(igraph::distances(ig.product,y.adj),1,function(z){
            zz <- names(z)[which(z==1)]
            zz[!zz%in% names(na.omit(this.mapv))&
                 str_extract(zz,"[:alpha:]*")==str_extract(x,"[:alpha:]*")]
@@ -482,8 +483,9 @@ get_atom_map <- function(sdf.parent,
     map <-  apply(atom.map.matrix[selected,,drop=F],2,function(x){
       x <- na.omit(x)
       xp <- table(x)/length(x)
-      xp <- xp[atom(sdf.parent)]
-      names(xp) <- atom(sdf.parent)
+      parent_atoms <- MSCC::atom(sdf.parent)
+      xp <- xp[parent_atoms]
+      names(xp) <- parent_atoms
       xp[is.na(xp)] <- 0
       return(xp)
     })
@@ -497,8 +499,9 @@ get_atom_map <- function(sdf.parent,
     map <-  apply(atom.map.matrix[full.mapped,,drop=F],2,function(x){
       x <- na.omit(x)
       xp <- table(x)/length(x)
-      xp <- xp[atom(sdf.parent)]
-      names(xp) <- atom(sdf.parent)
+      parent_atoms <- MSCC::atom(sdf.parent)
+      xp <- xp[parent_atoms]
+      names(xp) <- parent_atoms
       xp[is.na(xp)] <- 0
       return(xp)
     })

@@ -6,6 +6,7 @@
 #' @param addH Logical, whether to include hydrogen atoms (default FALSE).
 #'
 #' @return An igraph object representing the molecular structure.
+#' @importFrom ChemmineR atomblock bondblock bonds validSDF
 #' @export
 get_sdf_igraph <- function(sdf,addH = F){
 
@@ -13,13 +14,13 @@ get_sdf_igraph <- function(sdf,addH = F){
 
     #sdf <- canonicalize(sdf)
     #cn <- canonicalNumbering_OB(obmol(sdf))[[1]]
-    atom.data <- atomblock(sdf)[,1:2]%>%
+    atom.data <- ChemmineR::atomblock(sdf)[,1:2]%>%
       `colnames<-`(c("x","y"))%>%
       as.data.frame()%>%
       rownames_to_column("Atom_id" )#%>%
       #dplyr::mutate(Canonical_Numbering = cn )
 
-    atom.data <- cbind(atom.data,bonds(sdf))%>%
+    atom.data <- cbind(atom.data,ChemmineR::bonds(sdf))%>%
       dplyr::group_by(atom)%>%
       dplyr::mutate(id = Atom_id,
                     label = paste0(" ",atom," "),
@@ -34,7 +35,7 @@ get_sdf_igraph <- function(sdf,addH = F){
                     shape = "circle",
                     physics = F)%>%
       dplyr::ungroup()
-    bond.data <- bondblock(sdf)[,1:3,drop =F]%>%
+    bond.data <- ChemmineR::bondblock(sdf)[,1:3,drop =F]%>%
       `colnames<-`(c("from","to","bond_type"))%>%
       as.data.frame()%>%
       dplyr::mutate(from = atom.data$Atom_id[from],
@@ -55,19 +56,19 @@ get_sdf_igraph <- function(sdf,addH = F){
     )
     if (!addH) {
       sdf.igraph <- igraph::delete.vertices(sdf.igraph,
-                                    V(sdf.igraph)$atom=="H")
+                                    igraph::V(sdf.igraph)$atom=="H")
     }
 
     return(sdf.igraph)
   }
 
-  if (class(sdf)=="SDF")
+  if (inherits(sdf, "SDF"))
     sdf.igraph <-.f(sdf,addH)
 
 
-  if (class(sdf)=="SDFset") {
+  if (inherits(sdf, "SDFset")) {
     sdf.igraph <- list()
-    sdf.valid <- validSDF(sdf)
+    sdf.valid <- ChemmineR::validSDF(sdf)
     for (i in 1:length(sdf)) {
 
       sdf.igraph[[i]] <- .f(sdf[[i]],addH  )

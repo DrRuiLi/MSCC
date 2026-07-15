@@ -92,6 +92,24 @@ setMethod("atom",
           })
 
 
+#' Atom IDs from a ChemmineR SDF
+#'
+#' @param object An `SDF` object.
+#' @param element Element symbol(s) to keep, or `"ANY"` for all non-H atoms.
+#'
+#' @return Character vector of atom IDs (vertex names).
+#' @importClassesFrom ChemmineR SDF
+#' @export
+setMethod("atom",
+          "SDF",
+          definition = function(object,
+                                element = "ANY"){
+            ig <- MSCC::get_sdf_igraph(object)
+            ele <- if (identical(element, "ANY")) "all" else as.character(element)[[1]]
+            MSCC::get_sdf_igraph_atom(ig, ele = ele)
+          })
+
+
 setMethod("get_element",
           "Molecule_igraph",
           definition = function(object,...){
