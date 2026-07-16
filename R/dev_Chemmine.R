@@ -150,11 +150,10 @@ get_smiles_sdf <- function(smiles,
  #})
  #smiles.sdf <- ChemmineR::SDFset(sdfs)
 
-  data(smiles_map)
+  data("smiles_map", package = "MSCC", envir = environment())
   for (id in ChemmineR::cid(smiles_map)) {
-    which(smiles==id)
-    suppressWarnings(smiles.sdf[smiles==id] <- smiles_map[[id]])
-
+    which(smiles == id)
+    suppressWarnings(smiles.sdf[smiles == id] <- smiles_map[[id]])
   }
 
 

@@ -33,6 +33,10 @@ Suggests:
     lc8,
     MSdev,
     nnls,
-    rmarkdown
-VignetteBuilder: knitr
+    plotly,
+    quarto,
+    rmarkdown,
+    shiny,
+    visNetwork
+VignetteBuilder: knitr, quarto
 Config/roxygen2/version: 8.0.0

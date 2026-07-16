@@ -95,6 +95,10 @@ get_sdf_igraph <- function(sdf,addH = F){
 #' @export
 vis_sdf_igraph <- function(sdf.igraph,show_id = F,...){
 
+  if (!requireNamespace("visNetwork", quietly = TRUE)) {
+    stop("Package visNetwork is required for vis_sdf_igraph().", call. = FALSE)
+  }
+
   sdf.igraph <- sdf.igraph%>%
     sdf_igraph_show_id(show_id)
 
@@ -105,8 +109,8 @@ vis_sdf_igraph <- function(sdf.igraph,show_id = F,...){
   eda <- edata(sdf.igraph)%>%
     dplyr::select(c("from","to","bond_type","width","color","smooth"))
 
-  visNetwork(nodes = vda,edges = eda) %>%
-    visLayout( hierarchical = FALSE)
+  visNetwork::visNetwork(nodes = vda, edges = eda) %>%
+    visNetwork::visLayout(hierarchical = FALSE)
 
 }
 
