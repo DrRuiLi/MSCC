@@ -28,7 +28,8 @@ for (i in 1:6) {
   Rdisop::decomposeMass()
 
 
-  chemform_decompose_mass(masses,charge = 0)
+  chemform_decompose_mass(203.0526)
+  chemform_decompose_mz(204.0599, charge = 1)
 
   # Parity checks: formula sets vs Rdisop::decomposeMass(maxisotopes=1)
   els <- initializeElements(c("C", "H", "N", "O", "P"))
@@ -47,7 +48,6 @@ for (i in 1:6) {
     mm <- MSCC::chemform_decompose_mass(
       mass = m,
       ppm = ppm,
-      charge = 0,
       elements = c("C", "H", "N", "O", "P")
     )$formula
 
