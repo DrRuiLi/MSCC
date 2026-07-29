@@ -77,6 +77,19 @@ for (i in 1:6) {
   stopifnot(!all_df$elementHeuristic[2])             # high NOPS fails #6
   stopifnot(!all_df$HCratio[3], !all_df$HCratio[4]) # H/C extremes fail #4
   message("chemform_check_seven_golden_rules smoke checks passed.")
+
+  # check_rule on decompose: filtered set is subset of unfiltered
+  raw <- MSCC::chemform_decompose_mass(180.0634, ppm = 5, check_rule = FALSE)
+  filt <- MSCC::chemform_decompose_mass(180.0634, ppm = 5, check_rule = TRUE)
+  stopifnot(nrow(filt) <= nrow(raw))
+  stopifnot(all(filt$formula %in% raw$formula))
+  if (nrow(filt)) {
+    stopifnot(all(MSCC::chemform_check_seven_golden_rules(filt$formula, mass = filt$exactmass, return = "valid")))
+  }
+  raw_mz <- MSCC::chemform_decompose_mz(181.0707, charge = 1, ppm = 5, check_rule = FALSE)
+  filt_mz <- MSCC::chemform_decompose_mz(181.0707, charge = 1, ppm = 5, check_rule = TRUE)
+  stopifnot(nrow(filt_mz) <= nrow(raw_mz))
+  message("chemform_decompose check_rule smoke checks passed.")
 }
 
 {

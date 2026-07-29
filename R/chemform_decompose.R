@@ -14,19 +14,22 @@
 #'   a named integer vector (names are element symbols), or a single formula string like `"C0H0N0"`.
 #' @param max_elements Maximum element counts. Accepts `NULL` (defaults to 999999 for each element),
 #'   a named integer vector (names are element symbols), or a single formula string like `"C999H999"`.
+#' @param check_rule If `TRUE`, keep only candidates that pass
+#'   [chemform_check_seven_golden_rules()] (Rules #1, #2, #4–#6). Default `FALSE`.
 #'
 #' @return A data.frame with columns `formula`, `exactmass`, `ppm`, and `mass_target`.
 #'   Rows are sorted by increasing `abs(ppm)`.
 #' @useDynLib MSCC, .registration = TRUE
 #' @import Rcpp
 #' @export
-#' @seealso [chemform_decompose_mz()]
+#' @seealso [chemform_decompose_mz()], [chemform_check_seven_golden_rules()]
 chemform_decompose_mass <- function(mass,
                                      ppm = 5,
                                      mzabs = 1e-4,
                                      elements = c("C", "H", "N", "O", "P", "S"),
                                      min_elements = NULL,
-                                     max_elements = NULL) {
+                                     max_elements = NULL,
+                                     check_rule = T) {
 
   mass <- as.numeric(mass)
   if (!length(mass)) {
@@ -122,6 +125,16 @@ chemform_decompose_mass <- function(mass,
   out_list <- lapply(mass, call_one)
   out <- do.call(rbind, out_list)
   rownames(out) <- NULL
+
+  if (isTRUE(check_rule) && nrow(out)) {
+    keep <- chemform_check_seven_golden_rules(
+      chemform = out$formula,
+      mass = out$exactmass,
+      return = "valid"
+    )
+    out <- out[keep, , drop = FALSE]
+    rownames(out) <- NULL
+  }
   out
 }
 
@@ -141,18 +154,22 @@ chemform_decompose_mass <- function(mass,
 #' @param elements Character vector of allowed elements.
 #' @param min_elements See [chemform_decompose_mass()].
 #' @param max_elements See [chemform_decompose_mass()].
+#' @param check_rule If `TRUE`, keep only candidates that pass
+#'   [chemform_check_seven_golden_rules()] (passed through to
+#'   [chemform_decompose_mass()]). Default `FALSE`.
 #'
 #' @return A data.frame with columns `formula`, `exactmass`, `mz`, `ppm`, `charge`,
 #'   and `mz_target`. Rows are sorted by increasing `abs(ppm)` vs the input m/z.
 #' @export
-#' @seealso [chemform_decompose_mass()], [chemform_mz()]
+#' @seealso [chemform_decompose_mass()], [chemform_mz()], [chemform_check_seven_golden_rules()]
 chemform_decompose_mz <- function(mz,
                                    charge = 0,
                                    ppm = 5,
                                    mzabs = 1e-4,
                                    elements = c("C", "H", "N", "O", "P", "S"),
                                    min_elements = NULL,
-                                   max_elements = NULL) {
+                                   max_elements = NULL,
+                                   check_rule = T) {
 
   mz <- as.numeric(mz)
   charge <- as.integer(charge)
