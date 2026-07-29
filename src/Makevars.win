@@ -1,0 +1,7 @@
+PKG_CXXFLAGS = -I./imslib/src
+
+SOURCES = mcp_decompose.cpp \
+          RcppExports.cpp \
+          ims_weights.cpp \
+          ims_realmassdecomposer.cpp
+

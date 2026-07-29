@@ -1,0 +1,11 @@
+This product includes code derived from the Rdisop package (Bioconductor) and its bundled imslib components.
+
+Rdisop / imslib are copyright:
+  - Sebastian Böcker and collaborators (DECOMP / Money Changing Problem algorithms)
+  - Anton Pervukhin and collaborators (imslib / mass decomposition implementation)
+
+License:
+  - GNU General Public License v2.0 (GPL-2.0)
+
+For the full text of GPL-2.0, see the repository `LICENSE` file.
+
