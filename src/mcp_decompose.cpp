@@ -1,5 +1,9 @@
 // MCP-only (formula enumeration) wrapper around vendored imslib `RealMassDecomposer`.
 // This intentionally skips isotope distribution / scoring.
+//
+// Signed min_counts (e.g. H >= -3) are supported via mass offset:
+//   n_i = n'_i + min_i,  0 <= n'_i <= max_i - min_i
+//   sum n'_i * m_i ≈ mass - sum(min_i * m_i)
 
 #include <Rcpp.h>
 
@@ -8,6 +12,7 @@
 #include <sstream>
 #include <iomanip>
 #include <unordered_map>
+#include <memory>
 
 #include <ims/weights.h>
 #include <ims/decomp/realmassdecomposer.h>
@@ -27,15 +32,18 @@ std::string make_cache_key(const CharacterVector& element_names, const NumericVe
   return oss.str();
 }
 
-// Convert a count vector into a simple formula string like "C2H6O".
-std::string counts_to_formula(const std::vector<std::string>& element_names, const std::vector<unsigned long long>& counts) {
+// Convert a signed count vector into a formula string like "C2H6O" or "H-1Na".
+// Zero counts are omitted; count 1 is omitted for the symbol only when positive
+// (so "H" not "H1"); negative counts always keep the sign ("H-1").
+std::string counts_to_formula(const std::vector<std::string>& element_names,
+                              const std::vector<long long>& counts) {
   std::string out;
   out.reserve(16 + 8 * element_names.size());
   for (size_t i = 0; i < element_names.size(); ++i) {
-    const auto c = counts[i];
+    const long long c = counts[i];
     if (c == 0) continue;
     out += element_names[i];
-    if (c != 1ULL) out += std::to_string(c);
+    if (c != 1LL) out += std::to_string(c);
   }
   return out;
 }
@@ -65,17 +73,22 @@ Rcpp::List mcp_decompose_mass(double mass,
     }
   }
 
-  // Prepare element order + counts bounds.
+  // Prepare element names and signed bounds.
   std::vector<std::string> el_names;
   el_names.reserve(n);
+  std::vector<long long> min_c(n), max_c(n);
+  double mass_offset = 0.0;
   for (int i = 0; i < n; ++i) {
     el_names.push_back(as<std::string>(element_names[i]));
+    min_c[i] = static_cast<long long>(min_counts[i]);
+    max_c[i] = static_cast<long long>(max_counts[i]);
+    mass_offset += static_cast<double>(min_c[i]) * mono_masses[i];
   }
 
-  std::vector<unsigned long long> min_c(n), max_c(n);
+  // Relative (non-negative) upper bounds for MCP: n'_i in [0, max_i - min_i].
+  std::vector<unsigned long long> max_rel(n);
   for (int i = 0; i < n; ++i) {
-    min_c[i] = static_cast<unsigned long long>(min_counts[i]);
-    max_c[i] = static_cast<unsigned long long>(max_counts[i]);
+    max_rel[i] = static_cast<unsigned long long>(max_c[i] - min_c[i]);
   }
 
   // Cached decomposer for this alphabet.
@@ -95,20 +108,21 @@ Rcpp::List mcp_decompose_mass(double mass,
     it = decomposer_cache.find(cache_key);
   }
 
-  // Enumerate all compositions within abs_error.
-  auto decomps = it->second->getDecompositions(mass, abs_error);
+  // Enumerate non-negative relative compositions for shifted mass.
+  const double mass_prime = mass - mass_offset;
+  auto decomps = it->second->getDecompositions(mass_prime, abs_error);
 
   std::vector<std::string> formulas;
   std::vector<double> exactmasses;
   formulas.reserve(decomps.size());
   exactmasses.reserve(decomps.size());
 
-  // Filter by per-element min/max counts and stringify.
+  // Filter by relative max, recover signed counts, and stringify.
   for (const auto& decomposition : decomps) {
     bool ok = true;
     for (int i = 0; i < n; ++i) {
-      const unsigned long long c = static_cast<unsigned long long>(decomposition[i]);
-      if (c < min_c[i] || c > max_c[i]) {
+      const unsigned long long c_rel = static_cast<unsigned long long>(decomposition[i]);
+      if (c_rel > max_rel[i]) {
         ok = false;
         break;
       }
@@ -116,11 +130,11 @@ Rcpp::List mcp_decompose_mass(double mass,
     if (!ok) continue;
 
     double em = 0.0;
-    std::vector<unsigned long long> counts(n);
+    std::vector<long long> counts(n);
     for (int i = 0; i < n; ++i) {
-      const unsigned long long c = static_cast<unsigned long long>(decomposition[i]);
-      counts[i] = c;
-      em += static_cast<double>(c) * mono_masses[i];
+      const long long c_rel = static_cast<long long>(decomposition[i]);
+      counts[i] = c_rel + min_c[i];
+      em += static_cast<double>(counts[i]) * mono_masses[i];
     }
 
     formulas.push_back(counts_to_formula(el_names, counts));
@@ -130,4 +144,3 @@ Rcpp::List mcp_decompose_mass(double mass,
   return List::create(_["formula"] = formulas,
                        _["exactmass"] = exactmasses);
 }
-

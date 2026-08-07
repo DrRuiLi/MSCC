@@ -12,13 +12,33 @@
 #' @param elements Character vector of allowed elements, e.g. `c("C","H","N","O","P","S")`.
 #' @param min_elements Minimum element counts. Accepts `NULL` (defaults to 0 for each element),
 #'   a named integer vector (names are element symbols), or a single formula string like `"C0H0N0"`.
+#'   Counts may be **negative** (e.g. `c(H = -3)` or `"H-3"`) for replacement / difference
+#'   formulas such as COOH → COONa (`H-1Na`). Internally the target mass is shifted so the
+#'   MCP solver still enumerates non-negative relative counts.
 #' @param max_elements Maximum element counts. Accepts `NULL` (defaults to 999999 for each element),
 #'   a named integer vector (names are element symbols), or a single formula string like `"C999H999"`.
 #' @param check_rule If `TRUE`, keep only candidates that pass
 #'   [chemform_check_seven_golden_rules()] (Rules #1, #2, #4–#6). Default `FALSE`.
+#'   Automatically disabled (with a message) when any `min_elements` count is negative,
+#'   because the golden rules assume molecular formulas, not signed replacements.
 #'
 #' @return A data.frame with columns `formula`, `exactmass`, `ppm`, and `mass_target`.
 #'   Rows are sorted by increasing `abs(ppm)`.
+#'
+#' @examples
+#' # Neutral molecule (non-negative counts)
+#' chemform_decompose_mass(180.0634, ppm = 5, check_rule = FALSE)
+#'
+#' # Replacement delta: COOH -> COONa is H-1Na (mass change Na - H)
+#' dM <- chemform_mz("Na") - chemform_mz("H")
+#' chemform_decompose_mass(
+#'   mass = dM,
+#'   elements = c("H", "C", "O", "Na"),
+#'   min_elements = c(H = -3),
+#'   max_elements = c(H = 10, Na = 3),
+#'   check_rule = FALSE
+#' )
+#'
 #' @useDynLib MSCC, .registration = TRUE
 #' @import Rcpp
 #' @export
@@ -29,7 +49,7 @@ chemform_decompose_mass <- function(mass,
                                      elements = c("C", "H", "N", "O", "P", "S"),
                                      min_elements = NULL,
                                      max_elements = NULL,
-                                     check_rule = T) {
+                                     check_rule = FALSE) {
 
   mass <- as.numeric(mass)
   if (!length(mass)) {
@@ -71,7 +91,9 @@ chemform_decompose_mass <- function(mass,
       return(as.integer(counts))
     }
     if (is.numeric(x) && !is.null(names(x))) {
+      nm <- names(x)
       v <- as.integer(x)
+      names(v) <- nm
       out <- rep(default, n)
       idx <- match(elements, names(v))
       out[!is.na(idx)] <- v[idx[!is.na(idx)]]
@@ -88,6 +110,11 @@ chemform_decompose_mass <- function(mass,
 
   if (any(min_counts > max_counts)) {
     stop("`min_elements` must be <= `max_elements` for each element.")
+  }
+
+  if (isTRUE(check_rule) && any(min_counts < 0L)) {
+    message("`check_rule` disabled: negative min_elements are for replacement/difference formulas.")
+    check_rule <- FALSE
   }
 
   call_one <- function(m_target) {
@@ -156,7 +183,8 @@ chemform_decompose_mass <- function(mass,
 #' @param max_elements See [chemform_decompose_mass()].
 #' @param check_rule If `TRUE`, keep only candidates that pass
 #'   [chemform_check_seven_golden_rules()] (passed through to
-#'   [chemform_decompose_mass()]). Default `FALSE`.
+#'   [chemform_decompose_mass()]). Default `FALSE`. Disabled automatically
+#'   when any `min_elements` count is negative (see [chemform_decompose_mass()]).
 #'
 #' @return A data.frame with columns `formula`, `exactmass`, `mz`, `ppm`, `charge`,
 #'   and `mz_target`. Rows are sorted by increasing `abs(ppm)` vs the input m/z.
@@ -169,7 +197,7 @@ chemform_decompose_mz <- function(mz,
                                    elements = c("C", "H", "N", "O", "P", "S"),
                                    min_elements = NULL,
                                    max_elements = NULL,
-                                   check_rule = T) {
+                                   check_rule = FALSE) {
 
   mz <- as.numeric(mz)
   charge <- as.integer(charge)
@@ -208,7 +236,8 @@ chemform_decompose_mz <- function(mz,
       mzabs = mzabs,
       elements = elements,
       min_elements = min_elements,
-      max_elements = max_elements
+      max_elements = max_elements,
+      check_rule = check_rule
     )
     if (!nrow(res)) {
       return(data.frame(
