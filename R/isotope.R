@@ -30,21 +30,41 @@ isotope_mass_diff <- function(isotope) {
 
 #' @title get_isotope_mass_diff
 #' @description
-#' generate all possible isotope substitution combinations and their mass differences
-#' for given element counts. Acceptable elements: C, H, O, N, P, S
+#' Two calling modes:
+#' \enumerate{
+#'   \item \strong{Element vector:} \code{get_isotope_mass_diff(c("C","N","S"))}
+#'     returns a named numeric vector of single-isotope mass differences vs the
+#'     major isotope (names such as \code{[13]C}, \code{[15]N}, \code{[33]S},
+#'     \code{[34]S}).
+#'   \item \strong{Count combinations:} \code{get_isotope_mass_diff(C = 3, N = 2)}
+#'     returns a \code{data.table} of all substitution combinations
+#'     (\code{chemform_diff}, \code{mass_diff}) for C/H/O/N/P/S.
+#' }
 #'
-#' @param ... named arguments of element counts, e.g. `C = 3, N = 2, O = 5`
+#' @param ... Either a character vector of element symbols, or named integer
+#'   element counts (e.g. \code{C = 3, N = 2}).
 #'
-#' @return data.table with columns `chemform_diff` and `mass_diff`
+#' @return Named numeric vector (element-vector mode) or \code{data.table} with
+#'   columns \code{chemform_diff} and \code{mass_diff} (count mode).
 #' @export
 #'
-#' @examples get_isotope_mass_diff(C = 3, N = 2, O = 1)
+#' @examples
+#' get_isotope_mass_diff(c("C", "N", "S"))
+#' get_isotope_mass_diff(C = 3, N = 2, O = 1)
 get_isotope_mass_diff <- function(...) {
   args <- list(...)
-  allowed <- c("C", "H", "O", "N", "P", "S")
+  arg_names <- names(args)
+  is_element_vec <- length(args) == 1L &&
+    is.character(args[[1]]) &&
+    (is.null(arg_names) || !nzchar(arg_names[[1]]))
 
-  elements <- names(args)
-  if (is.null(elements) || any(!elements %in% allowed)) {
+  if (is_element_vec) {
+    return(.isotope_mass_diff_for_elements(args[[1]]))
+  }
+
+  allowed <- c("C", "H", "O", "N", "P", "S")
+  elements <- arg_names
+  if (is.null(elements) || any(!nzchar(elements)) || any(!elements %in% allowed)) {
     stop("All inputs must be named with allowed elements: ", paste(allowed, collapse = ", "))
   }
 
@@ -72,6 +92,43 @@ get_isotope_mass_diff <- function(...) {
   mass_diff <- as.numeric(as.matrix(grid) %*% mass_single)
 
   data.table::data.table(chemform_diff = chemform_diff, mass_diff = mass_diff)
+}
+
+#' @keywords internal
+.isotope_mass_diff_for_elements <- function(elements) {
+  elements <- unique(as.character(elements))
+  elements <- elements[nzchar(elements) & !is.na(elements)]
+  if (!length(elements)) {
+    return(setNames(numeric(0), character(0)))
+  }
+
+  et <- as.data.frame(MSCC::elem_table)
+  out_names <- character(0)
+  out_vals <- numeric(0)
+
+  for (el in elements) {
+    major <- et[et$element == el, , drop = FALSE]
+    if (!nrow(major)) {
+      warning("Element not found in elem_table: ", el, call. = FALSE)
+      next
+    }
+    major_mass <- major$mass[which.max(major$abundance)]
+    iso_pat <- paste0("^[0-9]+", el, "$")
+    minors <- et[grepl(iso_pat, et$isotope) & et$element != el, , drop = FALSE]
+    if (!nrow(minors)) {
+      next
+    }
+    lab <- minors$element
+    bad <- is.na(lab) | !nzchar(lab) | !grepl("^\\[", lab)
+    if (any(bad)) {
+      mass_num <- sub(paste0(el, "$"), "", minors$isotope[bad])
+      lab[bad] <- paste0("[", mass_num, "]", el)
+    }
+    out_names <- c(out_names, lab)
+    out_vals <- c(out_vals, as.numeric(minors$mass) - major_mass)
+  }
+
+  setNames(out_vals, out_names)
 }
 
 
