@@ -1,0 +1,207 @@
+# Package index
+
+## All functions
+
+- [`accucor_natural_correction()`](https://drruili.github.io/MSCC/reference/accucor_natural_correction.md)
+  : AccuCor-style natural isotope correction for ratio matrix
+
+- [`atom(`*`<SDF>`*`)`](https://drruili.github.io/MSCC/reference/atom-SDF-method.md)
+  : Atom IDs from a ChemmineR SDF
+
+- [`atom()`](https://drruili.github.io/MSCC/reference/atom.md) : Atom
+  accessor generic
+
+- [`CFM_predict()`](https://drruili.github.io/MSCC/reference/CFM.md)
+  [`CFM_annotate()`](https://drruili.github.io/MSCC/reference/CFM.md)
+  [`CFM_annotate_by_fraggen()`](https://drruili.github.io/MSCC/reference/CFM.md)
+  [`CFM_annotate_by_predict()`](https://drruili.github.io/MSCC/reference/CFM.md)
+  [`CFM_fraggen()`](https://drruili.github.io/MSCC/reference/CFM.md)
+  [`read_CFM_predict_result()`](https://drruili.github.io/MSCC/reference/CFM.md)
+  : Predict Mass Spectra using CFM-ID
+
+- [`CFM_spectra_data_int_weight()`](https://drruili.github.io/MSCC/reference/CFM_spectra_data_int_weight.md)
+  : Weight CFM Spectra Intensities by Fragment Group
+
+- [`CFM_spectra_data_merge()`](https://drruili.github.io/MSCC/reference/CFM_spectra_data_merge.md)
+  : Merge CFM Spectra Isotopologue Ratios by Fragment Group
+
+- [`CFM_spectra_data_remove_natural()`](https://drruili.github.io/MSCC/reference/CFM_spectra_data_remove_natural.md)
+  : Remove Natural Isotope Contribution from Combined CFM Spectra
+
+- [`chemform_adduct()`](https://drruili.github.io/MSCC/reference/chemform_adduct.md)
+  : chemform_adduct
+
+- [`chemform_adduct_check()`](https://drruili.github.io/MSCC/reference/chemform_adduct_check.md)
+  : chemform_adduct_check
+
+- [`chemform_calc()`](https://drruili.github.io/MSCC/reference/chemform_calc.md)
+  : chemform_calc
+
+- [`chemform_sum()`](https://drruili.github.io/MSCC/reference/Chemform_calculation.md)
+  [`chemform_multi()`](https://drruili.github.io/MSCC/reference/Chemform_calculation.md)
+  : Chemform Calculation
+
+- [`chemform_check_seven_golden_rules()`](https://drruili.github.io/MSCC/reference/chemform_check_seven_golden_rules.md)
+  : Check formulas against Kind & Fiehn seven golden rules (#1, \#2,
+  \#4–#6)
+
+- [`chemform_decompose_mass()`](https://drruili.github.io/MSCC/reference/chemform_decompose_mass.md)
+  : MCP-only mass decomposition (neutral exact mass)
+
+- [`chemform_decompose_mz()`](https://drruili.github.io/MSCC/reference/chemform_decompose_mz.md)
+  : MCP mass decomposition from ion m/z
+
+- [`chemform_formate()`](https://drruili.github.io/MSCC/reference/chemform_formate.md)
+  : chemform_formate
+
+- [`chemform_get_ele()`](https://drruili.github.io/MSCC/reference/chemform_get_ele.md)
+  : chemform_get_ele
+
+- [`chemform_isotopes_pattern_enviPat()`](https://drruili.github.io/MSCC/reference/chemform_isotopes_pattern_enviPat.md)
+  : chemform_isotopes_pattern_enviPat
+
+- [`chemform_isotope_label()`](https://drruili.github.io/MSCC/reference/chemform_isotope_label.md)
+  : chemform_isotope_label
+
+- [`chemform_mz()`](https://drruili.github.io/MSCC/reference/chemform_mz.md)
+  : chemform_mz
+
+- [`chemform_mz_lc8()`](https://drruili.github.io/MSCC/reference/chemform_mz_lc8.md)
+  : chemform_mz_lc8
+
+- [`chemform_parse()`](https://drruili.github.io/MSCC/reference/chemform_parse.md)
+  : chemform_parse
+
+- [`demo_chemform`](https://drruili.github.io/MSCC/reference/demo_chemform.md)
+  : Demo chemical formulas
+
+- [`demo_smi`](https://drruili.github.io/MSCC/reference/demo_smi.md) :
+  Demo SMILES strings
+
+- [`dev_rdkit`](https://drruili.github.io/MSCC/reference/dev_rdkit.md) :
+  RDKit bridge via reticulate
+
+- [`` `edata<-`() ``](https://drruili.github.io/MSCC/reference/edata-set.md)
+  : Replace edge attributes for graph-like objects
+
+- [`edata()`](https://drruili.github.io/MSCC/reference/edata.md) : Edge
+  attribute table for graph-like objects
+
+- [`ensure_RDKit_python()`](https://drruili.github.io/MSCC/reference/ensure_RDKit_python.md)
+  : Select the Python env used for RDKit (before first import)
+
+- [`export_Spectra_peak_list_for_cfm()`](https://drruili.github.io/MSCC/reference/export_Spectra_peak_list_for_cfm.md)
+  : Export a Spectra object to a CFM-ID peak-list text file
+
+- [`get_adduct_mass_diff()`](https://drruili.github.io/MSCC/reference/get_adduct_mass_diff.md)
+  : Compute pairwise adduct mass differences by polarity
+
+- [`get_atom_map()`](https://drruili.github.io/MSCC/reference/get_atom_map.md)
+  : Map atoms between parent and product molecules
+
+- [`get_CFM_data_from_smiles()`](https://drruili.github.io/MSCC/reference/get_CFM_data_from_smiles.md)
+  : Get CFM Data from SMILES
+
+- [`get_CFM_data_Spectra()`](https://drruili.github.io/MSCC/reference/get_CFM_data_Spectra.md)
+  : Convert CFM Data to Spectra Object
+
+- [`get_element()`](https://drruili.github.io/MSCC/reference/get_element.md)
+  : Element accessor generic
+
+- [`get_elem_table()`](https://drruili.github.io/MSCC/reference/get_elem_table.md)
+  : Get harmonized element table
+
+- [`get_ele_uniso()`](https://drruili.github.io/MSCC/reference/get_ele_uniso.md)
+  : Convert isotope notation to element symbol
+
+- [`get_formula_ele_count()`](https://drruili.github.io/MSCC/reference/get_formula_ele_count.md)
+  : Count an element in formula
+
+- [`get_isotope_mass_diff()`](https://drruili.github.io/MSCC/reference/get_isotope_mass_diff.md)
+  : get_isotope_mass_diff
+
+- [`get_iso_natural_ratio()`](https://drruili.github.io/MSCC/reference/get_iso_natural_ratio.md)
+  : Build isotopologue natural ratio baseline
+
+- [`get_mcs_atom_map()`](https://drruili.github.io/MSCC/reference/get_mcs_atom_map.md)
+  : Build atom map from fmcsR mcs object
+
+- [`get_polarity_from_adduct()`](https://drruili.github.io/MSCC/reference/get_polarity_from_adduct.md)
+  : Infer polarity from adduct expression
+
+- [`get_polarity_suffix()`](https://drruili.github.io/MSCC/reference/get_polarity_suffix.md)
+  : Get Polarity Suffix
+
+- [`get_RDKit_Chem()`](https://drruili.github.io/MSCC/reference/get_RDKit_Chem.md)
+  :
+
+  Import the `rdkit.Chem` Python module
+
+- [`get_RXNMapper()`](https://drruili.github.io/MSCC/reference/get_RXNMapper.md)
+  : Create RXNMapper callable
+
+- [`get_sdf_igraph()`](https://drruili.github.io/MSCC/reference/get_sdf_igraph.md)
+  : Convert SDF to igraph Object
+
+- [`get_sdf_IUPAC_index()`](https://drruili.github.io/MSCC/reference/get_sdf_IUPAC_index.md)
+  : Map ChemmineR SDF atom IDs to openclatura IUPAC locants
+
+- [`get_smiles_sdf()`](https://drruili.github.io/MSCC/reference/get_smiles_sdf.md)
+  : Convert SMILES strings to SDF format
+
+- [`heatmap_atom_iso_prob()`](https://drruili.github.io/MSCC/reference/heatmap_atom_iso_prob.md)
+  : Get Igraph Objects for CFM Fragments
+
+- [`isotope_mass_diff()`](https://drruili.github.io/MSCC/reference/isotope_mass_diff.md)
+  : isotope_mass_diff
+
+- [`match_isotopes_to_featuredef()`](https://drruili.github.io/MSCC/reference/match_isotopes_to_featuredef.md)
+  : Match theoretical isotopes to xcms feature definitions
+
+- [`match_isotopes_to_featureval()`](https://drruili.github.io/MSCC/reference/match_isotopes_to_featureval.md)
+  : Append feature intensity matrix to isotope matches
+
+- [`get_Molecule_atom_transfer_by_atom_map()`](https://drruili.github.io/MSCC/reference/Molecule_atom_transfer.md)
+  : Auto map atom structure
+
+- [`Molecule_igraph_add_isotopomer()`](https://drruili.github.io/MSCC/reference/Molecule_igraph_add_isotopomer.md)
+  : Add isotopomer to Molecule Igraph
+
+- [`CFM_annotate_isotopologues()`](https://drruili.github.io/MSCC/reference/MSIP.md)
+  : Annotate Isotopologues in Mass Spectra
+
+- [`plotly_CFM_spectra()`](https://drruili.github.io/MSCC/reference/plotly_CFM_spectra.md)
+  : Plotly multi-CE spectrum for CFM_data
+
+- [`rdkit_has_substruct()`](https://drruili.github.io/MSCC/reference/rdkit_has_substruct.md)
+  : Test whether a mol matches a SMARTS pattern
+
+- [`rdkit_mol_exact_mass()`](https://drruili.github.io/MSCC/reference/rdkit_mol_exact_mass.md)
+  : Monoisotopic exact mass from an RDKit mol
+
+- [`rdkit_mol_formula()`](https://drruili.github.io/MSCC/reference/rdkit_mol_formula.md)
+  : Molecular formula from an RDKit mol
+
+- [`rdkit_mol_from_smiles()`](https://drruili.github.io/MSCC/reference/rdkit_mol_from_smiles.md)
+  : Build an RDKit molecule from SMILES
+
+- [`rdkit_plot_mol()`](https://drruili.github.io/MSCC/reference/rdkit_plot_mol.md)
+  : Plot an RDKit molecule (in-memory Draw)
+
+- [`shiny_vis_cfm()`](https://drruili.github.io/MSCC/reference/shiny_vis_cfm.md)
+  : Shiny app to visualize CFM_data spectra and fragments
+
+- [`trans_iso_ele()`](https://drruili.github.io/MSCC/reference/trans_iso_ele.md)
+  : Convert element to canonical isotope notation
+
+- [`` `vdata<-`() ``](https://drruili.github.io/MSCC/reference/vdata-set.md)
+  : Replace vertex attributes for graph-like objects
+
+- [`vdata()`](https://drruili.github.io/MSCC/reference/vdata.md) :
+  Vertex attribute table for graph-like objects
+
+- [`vis_sdf_igraph()`](https://drruili.github.io/MSCC/reference/vis_sdf_igraph.md)
+  : Visualize SDF igraph
+
+- [`vis_smiles()`](https://drruili.github.io/MSCC/reference/vis_smiles.md)
+  : Visualize a molecule from SMILES string
