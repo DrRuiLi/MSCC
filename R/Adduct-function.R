@@ -125,7 +125,7 @@ chemform_adduct_check <- function(adduct.to.check ){
 #' @export
 #'
 
-chemform_adduct <- function(chemform = MSCC::chem_formula_template,
+chemform_adduct <- function(chemform = MSCC::demo_chemform,
                             adduct = "[M+H]+",
                             value = c("mz","chemform","all")){
 

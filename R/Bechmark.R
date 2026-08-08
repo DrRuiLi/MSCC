@@ -5,7 +5,7 @@ benchmark <- function(){
                           time = NA)
   for (i in 1:7) {
     n <- 10^(i)
-    chemform <- MSCC::chem_formula_template[sample(1:107,n,replace = T)]
+    chemform <- MSCC::demo_chemform[sample(1:107,n,replace = T)]
     t <- system.time(
       #chemform_multi(chemform,multi = sample(1,n,replace = T))
      # chemform_calc(chemform,chemform,calc = "-")

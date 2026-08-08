@@ -57,7 +57,7 @@ chemform_get_ele <- function(chemform){
 #' @export
 #'
 
-chemform_parse <- function(chemform = MSCC::chem_formula_template,return = "matrix"){
+chemform_parse <- function(chemform = MSCC::demo_chemform,return = "matrix"){
 
 
 
@@ -140,7 +140,7 @@ chemform_parse <- function(chemform = MSCC::chem_formula_template,return = "matr
 #' @export
 #'
 #' @import tidyverse
-chemform_formate <- function(chemform = MSCC::chem_formula_template,
+chemform_formate <- function(chemform = MSCC::demo_chemform,
                              return = c("chemform","all")){
 
   return <- match.arg(return)
@@ -232,7 +232,7 @@ chemform_from_ele_matrix <- function(x){
 #' @import tidyverse
 #'
 
-chemform_mz <- function(chemform = MSCC::chem_formula_template,
+chemform_mz <- function(chemform = MSCC::demo_chemform,
                         charge = 0){
 
   if (length(charge)==1 ) {
@@ -247,7 +247,7 @@ chemform_mz <- function(chemform = MSCC::chem_formula_template,
 }
 
 
-chemform_matrix_mz <- function(chemform.matrix = chemform_parse(MSCC::chem_formula_template),
+chemform_matrix_mz <- function(chemform.matrix = chemform_parse(MSCC::demo_chemform),
                                charge = 0){
   if (length(charge)==1 ) {
     charge <- rep(charge,nrow(chemform.matrix))
@@ -285,8 +285,8 @@ chemform_matrix_mz <- function(chemform.matrix = chemform_parse(MSCC::chem_formu
 #' @export
 #'
 
-chemform_calc <- function(chemform1 = MSCC::chem_formula_template ,
-                          chemform2 = rev(MSCC::chem_formula_template),
+chemform_calc <- function(chemform1 = MSCC::demo_chemform ,
+                          chemform2 = rev(MSCC::demo_chemform),
                           calc = "+" ,
                           return = c("matrix","chemform")){
   return <- match.arg(return)
@@ -388,7 +388,7 @@ chemform_matrix_calc <- function(chemform1.matrix,
 
 
 
-chemform_matrix_multi <- function(chemform.matrix = chemform_parse(MSCC::chem_formula_template),
+chemform_matrix_multi <- function(chemform.matrix = chemform_parse(MSCC::demo_chemform),
                                   multi = 1,
                                   return = c("chemform","matrix")){
   return <- match.arg(return)
