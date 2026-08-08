@@ -30,102 +30,86 @@ isotope_mass_diff <- function(isotope) {
 
 #' @title get_isotope_mass_diff
 #' @description
-#' Two calling modes:
-#' \enumerate{
-#'   \item \strong{Element vector:} \code{get_isotope_mass_diff(c("C","N","S"))}
-#'     returns a named numeric vector of single-isotope mass differences vs the
-#'     major isotope (names such as \code{[13]C}, \code{[15]N}, \code{[33]S},
-#'     \code{[34]S}).
-#'   \item \strong{Count combinations:} \code{get_isotope_mass_diff(C = 3, N = 2)}
-#'     returns a \code{data.table} of all substitution combinations
-#'     (\code{chemform_diff}, \code{mass_diff}) for C/H/O/N/P/S.
-#' }
+#' For each formula / element fragment in \code{element}, runs
+#' \code{chemform_isotopes_pattern_enviPat()} and returns a named numeric
+#' vector of isotopologue mass differences vs the monoisotopic peak.
+#' Names use compact isotope notation (e.g. \[13\]C, \[13\]C2, \[34\]S).
+#' Accepts plain element symbols (\code{"C"}, \code{"S"}) or counted
+#' fragments (\code{"C10"}).
 #'
-#' @param ... Either a character vector of element symbols, or named integer
-#'   element counts (e.g. \code{C = 3, N = 2}).
+#' @param element Character vector of formulas / element symbols,
+#'   e.g. \code{c("C10", "H10", "O2", "S")}.
+#' @param threshold enviPat abundance cutoff passed as \code{thresh}
+#'   (percent of the monoisotopic peak; default \code{0.0001}).
 #'
-#' @return Named numeric vector (element-vector mode) or \code{data.table} with
-#'   columns \code{chemform_diff} and \code{mass_diff} (count mode).
+#' @return Named numeric vector: names are isotope labels, values are
+#'   \code{mass_diff}.
 #' @export
 #'
 #' @examples
-#' get_isotope_mass_diff(c("C", "N", "S"))
-#' get_isotope_mass_diff(C = 3, N = 2, O = 1)
-get_isotope_mass_diff <- function(...) {
-  args <- list(...)
-  arg_names <- names(args)
-  is_element_vec <- length(args) == 1L &&
-    is.character(args[[1]]) &&
-    (is.null(arg_names) || !nzchar(arg_names[[1]]))
-
-  if (is_element_vec) {
-    return(.isotope_mass_diff_for_elements(args[[1]]))
+#' get_isotope_mass_diff(c("C10", "H10", "O2", "S"))
+#' get_isotope_mass_diff(element = c("C", "N", "S"), threshold = 0.01)
+get_isotope_mass_diff <- function(element = c("C10","H10","O5","N5","P3","S3","K","Cl","Br"), threshold = 0.0001) {
+  if ( is.null(element)) {
+    stop("`element` must be a character vector of formulas / element symbols")
   }
-
-  allowed <- c("C", "H", "O", "N", "P", "S")
-  elements <- arg_names
-  if (is.null(elements) || any(!nzchar(elements)) || any(!elements %in% allowed)) {
-    stop("All inputs must be named with allowed elements: ", paste(allowed, collapse = ", "))
+  if (!is.character(element)) {
+    stop("`element` must be a character vector of formulas / element symbols")
   }
-
-  counts <- as.integer(unlist(args))
-
-  iso_map <- c(C = "[13]C", H = "[2]H", O = "[18]O", N = "[15]N", S = "[34]S")
-  iso_minor <- iso_map[elements]
-  has_iso <- !is.na(iso_minor)
-  elements <- elements[has_iso]
-  counts <- counts[has_iso]
-  if (length(elements) == 0) {
-    return(data.table::data.table(chemform_diff = character(0), mass_diff = numeric(0)))
+  threshold <- as.numeric(threshold)[[1]]
+  if (!is.finite(threshold) || threshold < 0) {
+    stop("`threshold` must be a non-negative number")
   }
-  iso_minor <- iso_minor[has_iso]
-  mass_single <- mapply(isotope_mass_diff, iso_minor)
+  .isotope_mass_diff_for_elements(element, threshold = threshold)
+}
 
-  ranges <- lapply(counts, function(n) seq_len(n + 1) - 1L)
-  names(ranges) <- elements
-  grid <- expand.grid(ranges)
-
-  chemform_diff <- apply(grid, 1, function(row) {
-    paste0(iso_minor, row, collapse = "")
-  })
-
-  mass_diff <- as.numeric(as.matrix(grid) %*% mass_single)
-
-  data.table::data.table(chemform_diff = chemform_diff, mass_diff = mass_diff)
+#' Compact enviPat isotope_element labels: `[13]C1` -> `[13]C`, keep `[13]C2`.
+#' @keywords internal
+.isotope_label_compact <- function(x) {
+  gsub("(\\[[0-9]+\\][A-Za-z]+)1(?![0-9])", "\\1", as.character(x), perl = TRUE)
 }
 
 #' @keywords internal
-.isotope_mass_diff_for_elements <- function(elements) {
-  elements <- unique(as.character(elements))
+.isotope_mass_diff_for_elements <- function(elements, threshold = 0.0001) {
+  empty <- setNames(numeric(0), character(0))
+  elements <- as.character(elements)
   elements <- elements[nzchar(elements) & !is.na(elements)]
   if (!length(elements)) {
-    return(setNames(numeric(0), character(0)))
+    return(empty)
   }
 
-  et <- as.data.frame(MSCC::elem_table)
   out_names <- character(0)
   out_vals <- numeric(0)
 
-  for (el in elements) {
-    major <- et[et$element == el, , drop = FALSE]
-    if (!nrow(major)) {
-      warning("Element not found in elem_table: ", el, call. = FALSE)
+  for (fm in elements) {
+    pat <- tryCatch(
+      chemform_isotopes_pattern_enviPat(fm, thresh = threshold),
+      error = function(e) {
+        warning("enviPat pattern failed for '", fm, "': ", conditionMessage(e), call. = FALSE)
+        NULL
+      }
+    )
+    if (is.null(pat) || !nrow(pat)) {
       next
     }
-    major_mass <- major$mass[which.max(major$abundance)]
-    iso_pat <- paste0("^[0-9]+", el, "$")
-    minors <- et[grepl(iso_pat, et$isotope) & et$element != el, , drop = FALSE]
-    if (!nrow(minors)) {
+    pat <- as.data.frame(pat, stringsAsFactors = FALSE)
+    iso <- as.character(pat$isotope_element)
+    mono_idx <- which(is.na(iso) | !nzchar(iso))
+    if (!length(mono_idx)) {
+      mono_mz <- chemform_mz(fm)
+    } else {
+      mono_mz <- as.numeric(pat$m.z[[mono_idx[[1]]]])
+    }
+    keep <- !(is.na(iso) | !nzchar(iso))
+    if (!any(keep)) {
       next
     }
-    lab <- minors$element
-    bad <- is.na(lab) | !nzchar(lab) | !grepl("^\\[", lab)
-    if (any(bad)) {
-      mass_num <- sub(paste0(el, "$"), "", minors$isotope[bad])
-      lab[bad] <- paste0("[", mass_num, "]", el)
-    }
-    out_names <- c(out_names, lab)
-    out_vals <- c(out_vals, as.numeric(minors$mass) - major_mass)
+    labs <- .isotope_label_compact(iso[keep])
+    vals <- as.numeric(pat$m.z[keep]) - mono_mz
+    # keep first occurrence if a label repeats across fragments
+    new <- !labs %in% out_names
+    out_names <- c(out_names, labs[new])
+    out_vals <- c(out_vals, vals[new])
   }
 
   setNames(out_vals, out_names)
@@ -144,7 +128,7 @@ get_isotope_mass_diff <- function(...) {
 #' @export
 #'
 #' @examples chemform_isotope_label("C6H12O6", "[13]C", 3)
-chemform_isotope_label <- function(chemform = chem_formula_template,
+chemform_isotope_label <- function(chemform = demo_chemform,
                                     ele = "[13]C",
                                     count = 1) {
   mass_num <- stringr::str_extract(ele, "[0-9]+")
