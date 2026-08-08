@@ -1,3 +1,7 @@
+---
+title: "Rdisop mass decomposition"
+---
+
 # Rdisop mass decomposition (`decomposeMass`)
 
 Quick reference for how Rdisop turns an exact mass (or isotope pattern) into candidate sum formulas, and how that fits a formula-calculator workflow.

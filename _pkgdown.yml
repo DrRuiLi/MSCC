@@ -2,7 +2,7 @@ url: https://drruili.github.io/MSCC/
 
 template:
   bootstrap: 5
-  bootswatch: morph
+  bootswatch: litera
 
 home:
   title: MSCC
@@ -12,3 +12,22 @@ home:
 
 development:
   mode: auto
+
+# Only vignettes under vignettes/articles/ appear in the Articles menu.
+# Root vignettes (MSCC, CFM_shiny, RDKit-dev, …) are built but hidden.
+articles:
+- title: Articles
+  navbar: ~
+  contents:
+  - starts_with("articles")
+
+- title: internal
+  contents:
+  - MSCC
+  - CFM_shiny
+  - RDKit-dev
+
+navbar:
+  structure:
+    left: [reference, articles, news]
+    right: [search, github]
