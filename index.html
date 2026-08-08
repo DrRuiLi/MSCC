@@ -5,14 +5,16 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>Mass Spectrometry Chemical Calculation • MSCC</title>
+<title>MSCC • MSCC</title>
 <script src="deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
 <script src="deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Mass Spectrometry Chemical Calculation">
-<meta name="description" content="Chemical formula, isotopes calculation, and some more function developing">
-<meta property="og:description" content="Chemical formula, isotopes calculation, and some more function developing">
+<script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="MSCC">
+<meta name="description" content="Mass spectrometry chemical calculation — formulas, isotopes, adducts, molecular graphs, and CFM-ID helpers for metabolomics.
+">
+<meta property="og:description" content="Mass spectrometry chemical calculation — formulas, isotopes, adducts, molecular graphs, and CFM-ID helpers for metabolomics.
+">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -22,7 +24,7 @@
 
     <a class="navbar-brand me-2" href="index.html">MSCC</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -53,8 +55,126 @@
   </div>
 </nav><div class="container template-home">
 <div class="row">
-  <main id="main" class="col-md-9">
-Chemical formula, isotopes calculation, and some more function developing
+  <main id="main" class="col-md-9"><div class="section level1">
+<div class="page-header"><h1 id="mscc">MSCC<a class="anchor" aria-label="anchor" href="#mscc"></a>
+</h1></div>
+<!-- badges: start -->
+
+<p><strong>MSCC</strong> (Mass Spectrometry Chemical Calculation) provides chemical-formula arithmetic, isotope and adduct handling, molecular graph helpers, and CFM-ID spectrum prediction/annotation for metabolomics and mass spectrometry workflows.</p>
+<p>📚 <strong>Documentation:</strong> <a href="https://drruili.github.io/MSCC/">https://drruili.github.io/MSCC/</a></p>
+<div class="section level2">
+<h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
+</h2>
+<p>Install the development version from GitHub:</p>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># install.packages("pak")</span></span>
+<span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pak.html" class="external-link">pak</a></span><span class="op">(</span><span class="st">"WallFcerLR/MSCC"</span><span class="op">)</span></span></code></pre></div>
+<p>Or with <code>remotes</code>:</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># install.packages("remotes")</span></span>
+<span><span class="fu">remotes</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"WallFcerLR/MSCC"</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="quick-start">Quick start<a class="anchor" aria-label="anchor" href="#quick-start"></a>
+</h2>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/WallFcerLR/MSCC" class="external-link">MSCC</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Parse formulas and compute exact mass / m/z</span></span>
+<span><span class="fu"><a href="reference/chemform_parse.html">chemform_parse</a></span><span class="op">(</span><span class="st">"C6H12O6"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="reference/chemform_mz.html">chemform_mz</a></span><span class="op">(</span><span class="st">"C6H12O6"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="reference/chemform_mz.html">chemform_mz</a></span><span class="op">(</span><span class="st">"C6H12O6"</span>, charge <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Adducts and isotope labels</span></span>
+<span><span class="fu"><a href="reference/chemform_adduct.html">chemform_adduct</a></span><span class="op">(</span><span class="st">"C6H12O6"</span>, <span class="st">"[M+H]+"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="reference/chemform_isotope_label.html">chemform_isotope_label</a></span><span class="op">(</span><span class="st">"C6H12O6"</span>, <span class="st">"[13]C"</span>, <span class="fl">3</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Formula candidates from accurate mass or m/z</span></span>
+<span><span class="fu"><a href="reference/chemform_decompose_mass.html">chemform_decompose_mass</a></span><span class="op">(</span><span class="fl">180.0634</span>, ppm <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
+<span><span class="fu"><a href="reference/chemform_decompose_mz.html">chemform_decompose_mz</a></span><span class="op">(</span><span class="fl">181.0707</span>, charge <span class="op">=</span> <span class="fl">1</span>, ppm <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Heuristic filters (Seven Golden Rules)</span></span>
+<span><span class="fu"><a href="reference/chemform_check_seven_golden_rules.html">chemform_check_seven_golden_rules</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"C6H12O6"</span>, <span class="st">"CH6N2"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="features">Features<a class="anchor" aria-label="anchor" href="#features"></a>
+</h2>
+<table class="table">
+<colgroup>
+<col width="33%">
+<col width="66%">
+</colgroup>
+<thead><tr>
+<th>Area</th>
+<th>Highlights</th>
+</tr></thead>
+<tbody>
+<tr>
+<td><strong>Formulas</strong></td>
+<td>Parse, format, sum/multiply, exact mass and charged m/z</td>
+</tr>
+<tr>
+<td><strong>Adducts / isotopes</strong></td>
+<td>Adduct tables, isotope mass diffs, labeled formulas, enviPat patterns</td>
+</tr>
+<tr>
+<td><strong>Decomposition</strong></td>
+<td>MCP-based <code><a href="reference/chemform_decompose_mass.html">chemform_decompose_mass()</a></code> / <code><a href="reference/chemform_decompose_mz.html">chemform_decompose_mz()</a></code> with optional golden-rule filtering</td>
+</tr>
+<tr>
+<td><strong>Molecules</strong></td>
+<td>
+<code>Molecule_igraph</code> (SDF + igraph + isotopomers), SMILES/SDF bridges, visualization</td>
+</tr>
+<tr>
+<td><strong>CFM-ID</strong></td>
+<td>Docker-backed prediction/annotation (<code>CFM_data</code>), Spectra I/O, Shiny viewer</td>
+</tr>
+<tr>
+<td><strong>Optional chem</strong></td>
+<td>RDKit / RXNMapper via reticulate; natural-abundance correction (<code>accucor</code>)</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section level2">
+<h2 id="conventions">Conventions<a class="anchor" aria-label="anchor" href="#conventions"></a>
+</h2>
+<ul>
+<li>
+<strong>Isotope notation:</strong> <code>[13]C</code>, <code>[2]H</code>, <code>[15]N</code>, <code>[18]O</code>, <code>[34]S</code>
+</li>
+<li>
+<strong>Adduct strings:</strong> prefer <code>[M+H]+</code> / <code>[M-H]-</code>
+</li>
+<li>
+<strong>Polarity:</strong> <code>0</code> = negative, <code>1</code> = positive</li>
+<li>
+<strong>CFM collision energies:</strong> <code>energy0</code> → CE 10, <code>energy1</code> → CE 20, <code>energy2</code> → CE 40</li>
+</ul>
+</div>
+<div class="section level2">
+<h2 id="documentation">Documentation<a class="anchor" aria-label="anchor" href="#documentation"></a>
+</h2>
+<p>Full reference and articles are built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> and published to GitHub Pages:</p>
+<ul>
+<li>Site: <a href="https://drruili.github.io/MSCC/">https://drruili.github.io/MSCC/</a>
+</li>
+<li>Source: <a href="https://github.com/WallFcerLR/MSCC" class="external-link">https://github.com/WallFcerLR/MSCC</a>
+</li>
+<li>Issues: <a href="https://github.com/WallFcerLR/MSCC/issues" class="external-link">https://github.com/WallFcerLR/MSCC/issues</a>
+</li>
+</ul>
+<p>Rebuild the site locally:</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">pkgdown</span><span class="fu">::</span><span class="fu"><a href="https://pkgdown.r-lib.org/reference/build_site.html" class="external-link">build_site</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="license">License<a class="anchor" aria-label="anchor" href="#license"></a>
+</h2>
+<p>GPL-2 © <a href="mailto:rli@sinh.ac.cn">Rui Li</a></p>
+</div>
+</div>
   </main><aside class="col-md-3"><div class="links">
 <h2 data-toc-skip>Links</h2>
 <ul class="list-unstyled">
