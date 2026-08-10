@@ -616,28 +616,6 @@ get_isopattern_score <- function(formula,
 }
 
 
-make_element_table <- function(){
-
-  data("elem_table",package = "lc8")
-
-  element_table <- elem_table%>%
-    dplyr::mutate(element = MSCC::get_ele_uniso(element) ,
-                  isotope = gsub("([0-9]+)", "[\\1]", isotope))%>%
-    dplyr::group_by(element)%>%
-    dplyr::mutate(is.isotope = case_when(
-      abundance==max(abundance) ~F,
-      T~T
-    ),
-    symbol = case_when(
-      is.isotope~isotope,
-      T~element
-    ))
-
-
-
-}
-
-
 #' @export
 is.isotope <- function(atoms){
 
@@ -712,72 +690,3 @@ make_isotopologues_col <- function(n=10){
   setNames(cols[1:(n+1)],format_isotopologue(0:n,format = "+"))
 
 }
-
-
-get_formula_from_CN_mz <- function(
-    mz = 810.133057,
-    CN_formula = "C23N7",
-    charge = 1,
-    ppm = 10
-    ){
-
-
-  c.count <- MSCC::get_formula_ele_count(CN_formula,"C")
-  n.count <- MSCC::get_formula_ele_count(CN_formula,"N")
-  mzo <- mz - MSCC::chemform_mz(CN_formula)
-
-  lc8::mz_formula(
-    Accurate_mass = mz,
-    charge = charge,
-    ppm = ppm,
-    C_range = c.count:c.count,
-    N_range = n.count:n.count,
-    H_range = 0:floor(min(mzo, c.count * 2 + 2 + n.count + 5)),
-    O_range = 0:floor(mzo/16),
-    Cl_range = 0:floor(min(mzo/35,3)),
-    P_range = 0:floor(mzo/31),
-    S_range = 0:floor(mzo/32),
-    Na_range = 0:floor(min(mzo/23,1)),
-    K_range = 0:floor(min(mzo/16,1)),
-    F_range = 0:floor(min(mzo/19,5)),
-    Br_range = 0:floor(min(mzo/79,2)),
-    I_range = 0:0,
-    Si_range = 0:0,
-    B_range = 0:0,
-    Ca_range = 0:0,
-    Cu_range = 0:0,
-    Ni_range = 0:0,
-    N_rule = T,
-    Elem_ratio_rule = F,
-    db_min = 0,
-    db_max = 99,
-    metal_ion = 0:3
-  )
- #list(
- #  "H" = 0:floor(min(mzo, c.count * 2 + 2 + n.count)),
- #  "O"= 0:floor(mzo/16),
- #  "P"= 0:floor(mzo/31),
- #  "S"= 0:floor(mzo/32),
-
- #  "K"= 0:floor(min(mzo/16,1)),
- #  "Na"= 0:floor(min(mzo/23,1)),
-
-
- #  "F"= 0:floor(min(mzo/19,5)),
- #  "Cl"= 0:floor(min(mzo/35,3)),
- #  "Br"= 0:floor(min(mzo/79,2))
- #)->ele.limits
-
-#
- # ele.matrix <- expand.grid(ele.limits)
- # tmz <- MSCC:::chemform_matrix_mz(ele.matrix,charge = charge)
- # idm <- match_mz_foverlaps(mzo,tmz)
-#
- # ele.matrix[idm$ion2,]%>%
- #   MSCC:::chemform_from_ele_matrix()
-#
-}
-
-
-
-

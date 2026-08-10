@@ -70,30 +70,3 @@ chemform_isotopes_pattern_enviPat <- function(chemform,thresh = 0.1) {
   return(isopata)
 
 }
-
-
-
-
-
-#' @title chemform_mz_lc8
-#' @description
-#' calculate mz of a given chemical formula
-#'
-#' @param chemform, such as `"C2H4"`
-#'
-#' @return mz
-#' @export
-#'
-
-chemform_mz_lc8 <- function(chemform = "C2H4O1S2P1",charge = 0){
-
-
-  mz <- lc8::formula_mz( chemform,charge  = 0)### This function does not support charge as vector
-  e_mass = 0.00054857990943
-  mz= mz - e_mass * charge
-  return(mz)
-}
-
-
-
-

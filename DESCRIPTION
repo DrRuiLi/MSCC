@@ -23,6 +23,8 @@ Imports:
     methods,
     S4Vectors,
     Spectra
+Remotes: 
+    DrRuiLi/MSdev
 LinkingTo: 
     Rcpp
 Roxygen: list(markdown = TRUE)
@@ -33,7 +35,6 @@ Suggests:
     enviPat,
     igraph,
     knitr,
-    lc8,
     MSdev,
     nnls,
     plotly,
