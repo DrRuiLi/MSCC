@@ -25,7 +25,7 @@
   </ul></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="search.json"></form></li>
-<li class="nav-item"><a class="external-link nav-link" href="https://github.com/WallFcerLR/MSCC/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://github.com/drruili/MSCC/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
       </ul></div>
 
 
@@ -35,7 +35,7 @@
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>AI_CONTEXT — MSCC</h1>
-      <small class="dont-index">Source: <a href="https://github.com/WallFcerLR/MSCC/blob/main/AI_CONTEXT.md" class="external-link"><code>AI_CONTEXT.md</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/drruili/MSCC/blob/main/AI_CONTEXT.md" class="external-link"><code>AI_CONTEXT.md</code></a></small>
     </div>
 
 <div id="ai_context--mscc" class="section level1">
@@ -51,11 +51,11 @@
 <td>
 <strong>MSCC</strong> (Mass Spectrometry Chemical Calculation)</td>
 </tr><tr><td>Version</td>
-<td>1.1.0</td>
+<td>1.2.0</td>
 </tr><tr><td>Author</td>
 <td>Rui Li (<code>rli@sinh.ac.cn</code>)</td>
 </tr><tr><td>Repo</td>
-<td><a href="https://github.com/WallFcerLR/MSCC" class="external-link uri">https://github.com/WallFcerLR/MSCC</a></td>
+<td><a href="https://github.com/drruili/MSCC" class="external-link uri">https://github.com/drruili/MSCC</a></td>
 </tr><tr><td>Type</td>
 <td>R package (S4 + tidyverse + ChemmineR/igraph + Spectra)</td>
 </tr></tbody></table><p><strong>Purpose:</strong> Chemical-formula arithmetic, isotope/adduct handling for MS, molecular graph representation, CFM-ID spectrum prediction/annotation, and related metabolomics helpers (atom mapping, natural-abundance correction, interactive viewers).</p>
@@ -117,7 +117,7 @@
 </tr><tr><td><code>isotope.R</code></td>
 <td>Isotope mass diffs, formula labeling (<code>chemform_isotope_label</code>)</td>
 </tr><tr><td><code>dev_envipat_lc8.R</code></td>
-<td>enviPat isotope patterns + lc8 m/z bridge</td>
+<td>enviPat isotope patterns (<code>chemform_isotopes_pattern_enviPat</code>)</td>
 </tr><tr><td><code>migration_helpers.R</code></td>
 <td>Self-contained helpers (no MSdev); elem table, xcms isotope matching, polarity</td>
 </tr><tr><td><code>accucor_wrapper.R</code></td>
@@ -178,13 +178,13 @@
 <li>
 <strong>CFM runtime:</strong> Prediction/annotation needs a working CFM-ID Docker setup; local cache dirs are supported.</li>
 <li>
-<strong>Migration:</strong> Prefer MSCC-local helpers in <code>migration_helpers.R</code> over depending on package <code>MSdev</code>.</li>
+<strong>No MSdev dependency:</strong> Do <strong>not</strong> rely on package <code>MSdev</code> (no <code>Imports</code>/<code>Suggests</code>/<code>Remotes</code>, no <code>MSdev::</code> calls). MSdev already depends on MSCC; adding the reverse creates a circular install loop. Use MSCC-local helpers in <code>migration_helpers.R</code> and CFM plotting via <code>plotly_CFM_spectra()</code> / <code>shiny_vis_cfm()</code>.</li>
 <li>
 <strong>Demo molecule:</strong> Glycine SMILES <code>NCC(O)=O</code> is the default in several helpers.</li>
 </ol></div>
 <div class="section level2">
 <h2 id="external-stacks">External stacks<a class="anchor" aria-label="anchor" href="#external-stacks"></a></h2>
-<table class="table"><thead><tr><th>Layer</th>
+<table class="table"><colgroup><col width="28%"><col width="72%"></colgroup><thead><tr><th>Layer</th>
 <th>Packages / tools</th>
 </tr></thead><tbody><tr><td>Core</td>
 <td>tidyverse, data.table, magrittr, stringr</td>
@@ -193,13 +193,13 @@
 </tr><tr><td>Spectra</td>
 <td>Spectra</td>
 </tr><tr><td>Optional chem</td>
-<td>enviPat, lc8, CHNOSZ, accucor, nnls</td>
+<td>enviPat, CHNOSZ, accucor, nnls</td>
 </tr><tr><td>Optional Python</td>
 <td>reticulate → RDKit, RXNMapper</td>
 </tr><tr><td>Optional UI</td>
 <td>shiny, plotly, visNetwork</td>
-</tr><tr><td>Optional MS</td>
-<td>MSdev (Suggests only)</td>
+</tr><tr><td>Downstream (depends on MSCC)</td>
+<td>MSdev — one-way only; MSCC must not depend back</td>
 </tr><tr><td>CFM-ID</td>
 <td>Docker container (see <code>CFM_*</code> in <code>dev_CFM.R</code>)</td>
 </tr></tbody></table></div>
@@ -249,6 +249,8 @@
 <li>Keep formula/isotope parsing behavior stable; many downstream MS workflows depend on string formats.</li>
 <li>
 <code>dev_*</code> files mix production exports and experimental code — check <code>@export</code> / NAMESPACE before assuming public API.</li>
+<li>
+<strong>Never add <code>MSdev</code> to DESCRIPTION or call <code>MSdev::</code> from MSCC</strong> — that creates a circular dependency (MSdev → MSCC already).</li>
 </ul></div>
 </div>
 

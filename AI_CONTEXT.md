@@ -9,9 +9,9 @@
 | Field   | Value                                                   |
 |---------|---------------------------------------------------------|
 | Name    | **MSCC** (Mass Spectrometry Chemical Calculation)       |
-| Version | 1.1.0                                                   |
+| Version | 1.2.0                                                   |
 | Author  | Rui Li (`rli@sinh.ac.cn`)                               |
-| Repo    | <https://github.com/WallFcerLR/MSCC>                    |
+| Repo    | <https://github.com/drruili/MSCC>                       |
 | Type    | R package (S4 + tidyverse + ChemmineR/igraph + Spectra) |
 
 **Purpose:** Chemical-formula arithmetic, isotope/adduct handling for
@@ -70,7 +70,7 @@ Typical entry: `get_CFM_data_from_smiles()` → `CFM_predict` /
 | `Chemform_calc.R` | Formula sum/multiply (`chemform_sum`, `chemform_multi`) |
 | `Adduct-function.R` | Adduct table logic; `chemform_adduct`, `chemform_adduct_check` |
 | `isotope.R` | Isotope mass diffs, formula labeling (`chemform_isotope_label`) |
-| `dev_envipat_lc8.R` | enviPat isotope patterns + lc8 m/z bridge |
+| `dev_envipat_lc8.R` | enviPat isotope patterns (`chemform_isotopes_pattern_enviPat`) |
 | `migration_helpers.R` | Self-contained helpers (no MSdev); elem table, xcms isotope matching, polarity |
 | `accucor_wrapper.R` | Natural-isotope correction (`accucor_natural_correction`) |
 | `00_graph_primitives.R` | `vdata`/`edata`/`atom`/`get_element` generics; MCS/RXNMapper hooks |
@@ -111,23 +111,26 @@ needed.
     invent a catch-all `get_RDKit()`.
 6.  **CFM runtime:** Prediction/annotation needs a working CFM-ID Docker
     setup; local cache dirs are supported.
-7.  **Migration:** Prefer MSCC-local helpers in `migration_helpers.R`
-    over depending on package `MSdev`.
+7.  **No MSdev dependency:** Do **not** rely on package `MSdev` (no
+    `Imports`/`Suggests`/`Remotes`, no `MSdev::` calls). MSdev already
+    depends on MSCC; adding the reverse creates a circular install loop.
+    Use MSCC-local helpers in `migration_helpers.R` and CFM plotting via
+    `plotly_CFM_spectra()` / `shiny_vis_cfm()`.
 8.  **Demo molecule:** Glycine SMILES `NCC(O)=O` is the default in
     several helpers.
 
 ## External stacks
 
-| Layer           | Packages / tools                              |
-|-----------------|-----------------------------------------------|
-| Core            | tidyverse, data.table, magrittr, stringr      |
-| Structure       | ChemmineR (SDF), igraph, S4Vectors            |
-| Spectra         | Spectra                                       |
-| Optional chem   | enviPat, lc8, CHNOSZ, accucor, nnls           |
-| Optional Python | reticulate → RDKit, RXNMapper                 |
-| Optional UI     | shiny, plotly, visNetwork                     |
-| Optional MS     | MSdev (Suggests only)                         |
-| CFM-ID          | Docker container (see `CFM_*` in `dev_CFM.R`) |
+| Layer | Packages / tools |
+|----|----|
+| Core | tidyverse, data.table, magrittr, stringr |
+| Structure | ChemmineR (SDF), igraph, S4Vectors |
+| Spectra | Spectra |
+| Optional chem | enviPat, CHNOSZ, accucor, nnls |
+| Optional Python | reticulate → RDKit, RXNMapper |
+| Optional UI | shiny, plotly, visNetwork |
+| Downstream (depends on MSCC) | MSdev — one-way only; MSCC must not depend back |
+| CFM-ID | Docker container (see `CFM_*` in `dev_CFM.R`) |
 
 ## Docs & tests
 
@@ -160,3 +163,5 @@ needed.
   workflows depend on string formats.
 - `dev_*` files mix production exports and experimental code — check
   `@export` / NAMESPACE before assuming public API.
+- **Never add `MSdev` to DESCRIPTION or call `MSdev::` from MSCC** —
+  that creates a circular dependency (MSdev → MSCC already).
