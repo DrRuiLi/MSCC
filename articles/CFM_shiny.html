@@ -18,7 +18,7 @@
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
-    <nav class="navbar navbar-expand-lg fixed-top bg-primary" data-bs-theme="dark" aria-label="Site navigation"><div class="container">
+    <nav class="navbar navbar-expand-lg fixed-top bg-light" data-bs-theme="light" aria-label="Site navigation"><div class="container">
 
     <a class="navbar-brand me-2" href="../index.html">MSCC</a>
 
@@ -31,13 +31,14 @@
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
-<li class="nav-item"><a class="nav-link" href="../articles/MSCC.html">Get started</a></li>
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="../articles/CFM_shiny.html">CFM_shiny</a></li>
-    <li><a class="dropdown-item" href="../articles/RDKit-dev.html">RDKit-dev</a></li>
+<li><a class="dropdown-item" href="../articles/Rdisop_decomposeMass.html">Rdisop mass decomposition</a></li>
+    <li><a class="dropdown-item" href="../articles/Seven_Golden_Rules.html">Seven Golden Rules</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><a class="dropdown-item" href="../articles/index.html">More articles...</a></li>
   </ul>
 </li>
       </ul>
@@ -60,7 +61,7 @@
 
 
 
-      <small class="dont-index">Source: <a href="https://github.com/WallFcerLR/MSCC/blob/HEAD/vignettes/CFM_shiny.qmd" class="external-link"><code>vignettes/CFM_shiny.qmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/WallFcerLR/MSCC/blob/main/vignettes/CFM_shiny.qmd" class="external-link"><code>vignettes/CFM_shiny.qmd</code></a></small>
       <div class="d-none name"><code></code></div>
     </div>
 
@@ -100,7 +101,7 @@
 </div>
 <section class="section level2"><h2 id="introduction">1. Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
 </h2>
-<p><code><a href="../reference/shiny_vis_cfm.html">shiny_vis_cfm()</a></code> is an interactive Shiny viewer for <code>CFM_data</code> objects (predicted / annotated spectra from CFM-ID).</p>
+<p><code>shiny_vis_cfm()</code> is an interactive Shiny viewer for <code>CFM_data</code> objects (predicted / annotated spectra from CFM-ID).</p>
 <p>Layout:</p>
 <table class="table caption-top">
 <thead><tr class="header">
@@ -145,7 +146,7 @@
 <p>Build one from a SMILES string via CFM-ID (Docker required):</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">cfm</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_CFM_data_from_smiles.html">get_CFM_data_from_smiles</a></span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="va">cfm</span> <span class="op">&lt;-</span> <span class="fu">get_CFM_data_from_smiles</span><span class="op">(</span></span>
 <span>  smiles <span class="op">=</span> <span class="st">"NCC(O)=O"</span>,</span>
 <span>  compound_id <span class="op">=</span> <span class="st">"glycine"</span>,</span>
 <span>  adduct <span class="op">=</span> <span class="st">"[M+H]+"</span>,</span>
@@ -160,12 +161,12 @@
 <p>Launch the viewer:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/shiny_vis_cfm.html">shiny_vis_cfm</a></span><span class="op">(</span><span class="va">cfm</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu">shiny_vis_cfm</span><span class="op">(</span><span class="va">cfm</span><span class="op">)</span></span></code></pre></div>
 </div>
 <p>Optionally plot the multi-CE spectra alone:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/plotly_CFM_spectra.html">plotly_CFM_spectra</a></span><span class="op">(</span><span class="va">cfm</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu">plotly_CFM_spectra</span><span class="op">(</span><span class="va">cfm</span><span class="op">)</span></span></code></pre></div>
 </div>
 </section></section><script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {

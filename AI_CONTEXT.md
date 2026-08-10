@@ -46,9 +46,8 @@ Slots: `molecule_info`, `sdf` (ChemmineR `SDF`), `igraph`, `isotopomer`
   `get_Molecule_igraph_from_sdf()`.
 - Graph attrs via generics `vdata` / `edata` (defined in
   `R/00_graph_primitives.R`).
-- Isotopomer helpers:
-  [`Molecule_igraph_add_isotopomer()`](https://drruili.github.io/MSCC/reference/Molecule_igraph_add_isotopomer.md),
-  atom transfer via MCS or RXNMapper.
+- Isotopomer helpers: `Molecule_igraph_add_isotopomer()`, atom transfer
+  via MCS or RXNMapper.
 
 ### `CFM_data` (`R/dev_CFM.R`)
 
@@ -60,10 +59,8 @@ Slots:
 | `fragment_define` | Fragment SMILES, `fragment_mz`, polarity |
 | `fragment_transition` | Fragment graph edges (annotate path) |
 
-Typical entry:
-[`get_CFM_data_from_smiles()`](https://drruili.github.io/MSCC/reference/get_CFM_data_from_smiles.md)
-→ `CFM_predict` / `CFM_annotate*` (Docker). Viewer:
-[`shiny_vis_cfm()`](https://drruili.github.io/MSCC/reference/shiny_vis_cfm.md).
+Typical entry: `get_CFM_data_from_smiles()` → `CFM_predict` /
+`CFM_annotate*` (Docker). Viewer: `shiny_vis_cfm()`.
 
 ## Module map (`R/`)
 
@@ -97,9 +94,8 @@ Typical entry:
 | `isotopes_from_envipat` | enviPat isotope table                        |
 | `smiles_map`            | SMILES lookup helper                         |
 
-Access element table via
-[`get_elem_table()`](https://drruili.github.io/MSCC/reference/get_elem_table.md)
-when schema harmonization is needed.
+Access element table via `get_elem_table()` when schema harmonization is
+needed.
 
 ## Conventions agents must respect
 
@@ -111,9 +107,8 @@ when schema harmonization is needed.
     (`get_polarity_from_adduct`, `get_polarity_suffix`).
 4.  **CFM collision energies:** `energy0`→CE 10, `energy1`→CE 20,
     `energy2`→CE 40.
-5.  **RDKit:** Import submodules explicitly
-    ([`get_RDKit_Chem()`](https://drruili.github.io/MSCC/reference/get_RDKit_Chem.md));
-    do not invent a catch-all `get_RDKit()`.
+5.  **RDKit:** Import submodules explicitly (`get_RDKit_Chem()`); do not
+    invent a catch-all `get_RDKit()`.
 6.  **CFM runtime:** Prediction/annotation needs a working CFM-ID Docker
     setup; local cache dirs are supported.
 7.  **Migration:** Prefer MSCC-local helpers in `migration_helpers.R`
@@ -145,15 +140,15 @@ when schema harmonization is needed.
 
 | Task | Start here |
 |----|----|
-| Formula → m/z | [`chemform_mz()`](https://drruili.github.io/MSCC/reference/chemform_mz.md), [`chemform_parse()`](https://drruili.github.io/MSCC/reference/chemform_parse.md) |
-| Formula + adduct | [`chemform_adduct()`](https://drruili.github.io/MSCC/reference/chemform_adduct.md), [`chemform_adduct_check()`](https://drruili.github.io/MSCC/reference/chemform_adduct_check.md) |
-| Isotope pattern | [`chemform_isotopes_pattern_enviPat()`](https://drruili.github.io/MSCC/reference/chemform_isotopes_pattern_enviPat.md) |
+| Formula → m/z | `chemform_mz()`, `chemform_parse()` |
+| Formula + adduct | `chemform_adduct()`, `chemform_adduct_check()` |
+| Isotope pattern | `chemform_isotopes_pattern_enviPat()` |
 | Molecule graph | `get_Molecule_igraph_from_smiles()` |
-| CFM predict | [`get_CFM_data_from_smiles()`](https://drruili.github.io/MSCC/reference/get_CFM_data_from_smiles.md) / [`CFM_predict()`](https://drruili.github.io/MSCC/reference/CFM.md) |
-| CFM UI | [`shiny_vis_cfm()`](https://drruili.github.io/MSCC/reference/shiny_vis_cfm.md) |
-| RDKit | [`rdkit_mol_from_smiles()`](https://drruili.github.io/MSCC/reference/rdkit_mol_from_smiles.md), [`rdkit_mol_formula()`](https://drruili.github.io/MSCC/reference/rdkit_mol_formula.md) |
-| Natural correction | [`accucor_natural_correction()`](https://drruili.github.io/MSCC/reference/accucor_natural_correction.md) |
-| Atom mapping | [`get_atom_map()`](https://drruili.github.io/MSCC/reference/get_atom_map.md), [`get_Molecule_atom_transfer_by_atom_map()`](https://drruili.github.io/MSCC/reference/Molecule_atom_transfer.md), `RXNMapper_map()` |
+| CFM predict | `get_CFM_data_from_smiles()` / `CFM_predict()` |
+| CFM UI | `shiny_vis_cfm()` |
+| RDKit | `rdkit_mol_from_smiles()`, `rdkit_mol_formula()` |
+| Natural correction | `accucor_natural_correction()` |
+| Atom mapping | `get_atom_map()`, `get_Molecule_atom_transfer_by_atom_map()`, `RXNMapper_map()` |
 
 ## Agent guardrails
 

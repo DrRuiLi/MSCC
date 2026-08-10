@@ -54,7 +54,7 @@ chemform_check_seven_golden_rules(c("C6H12O6", "CH6N2"))
 |----|----|
 | **Formulas** | Parse, format, sum/multiply, exact mass and charged m/z |
 | **Adducts / isotopes** | Adduct tables, isotope mass diffs, labeled formulas, enviPat patterns |
-| **Decomposition** | MCP-based [`chemform_decompose_mass()`](https://drruili.github.io/MSCC/reference/chemform_decompose_mass.md) / [`chemform_decompose_mz()`](https://drruili.github.io/MSCC/reference/chemform_decompose_mz.md) with optional golden-rule filtering |
+| **Decomposition** | MCP-based `chemform_decompose_mass()` / `chemform_decompose_mz()` with optional golden-rule filtering |
 | **Molecules** | `Molecule_igraph` (SDF + igraph + isotopomers), SMILES/SDF bridges, visualization |
 | **CFM-ID** | Docker-backed prediction/annotation (`CFM_data`), Spectra I/O, Shiny viewer |
 | **Optional chem** | RDKit / RXNMapper via reticulate; natural-abundance correction (`accucor`) |

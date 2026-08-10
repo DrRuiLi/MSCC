@@ -7,7 +7,7 @@
 ## Citation
 
 Source:
-[`DESCRIPTION`](https://github.com/WallFcerLR/MSCC/blob/HEAD/DESCRIPTION)
+[`DESCRIPTION`](https://github.com/WallFcerLR/MSCC/blob/main/DESCRIPTION)
 
 Li R (2026). *MSCC: Mass Spectrometry Chemical Calculation*. R package
 version 1.2.0, <https://github.com/WallFcerLR/MSCC>.

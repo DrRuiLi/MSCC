@@ -20,7 +20,7 @@
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
-    <nav class="navbar navbar-expand-lg fixed-top bg-primary" data-bs-theme="dark" aria-label="Site navigation"><div class="container">
+    <nav class="navbar navbar-expand-lg fixed-top bg-light" data-bs-theme="light" aria-label="Site navigation"><div class="container">
 
     <a class="navbar-brand me-2" href="index.html">MSCC</a>
 
@@ -33,13 +33,14 @@
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
-<li class="nav-item"><a class="nav-link" href="articles/MSCC.html">Get started</a></li>
 <li class="nav-item"><a class="nav-link" href="reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="articles/CFM_shiny.html">CFM_shiny</a></li>
-    <li><a class="dropdown-item" href="articles/RDKit-dev.html">RDKit-dev</a></li>
+<li><a class="dropdown-item" href="articles/Rdisop_decomposeMass.html">Rdisop mass decomposition</a></li>
+    <li><a class="dropdown-item" href="articles/Seven_Golden_Rules.html">Seven Golden Rules</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><a class="dropdown-item" href="articles/index.html">More articles...</a></li>
   </ul>
 </li>
       </ul>
@@ -72,7 +73,7 @@
 <p>Or with <code>remotes</code>:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># install.packages("remotes")</span></span>
-<span><span class="fu">remotes</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"WallFcerLR/MSCC"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"WallFcerLR/MSCC"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="quick-start">Quick start<a class="anchor" aria-label="anchor" href="#quick-start"></a>
@@ -81,20 +82,20 @@
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/WallFcerLR/MSCC" class="external-link">MSCC</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Parse formulas and compute exact mass / m/z</span></span>
-<span><span class="fu"><a href="reference/chemform_parse.html">chemform_parse</a></span><span class="op">(</span><span class="st">"C6H12O6"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="reference/chemform_mz.html">chemform_mz</a></span><span class="op">(</span><span class="st">"C6H12O6"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="reference/chemform_mz.html">chemform_mz</a></span><span class="op">(</span><span class="st">"C6H12O6"</span>, charge <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
+<span><span class="fu">chemform_parse</span><span class="op">(</span><span class="st">"C6H12O6"</span><span class="op">)</span></span>
+<span><span class="fu">chemform_mz</span><span class="op">(</span><span class="st">"C6H12O6"</span><span class="op">)</span></span>
+<span><span class="fu">chemform_mz</span><span class="op">(</span><span class="st">"C6H12O6"</span>, charge <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Adducts and isotope labels</span></span>
-<span><span class="fu"><a href="reference/chemform_adduct.html">chemform_adduct</a></span><span class="op">(</span><span class="st">"C6H12O6"</span>, <span class="st">"[M+H]+"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="reference/chemform_isotope_label.html">chemform_isotope_label</a></span><span class="op">(</span><span class="st">"C6H12O6"</span>, <span class="st">"[13]C"</span>, <span class="fl">3</span><span class="op">)</span></span>
+<span><span class="fu">chemform_adduct</span><span class="op">(</span><span class="st">"C6H12O6"</span>, <span class="st">"[M+H]+"</span><span class="op">)</span></span>
+<span><span class="fu">chemform_isotope_label</span><span class="op">(</span><span class="st">"C6H12O6"</span>, <span class="st">"[13]C"</span>, <span class="fl">3</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Formula candidates from accurate mass or m/z</span></span>
-<span><span class="fu"><a href="reference/chemform_decompose_mass.html">chemform_decompose_mass</a></span><span class="op">(</span><span class="fl">180.0634</span>, ppm <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
-<span><span class="fu"><a href="reference/chemform_decompose_mz.html">chemform_decompose_mz</a></span><span class="op">(</span><span class="fl">181.0707</span>, charge <span class="op">=</span> <span class="fl">1</span>, ppm <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
+<span><span class="fu">chemform_decompose_mass</span><span class="op">(</span><span class="fl">180.0634</span>, ppm <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
+<span><span class="fu">chemform_decompose_mz</span><span class="op">(</span><span class="fl">181.0707</span>, charge <span class="op">=</span> <span class="fl">1</span>, ppm <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Heuristic filters (Seven Golden Rules)</span></span>
-<span><span class="fu"><a href="reference/chemform_check_seven_golden_rules.html">chemform_check_seven_golden_rules</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"C6H12O6"</span>, <span class="st">"CH6N2"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">chemform_check_seven_golden_rules</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"C6H12O6"</span>, <span class="st">"CH6N2"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="features">Features<a class="anchor" aria-label="anchor" href="#features"></a>
@@ -119,7 +120,7 @@
 </tr>
 <tr>
 <td><strong>Decomposition</strong></td>
-<td>MCP-based <code><a href="reference/chemform_decompose_mass.html">chemform_decompose_mass()</a></code> / <code><a href="reference/chemform_decompose_mz.html">chemform_decompose_mz()</a></code> with optional golden-rule filtering</td>
+<td>MCP-based <code>chemform_decompose_mass()</code> / <code>chemform_decompose_mz()</code> with optional golden-rule filtering</td>
 </tr>
 <tr>
 <td><strong>Molecules</strong></td>

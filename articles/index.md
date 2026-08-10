@@ -1,7 +1,8 @@
 # Articles
 
-### All vignettes
+### Articles
 
-- [CFM_shiny](https://drruili.github.io/MSCC/articles/CFM_shiny.md):
-- [MSCC](https://drruili.github.io/MSCC/articles/MSCC.md):
-- [RDKit-dev](https://drruili.github.io/MSCC/articles/RDKit-dev.md):
+- [Rdisop mass
+  decomposition](https://drruili.github.io/MSCC/articles/Rdisop_decomposeMass.md):
+- [Seven Golden
+  Rules](https://drruili.github.io/MSCC/articles/Seven_Golden_Rules.md):

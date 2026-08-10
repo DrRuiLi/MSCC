@@ -32,9 +32,8 @@ library(MSCC)
 
 ## 1. Introduction
 
-[`shiny_vis_cfm()`](https://drruili.github.io/MSCC/reference/shiny_vis_cfm.md)
-is an interactive Shiny viewer for `CFM_data` objects (predicted /
-annotated spectra from CFM-ID).
+`shiny_vis_cfm()` is an interactive Shiny viewer for `CFM_data` objects
+(predicted / annotated spectra from CFM-ID).
 
 Layout:
 
