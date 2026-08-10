@@ -194,30 +194,6 @@ get_iso_natural_ratio <- function(formula, iso_ele, ratio_matrix) {
   out
 }
 
-#' Compute pairwise adduct mass differences by polarity
-#'
-#' @param pol Polarity (`0`/`1`, `"negative"`/`"positive"`).
-#'
-#' @return Data frame with adduct pairs and delta mass.
-#' @export
-get_adduct_mass_diff <- function(pol = 0) {
-  pol_chr <- as.character(pol)
-  ion_mode <- if (pol_chr %in% c("1", "positive", "Positive")) "positive" else "negative"
-  adt <- MSCC::adduct.table
-  adt <- adt[as.character(adt$Ion_mode) %in% ion_mode, , drop = FALSE]
-  if (!nrow(adt)) return(data.frame())
-  expand.grid(
-    adduct1 = as.character(adt$Adduct),
-    adduct2 = as.character(adt$Adduct),
-    stringsAsFactors = FALSE
-  ) %>%
-    dplyr::mutate(
-      mass1 = adt$Mass[match(adduct1, adt$Adduct)],
-      mass2 = adt$Mass[match(adduct2, adt$Adduct)],
-      mass_diff = mass2 - mass1
-    )
-}
-
 #' Infer polarity from adduct expression
 #'
 #' @param adduct Character adduct annotation, e.g. `"[M+H]+"`, `"[M-H]-"`.
