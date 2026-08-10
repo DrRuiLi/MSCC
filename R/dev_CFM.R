@@ -917,15 +917,8 @@ read_CFM_fraggen_result <- function(result_path){
 
 
 
-plot_CFM_annotated_Spectra <- function(cfmd){
-
-  peak.assign <- cfmd@peak_assignment
-  fragment.define <- cfmd@fragment_define
-
-  get_CFM_data_Spectra(cfmd) %>%
-    Spectra::combineSpectra() %>%
-    MSdev::plot_Spectra(label.top = 0)
-
+plot_CFM_annotated_Spectra <- function(cfmd) {
+  plotly_CFM_spectra(cfmd)
 }
 
 

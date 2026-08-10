@@ -8,8 +8,8 @@ Description: Chemical formula, isotopes calculation, and some more function deve
 License: GPL-2
 Encoding: UTF-8
 LazyData: true
-URL: https://github.com/WallFcerLR/MSCC, https://drruili.github.io/MSCC/
-BugReports: https://github.com/WallFcerLR/MSCC/issues
+URL: https://github.com/drruili/MSCC, https://drruili.github.io/MSCC/
+BugReports: https://github.com/drruili/MSCC/issues
 Depends: 
     R (>= 3.5),
     tidyverse,
@@ -23,8 +23,6 @@ Imports:
     methods,
     S4Vectors,
     Spectra
-Remotes: 
-    DrRuiLi/MSdev
 LinkingTo: 
     Rcpp
 Roxygen: list(markdown = TRUE)
@@ -35,7 +33,6 @@ Suggests:
     enviPat,
     igraph,
     knitr,
-    MSdev,
     nnls,
     plotly,
     quarto,
