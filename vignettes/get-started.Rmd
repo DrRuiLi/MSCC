@@ -83,7 +83,7 @@ See the [Seven Golden Rules](articles/Seven_Golden_Rules.html) article for rule 
 
 Build a `Molecule_igraph` (SDF + igraph + optional isotopomers). Default demo molecule is glycine:
 
-```{r molecule}
+```{r molecule, eval = FALSE}
 mol <- get_Molecule_igraph_from_smiles("NCC(O)=O", id = "glycine")
 mol@molecule_info
 ```
