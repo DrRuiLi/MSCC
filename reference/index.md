@@ -158,6 +158,9 @@
 - [`isotope_mass_diff()`](https://drruili.github.io/MSCC/reference/isotope_mass_diff.md)
   : isotope_mass_diff
 
+- [`%>%`](https://drruili.github.io/MSCC/reference/pipe.md) : Re-export
+  the magrittr pipe
+
 - [`plotly_CFM_spectra()`](https://drruili.github.io/MSCC/reference/plotly_CFM_spectra.md)
   : Plotly multi-CE spectrum for CFM_data
 

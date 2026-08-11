@@ -14,7 +14,7 @@ Install the development version from GitHub:
 ``` r
 
 # install.packages("pak")
-pak::pak("WallFcerLR/MSCC")
+pak::pak("drruili/MSCC")
 ```
 
 Or with `remotes`:
@@ -22,7 +22,7 @@ Or with `remotes`:
 ``` r
 
 # install.packages("remotes")
-remotes::install_github("WallFcerLR/MSCC")
+remotes::install_github("drruili/MSCC")
 ```
 
 ## Quick start
@@ -73,8 +73,8 @@ Full reference and articles are built with
 [pkgdown](https://pkgdown.r-lib.org/) and published to GitHub Pages:
 
 - Site: <https://drruili.github.io/MSCC/>
-- Source: <https://github.com/WallFcerLR/MSCC>
-- Issues: <https://github.com/WallFcerLR/MSCC/issues>
+- Source: <https://github.com/drruili/MSCC>
+- Issues: <https://github.com/drruili/MSCC/issues>
 
 Rebuild the site locally:
 

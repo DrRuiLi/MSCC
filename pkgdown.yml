@@ -3,11 +3,12 @@ pkgdown: 2.2.1
 pkgdown_sha: ~
 articles:
   CFM_shiny: CFM_shiny.html
+  get-started: get-started.html
   MSCC: MSCC.html
   articles/Rdisop_decomposeMass: Rdisop_decomposeMass.html
   RDKit-dev: RDKit-dev.html
   articles/Seven_Golden_Rules: Seven_Golden_Rules.html
-last_built: 2026-08-11T08:13Z
+last_built: 2026-08-11T13:43Z
 urls:
   reference: https://drruili.github.io/MSCC/reference
   article: https://drruili.github.io/MSCC/articles

@@ -8,6 +8,7 @@
 <url><loc>https://drruili.github.io/MSCC/articles/RDKit-dev.html</loc></url>
 <url><loc>https://drruili.github.io/MSCC/articles/Rdisop_decomposeMass.html</loc></url>
 <url><loc>https://drruili.github.io/MSCC/articles/Seven_Golden_Rules.html</loc></url>
+<url><loc>https://drruili.github.io/MSCC/articles/get-started.html</loc></url>
 <url><loc>https://drruili.github.io/MSCC/articles/index.html</loc></url>
 <url><loc>https://drruili.github.io/MSCC/authors.html</loc></url>
 <url><loc>https://drruili.github.io/MSCC/index.html</loc></url>
@@ -68,6 +69,7 @@
 <url><loc>https://drruili.github.io/MSCC/reference/isotope_mass_diff.html</loc></url>
 <url><loc>https://drruili.github.io/MSCC/reference/make_vector.html</loc></url>
 <url><loc>https://drruili.github.io/MSCC/reference/num2str.html</loc></url>
+<url><loc>https://drruili.github.io/MSCC/reference/pipe.html</loc></url>
 <url><loc>https://drruili.github.io/MSCC/reference/plotly_CFM_spectra.html</loc></url>
 <url><loc>https://drruili.github.io/MSCC/reference/rdkit_has_substruct.html</loc></url>
 <url><loc>https://drruili.github.io/MSCC/reference/rdkit_mol_exact_mass.html</loc></url>
