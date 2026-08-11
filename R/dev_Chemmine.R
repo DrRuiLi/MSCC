@@ -89,7 +89,7 @@ ggplot_sdf <- function(sdf,
 
 check_sdf <- function(sdf){
 
-  atom.map.matrix <- atomcountMA(sdf)
+  atom.map.matrix <- ChemmineR::atomcountMA(sdf)
   atom.map.matrix <- atom.map.matrix[,setdiff(colnames(atom.map.matrix),"0"),drop =F]
   id.atom <- apply(atom.map.matrix,1,sum)>1
 
@@ -630,11 +630,12 @@ is.isotope <- function(atoms){
 
 
 #' @export
+#' @importFrom ChemmineR atomcountMA
 MF2 <- function (x, ...){
 
   if (class(x) == "SDF")
     x <- as(x, "SDFset")
-  propma <- atomcountMA(x, ...)
+  propma <- ChemmineR::atomcountMA(x, ...)
   propma <- propma[c(1, seq(along = propma[, 1])), ,drop = F]
   hillorder <- colnames(propma)
   names(hillorder) <- hillorder

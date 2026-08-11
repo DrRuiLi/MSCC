@@ -11,18 +11,18 @@ LazyData: true
 URL: https://github.com/drruili/MSCC, https://drruili.github.io/MSCC/
 BugReports: https://github.com/drruili/MSCC/issues
 Depends: 
-    R (>= 3.5),
-    tidyverse,
-    magrittr,
-    stringr
+    R (>= 3.5)
 Imports:
     Rcpp,
     data.table,
     ChemmineR,
     igraph,
+    magrittr,
     methods,
     S4Vectors,
-    Spectra
+    Spectra,
+    stringr,
+    tidyverse
 LinkingTo: 
     Rcpp
 Roxygen: list(markdown = TRUE)

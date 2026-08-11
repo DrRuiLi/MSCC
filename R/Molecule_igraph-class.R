@@ -16,10 +16,19 @@ Molecule_igraph <- function(){
 setMethod("show",
   "Molecule_igraph",
   definition = function(object) {
-    print(paste0("Molecule_igraph: ", unname(MSCC::MF2(object@sdf, addH =  T))," ",
-                 nrow(object@isotopomer)," isotopomers"
-                 ))
-
+    mf <- tryCatch(
+      unname(MSCC::MF2(object@sdf, addH = TRUE)),
+      error = function(e) {
+        smi <- object@molecule_info$smiles
+        if (is.null(smi) || !length(smi) || is.na(smi[[1]])) "unknown" else smi[[1]]
+      }
+    )
+    cat(
+      "Molecule_igraph: ", paste(mf, collapse = ", "), " ",
+      nrow(object@isotopomer), " isotopomers\n",
+      sep = ""
+    )
+    invisible(object)
   }
 )
 

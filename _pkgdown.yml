@@ -14,7 +14,8 @@ development:
   mode: auto
 
 # Only vignettes under vignettes/articles/ appear in the Articles menu.
-# Root vignettes (MSCC, CFM_shiny, RDKit-dev, …) are built but hidden.
+# Root vignettes (MSCC, CFM_shiny, RDKit-dev, …) are built but hidden,
+# except get-started which is linked as navbar "Get started" (intro).
 articles:
 - title: Articles
   navbar: ~
@@ -23,11 +24,16 @@ articles:
 
 - title: internal
   contents:
+  - get-started
   - MSCC
   - CFM_shiny
   - RDKit-dev
 
 navbar:
   structure:
-    left: [reference, articles, news]
+    left: [intro, reference, articles, news]
     right: [search, github]
+  components:
+    intro:
+      text: Get started
+      href: articles/get-started.html

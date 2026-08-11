@@ -1,7 +1,7 @@
 # MSCC
 
 <!-- badges: start -->
-[![pkgdown](https://github.com/WallFcerLR/MSCC/actions/workflows/pkgdown.yaml/badge.svg)](https://github.com/WallFcerLR/MSCC/actions/workflows/pkgdown.yaml)
+[![pkgdown](https://github.com/drruili/MSCC/actions/workflows/pkgdown.yaml/badge.svg)](https://github.com/drruili/MSCC/actions/workflows/pkgdown.yaml)
 [![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
 [![License: GPL-2](https://img.shields.io/badge/license-GPL--2-blue.svg)](https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html)
 <!-- badges: end -->
@@ -16,14 +16,14 @@ Install the development version from GitHub:
 
 ```r
 # install.packages("pak")
-pak::pak("WallFcerLR/MSCC")
+pak::pak("drruili/MSCC")
 ```
 
 Or with `remotes`:
 
 ```r
 # install.packages("remotes")
-remotes::install_github("WallFcerLR/MSCC")
+remotes::install_github("drruili/MSCC")
 ```
 
 ## Quick start
@@ -71,8 +71,8 @@ chemform_check_seven_golden_rules(c("C6H12O6", "CH6N2"))
 Full reference and articles are built with [pkgdown](https://pkgdown.r-lib.org/) and published to GitHub Pages:
 
 - Site: [https://drruili.github.io/MSCC/](https://drruili.github.io/MSCC/)
-- Source: [https://github.com/WallFcerLR/MSCC](https://github.com/WallFcerLR/MSCC)
-- Issues: [https://github.com/WallFcerLR/MSCC/issues](https://github.com/WallFcerLR/MSCC/issues)
+- Source: [https://github.com/drruili/MSCC](https://github.com/drruili/MSCC)
+- Issues: [https://github.com/drruili/MSCC/issues](https://github.com/drruili/MSCC/issues)
 
 Rebuild the site locally:
 
