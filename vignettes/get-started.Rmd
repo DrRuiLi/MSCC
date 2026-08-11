@@ -1,17 +1,20 @@
 ---
 title: "Get started"
+output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Get started}
-  %\VignetteEngine{quarto::html}
+  %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
-knitr:
-  opts_chunk:
-    collapse: true
-    comment: '#>'
 ---
 
-```{r}
-#| label: setup
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
 library(MSCC)
 ```
 
@@ -35,8 +38,7 @@ remotes::install_github("drruili/MSCC")
 
 Parse a chemical formula to an element matrix, then compute exact mass or charged m/z:
 
-```{r}
-#| label: formulas
+```{r formulas}
 chemform_parse("C6H12O6")
 chemform_mz("C6H12O6")
 chemform_mz("C6H12O6", charge = 1)
@@ -44,8 +46,7 @@ chemform_mz("C6H12O6", charge = 1)
 
 Sum or multiply formulas when building larger species:
 
-```{r}
-#| label: formula-arith
+```{r formula-arith}
 chemform_sum("C6H12O6", "H2O")
 chemform_multi("CH2", 3)
 ```
@@ -54,17 +55,14 @@ chemform_multi("CH2", 3)
 
 Prefer adduct strings like `[M+H]+` / `[M-H]-`. Isotope labels use bracket notation (`[13]C`, `[2]H`, …):
 
-```{r}
-#| label: adduct-iso
+```{r adduct-iso}
 chemform_adduct("C6H12O6", "[M+H]+", value = "chemform")
 chemform_isotope_label("C6H12O6", "[13]C", 3)
 ```
 
 Optional enviPat isotope patterns (requires the **enviPat** package):
 
-```{r}
-#| label: envipat
-#| eval: !expr requireNamespace("enviPat", quietly = TRUE)
+```{r envipat, eval = requireNamespace("enviPat", quietly = TRUE)}
 chemform_isotopes_pattern_enviPat("C6H12O6")
 ```
 
@@ -72,8 +70,7 @@ chemform_isotopes_pattern_enviPat("C6H12O6")
 
 Decompose a neutral exact mass or an ion m/z into candidate formulas. Optionally apply Seven Golden Rules filters:
 
-```{r}
-#| label: decompose
+```{r decompose}
 chemform_decompose_mass(180.0634, ppm = 5)
 chemform_decompose_mz(181.0707, charge = 1, ppm = 5)
 
@@ -86,8 +83,7 @@ See the [Seven Golden Rules](articles/Seven_Golden_Rules.html) article for rule 
 
 Build a `Molecule_igraph` (SDF + igraph + optional isotopomers). Default demo molecule is glycine:
 
-```{r}
-#| label: molecule
+```{r molecule}
 mol <- get_Molecule_igraph_from_smiles("NCC(O)=O", id = "glycine")
 mol@molecule_info
 ```
@@ -96,9 +92,7 @@ mol@molecule_info
 
 Prediction and annotation need a working CFM-ID Docker setup. Small molecules such as glycine are useful for a quick demo:
 
-```{r}
-#| label: cfm
-#| eval: false
+```{r cfm, eval = FALSE}
 cfm <- get_CFM_data_from_smiles(
   smiles = "NCC(O)=O",
   compound_id = "glycine",

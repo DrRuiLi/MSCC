@@ -12,6 +12,7 @@ knitr:
 
 ```{r}
 #| label: setup
+#| eval: false
 library(MSCC)
 ```
 
