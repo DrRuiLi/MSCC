@@ -7,7 +7,7 @@ solver and intentionally skips isotope distribution calculation/ranking."></head
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
-    <nav class="navbar navbar-expand-lg fixed-top bg-primary" data-bs-theme="dark" aria-label="Site navigation"><div class="container">
+    <nav class="navbar navbar-expand-lg fixed-top bg-light" data-bs-theme="light" aria-label="Site navigation"><div class="container">
 
     <a class="navbar-brand me-2" href="../index.html">MSCC</a>
 
@@ -19,16 +19,17 @@ solver and intentionally skips isotope distribution calculation/ranking."></head
     </button>
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
-      <ul class="navbar-nav me-auto"><li class="nav-item"><a class="nav-link" href="../articles/MSCC.html">Get started</a></li>
-<li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
+      <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/CFM_shiny.html">CFM_shiny</a></li>
-    <li><a class="dropdown-item" href="../articles/RDKit-dev.html">RDKit-dev</a></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/Rdisop_decomposeMass.html">Rdisop mass decomposition</a></li>
+    <li><a class="dropdown-item" href="../articles/Seven_Golden_Rules.html">Seven Golden Rules</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><a class="dropdown-item" href="../articles/index.html">More articles...</a></li>
   </ul></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
-<li class="nav-item"><a class="external-link nav-link" href="https://github.com/WallFcerLR/MSCC/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://github.com/drruili/MSCC/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
       </ul></div>
 
 
@@ -38,7 +39,7 @@ solver and intentionally skips isotope distribution calculation/ranking."></head
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>MCP-only mass decomposition (neutral exact mass)</h1>
-      <small class="dont-index">Source: <a href="https://github.com/WallFcerLR/MSCC/blob/HEAD/R/chemform_decompose.R" class="external-link"><code>R/chemform_decompose.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/drruili/MSCC/blob/main/R/chemform_decompose.R" class="external-link"><code>R/chemform_decompose.R</code></a></small>
       <div class="d-none name"><code>chemform_decompose_mass.Rd</code></div>
     </div>
 
@@ -91,7 +92,10 @@ MCP solver still enumerates non-negative relative counts.</p></dd>
 
 <dt id="arg-max-elements">max_elements<a class="anchor" aria-label="anchor" href="#arg-max-elements"></a></dt>
 <dd><p>Maximum element counts. Accepts <code>NULL</code> (defaults to 999999 for each element),
-a named integer vector (names are element symbols), or a single formula string like <code>"C999H999"</code>.</p></dd>
+a named integer vector (names are element symbols), or a single formula string like <code>"C999H999"</code>.
+Applied as a <strong>post-filter</strong> after MCP enumeration (does not prune the search). With the
+default, mass matching already limits atom counts, so this is usually a no-op unless you
+set tighter chemical priors (e.g. <code>c(C = 10, O = 5)</code>).</p></dd>
 
 
 <dt id="arg-check-rule">check_rule<a class="anchor" aria-label="anchor" href="#arg-check-rule"></a></dt>
@@ -108,7 +112,19 @@ Rows are sorted by increasing <code>abs(ppm)</code>.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>For ion m/z input with charge, use <code><a href="chemform_decompose_mz.html">chemform_decompose_mz()</a></code>.</p>
+    <p>For ion m/z input with charge, use <code><a href="chemform_decompose_mz.html">chemform_decompose_mz()</a></code>.</p><div class="section">
+<h3 id="enumeration-and-cost">Enumeration and cost<a class="anchor" aria-label="anchor" href="#enumeration-and-cost"></a></h3>
+
+
+<p>With non-negative <code>min_elements</code> (the default), MCP enumerates <strong>all</strong> compositions of the
+allowed <code>elements</code> whose exact mass falls in the tolerance window. There is no separate
+<code>floor(mass / mono_mass)</code> cap in the C++ core: remaining mass during recursion already
+bounds each count (e.g. mass 13 cannot yield two carbons). Cost tracks the <strong>number of
+solutions</strong> (and alphabet size), not the default <code>max_elements = 999999</code>. Typical CHNO /
+CHNOPS masses are inexpensive; large mass, wide <code>ppm</code>/<code>mzabs</code>, many light atoms (especially H),
+or a large alphabet increase cost because more formulas fit the window.</p>
+</div>
+
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

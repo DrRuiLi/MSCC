@@ -351,11 +351,30 @@ ppm, and the allowed elements list.
 
 ------------------------------------------------------------------------
 
-### 6. Practical controls
+### 6. `max_elements` and enumeration cost (MSCC)
+
+With non-negative mins (default), MCP enumerates **all** compositions
+that fit the mass window. The C++ core does **not** apply a separate
+`floor(mass / mono_mass)` cap: remaining mass during recursion already
+limits each count (e.g. mass 13 cannot yield two carbons).
+
+| Control | Role in MSCC |
+|----|----|
+| Default `max_elements = NULL` → 999999 | Usually a **no-op** for realistic masses; mass matching already caps counts |
+| User-set `max_elements` (e.g. `C = 10`) | Useful as a **chemical prior**; applied as a **post-filter** after MCP (does **not** prune the search or reduce runtime) |
+| Cost drivers | Larger mass, wider `ppm`/`mzabs`, more/lighter elements (especially H), larger alphabet → more solutions |
+
+So “no max” ≠ infinite search, but default max also does not speed
+things up. Typical CHNO / CHNOPS formula finding is inexpensive; cost
+grows with **how many** formulas hit the window.
+
+### 7. Practical controls
 
 1.  Keep the alphabet small (CHNO or CHNOPS first).
 2.  Tighten `ppm` / `mzabs`.
-3.  Use `minElements` / `maxElements` to cap atom counts.
+3.  Use `min_elements` / `max_elements` for chemical priors (MSCC: max
+    is post-filter only; see §6). In Rdisop, `minElements` /
+    `maxElements` similarly restrict accepted counts.
 4.  Prefer `decomposeIsotopes` when M+1 / M+2 intensities exist.
 5.  Post-filter (H/C ranges, RDBE, nitrogen rule) and keep top-$`N`$ by
     ppm / score.
@@ -364,17 +383,18 @@ ppm, and the allowed elements list.
 
 ------------------------------------------------------------------------
 
-### 7. Path A in MSCC (formula-only MCP calculator)
+### 8. Path A in MSCC (formula-only MCP calculator)
 
 MSCC vendors the same imslib MCP stack (see §3) behind two wrappers (no
 isotope ranking):
 
 | Function | Input | Role |
 |----|----|----|
-| `chemform_decompose_mass()` | Neutral exact mass | Thin MCP wrapper only |
-| `chemform_decompose_mz()` | Ion m/z + `charge` | Convert m/z → neutral, then call `chemform_decompose_mass()` |
+| [`chemform_decompose_mass()`](https://drruili.github.io/MSCC/reference/chemform_decompose_mass.md) | Neutral exact mass | Thin MCP wrapper only |
+| [`chemform_decompose_mz()`](https://drruili.github.io/MSCC/reference/chemform_decompose_mz.md) | Ion m/z + `charge` | Convert m/z → neutral, then call [`chemform_decompose_mass()`](https://drruili.github.io/MSCC/reference/chemform_decompose_mass.md) |
 
-Charge conversion (same electron-mass convention as `chemform_mz()`):
+Charge conversion (same electron-mass convention as
+[`chemform_mz()`](https://drruili.github.io/MSCC/reference/chemform_mz.md)):
 
 ``` text
 M_neutral = mz * abs(charge) + e * charge   # when charge != 0
@@ -421,7 +441,7 @@ chemform_decompose_mass(
 
 ------------------------------------------------------------------------
 
-### 8. Suggested return table
+### 9. Suggested return table
 
 After decomposition, tidy to something like:
 
@@ -435,12 +455,14 @@ After decomposition, tidy to something like:
 
 ------------------------------------------------------------------------
 
-### 9. Bottom line
+### 10. Bottom line
 
 - `decomposeMass` / `chemform_decompose_mass` return essentially **all**
   compositions for the allowed elements that fit the mass window.
 - The engine is an **MCP algorithm** (scale → integer residue-table
   decompose → real-mass filter), not brute-force nested loops.
+- MSCC `max_elements` is a post-filter chemical prior; the
+  default (999999) does not limit cost — mass matching does.
 - Adding element types still hurts a lot: the **number of valid
   formulas** grows combinatorially, so CPU and memory grow with output
   size.

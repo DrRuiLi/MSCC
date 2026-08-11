@@ -6,9 +6,8 @@ isotope counts to observed peaks based on mass tolerance.
 
 Requires a `fragment_group` column on `peak_assignment` or
 `fragment_define`. For MSIPAtomMap workflows, prefer
-[`MSIP::Spectra_annotate_MSIPAtomMap()`](https://rdrr.io/pkg/MSIP/man/Spectra_annotate_MSIPAtomMap.html)
-after
-[`MSIP::MSIPAtomMap_get_FG_map()`](https://rdrr.io/pkg/MSIP/man/MSIPAtomMap_get_FG_map.html).
+`MSIP::Spectra_annotate_MSIPAtomMap()` after
+`MSIP::MSIPAtomMap_get_FG_map()`.
 
 ## Usage
 

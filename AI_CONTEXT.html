@@ -84,7 +84,7 @@
 <p>Slots: <code>molecule_info</code>, <code>sdf</code> (ChemmineR <code>SDF</code>), <code>igraph</code>, <code>isotopomer</code> (data.frame).</p>
 <ul><li>Build via <code>get_Molecule_igraph_from_smiles()</code> / <code>get_Molecule_igraph_from_sdf()</code>.</li>
 <li>Graph attrs via generics <code>vdata</code> / <code>edata</code> (defined in <code>R/00_graph_primitives.R</code>).</li>
-<li>Isotopomer helpers: <code>Molecule_igraph_add_isotopomer()</code>, atom transfer via MCS or RXNMapper.</li>
+<li>Isotopomer helpers: <code><a href="reference/Molecule_igraph_add_isotopomer.html">Molecule_igraph_add_isotopomer()</a></code>, atom transfer via MCS or RXNMapper.</li>
 </ul></div>
 <div class="section level3">
 <h3 id="cfm_data-rdev_cfmr">
@@ -99,7 +99,7 @@
 <td>Fragment SMILES, <code>fragment_mz</code>, polarity</td>
 </tr><tr><td><code>fragment_transition</code></td>
 <td>Fragment graph edges (annotate path)</td>
-</tr></tbody></table><p>Typical entry: <code>get_CFM_data_from_smiles()</code> → <code>CFM_predict</code> / <code>CFM_annotate*</code> (Docker). Viewer: <code>shiny_vis_cfm()</code>.</p>
+</tr></tbody></table><p>Typical entry: <code><a href="reference/get_CFM_data_from_smiles.html">get_CFM_data_from_smiles()</a></code> → <code>CFM_predict</code> / <code>CFM_annotate*</code> (Docker). Viewer: <code><a href="reference/shiny_vis_cfm.html">shiny_vis_cfm()</a></code>.</p>
 </div>
 </div>
 <div class="section level2">
@@ -161,7 +161,7 @@
 <td>enviPat isotope table</td>
 </tr><tr><td><code>smiles_map</code></td>
 <td>SMILES lookup helper</td>
-</tr></tbody></table><p>Access element table via <code>get_elem_table()</code> when schema harmonization is needed.</p>
+</tr></tbody></table><p>Access element table via <code><a href="reference/get_elem_table.html">get_elem_table()</a></code> when schema harmonization is needed.</p>
 </div>
 <div class="section level2">
 <h2 id="conventions-agents-must-respect">Conventions agents must respect<a class="anchor" aria-label="anchor" href="#conventions-agents-must-respect"></a></h2>
@@ -174,11 +174,11 @@
 <li>
 <strong>CFM collision energies:</strong> <code>energy0</code>→CE 10, <code>energy1</code>→CE 20, <code>energy2</code>→CE 40.</li>
 <li>
-<strong>RDKit:</strong> Import submodules explicitly (<code>get_RDKit_Chem()</code>); do not invent a catch-all <code>get_RDKit()</code>.</li>
+<strong>RDKit:</strong> Import submodules explicitly (<code><a href="reference/get_RDKit_Chem.html">get_RDKit_Chem()</a></code>); do not invent a catch-all <code>get_RDKit()</code>.</li>
 <li>
 <strong>CFM runtime:</strong> Prediction/annotation needs a working CFM-ID Docker setup; local cache dirs are supported.</li>
 <li>
-<strong>No MSdev dependency:</strong> Do <strong>not</strong> rely on package <code>MSdev</code> (no <code>Imports</code>/<code>Suggests</code>/<code>Remotes</code>, no <code>MSdev::</code> calls). MSdev already depends on MSCC; adding the reverse creates a circular install loop. Use MSCC-local helpers in <code>migration_helpers.R</code> and CFM plotting via <code>plotly_CFM_spectra()</code> / <code>shiny_vis_cfm()</code>.</li>
+<strong>No MSdev dependency:</strong> Do <strong>not</strong> rely on package <code>MSdev</code> (no <code>Imports</code>/<code>Suggests</code>/<code>Remotes</code>, no <code>MSdev::</code> calls). MSdev already depends on MSCC; adding the reverse creates a circular install loop. Use MSCC-local helpers in <code>migration_helpers.R</code> and CFM plotting via <code><a href="reference/plotly_CFM_spectra.html">plotly_CFM_spectra()</a></code> / <code><a href="reference/shiny_vis_cfm.html">shiny_vis_cfm()</a></code>.</li>
 <li>
 <strong>Demo molecule:</strong> Glycine SMILES <code>NCC(O)=O</code> is the default in several helpers.</li>
 </ol></div>
@@ -215,31 +215,31 @@
 <th>Start here</th>
 </tr></thead><tbody><tr><td>Formula → m/z</td>
 <td>
-<code>chemform_mz()</code>, <code>chemform_parse()</code>
+<code><a href="reference/chemform_mz.html">chemform_mz()</a></code>, <code><a href="reference/chemform_parse.html">chemform_parse()</a></code>
 </td>
 </tr><tr><td>Formula + adduct</td>
 <td>
-<code>chemform_adduct()</code>, <code>chemform_adduct_check()</code>
+<code><a href="reference/chemform_adduct.html">chemform_adduct()</a></code>, <code><a href="reference/chemform_adduct_check.html">chemform_adduct_check()</a></code>
 </td>
 </tr><tr><td>Isotope pattern</td>
-<td><code>chemform_isotopes_pattern_enviPat()</code></td>
+<td><code><a href="reference/chemform_isotopes_pattern_enviPat.html">chemform_isotopes_pattern_enviPat()</a></code></td>
 </tr><tr><td>Molecule graph</td>
 <td><code>get_Molecule_igraph_from_smiles()</code></td>
 </tr><tr><td>CFM predict</td>
 <td>
-<code>get_CFM_data_from_smiles()</code> / <code>CFM_predict()</code>
+<code><a href="reference/get_CFM_data_from_smiles.html">get_CFM_data_from_smiles()</a></code> / <code><a href="reference/CFM.html">CFM_predict()</a></code>
 </td>
 </tr><tr><td>CFM UI</td>
-<td><code>shiny_vis_cfm()</code></td>
+<td><code><a href="reference/shiny_vis_cfm.html">shiny_vis_cfm()</a></code></td>
 </tr><tr><td>RDKit</td>
 <td>
-<code>rdkit_mol_from_smiles()</code>, <code>rdkit_mol_formula()</code>
+<code><a href="reference/rdkit_mol_from_smiles.html">rdkit_mol_from_smiles()</a></code>, <code><a href="reference/rdkit_mol_formula.html">rdkit_mol_formula()</a></code>
 </td>
 </tr><tr><td>Natural correction</td>
-<td><code>accucor_natural_correction()</code></td>
+<td><code><a href="reference/accucor_natural_correction.html">accucor_natural_correction()</a></code></td>
 </tr><tr><td>Atom mapping</td>
 <td>
-<code>get_atom_map()</code>, <code>get_Molecule_atom_transfer_by_atom_map()</code>, <code>RXNMapper_map()</code>
+<code><a href="reference/get_atom_map.html">get_atom_map()</a></code>, <code><a href="reference/Molecule_atom_transfer.html">get_Molecule_atom_transfer_by_atom_map()</a></code>, <code>RXNMapper_map()</code>
 </td>
 </tr></tbody></table></div>
 <div class="section level2">

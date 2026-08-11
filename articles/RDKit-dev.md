@@ -17,9 +17,10 @@ Python API with the MSCC R wrappers in `dev_rdkit.R`.
 
 Requires a Python environment with `rdkit` (and `numpy` / Cairo-enabled
 Draw for plotting). Default helpers target the conda env `env_for_r`. On
-Windows, `ensure_RDKit_python()` adds `Library/bin` to the DLL search
-path so `rdMolDraw2D` can load; prefer conda-forge builds of `rdkit` /
-`cairo` / `harfbuzz`.
+Windows,
+[`ensure_RDKit_python()`](https://drruili.github.io/MSCC/reference/ensure_RDKit_python.md)
+adds `Library/bin` to the DLL search path so `rdMolDraw2D` can load;
+prefer conda-forge builds of `rdkit` / `cairo` / `harfbuzz`.
 
 Default demo molecule is glycine: `NCC(O)=O`.
 

@@ -51,7 +51,10 @@ chemform_decompose_mass(
 
   Maximum element counts. Accepts `NULL` (defaults to 999999 for each
   element), a named integer vector (names are element symbols), or a
-  single formula string like `"C999H999"`.
+  single formula string like `"C999H999"`. Applied as a **post-filter**
+  after MCP enumeration (does not prune the search). With the default,
+  mass matching already limits atom counts, so this is usually a no-op
+  unless you set tighter chemical priors (e.g. `c(C = 10, O = 5)`).
 
 - check_rule:
 
@@ -70,6 +73,18 @@ A data.frame with columns `formula`, `exactmass`, `ppm`, and
 
 For ion m/z input with charge, use
 [`chemform_decompose_mz()`](https://drruili.github.io/MSCC/reference/chemform_decompose_mz.md).
+
+### Enumeration and cost
+
+With non-negative `min_elements` (the default), MCP enumerates **all**
+compositions of the allowed `elements` whose exact mass falls in the
+tolerance window. There is no separate `floor(mass / mono_mass)` cap in
+the C++ core: remaining mass during recursion already bounds each count
+(e.g. mass 13 cannot yield two carbons). Cost tracks the **number of
+solutions** (and alphabet size), not the default
+`max_elements = 999999`. Typical CHNO / CHNOPS masses are inexpensive;
+large mass, wide `ppm`/`mzabs`, many light atoms (especially H), or a
+large alphabet increase cost because more formulas fit the window.
 
 ## See also
 

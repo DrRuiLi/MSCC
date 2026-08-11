@@ -15,7 +15,7 @@ MSIP::MSIPAtomMap_get_FG_map()."></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
-    <nav class="navbar navbar-expand-lg fixed-top bg-primary" data-bs-theme="dark" aria-label="Site navigation"><div class="container">
+    <nav class="navbar navbar-expand-lg fixed-top bg-light" data-bs-theme="light" aria-label="Site navigation"><div class="container">
 
     <a class="navbar-brand me-2" href="../index.html">MSCC</a>
 
@@ -27,16 +27,17 @@ MSIP::MSIPAtomMap_get_FG_map()."></head><body>
     </button>
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
-      <ul class="navbar-nav me-auto"><li class="nav-item"><a class="nav-link" href="../articles/MSCC.html">Get started</a></li>
-<li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
+      <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/CFM_shiny.html">CFM_shiny</a></li>
-    <li><a class="dropdown-item" href="../articles/RDKit-dev.html">RDKit-dev</a></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/Rdisop_decomposeMass.html">Rdisop mass decomposition</a></li>
+    <li><a class="dropdown-item" href="../articles/Seven_Golden_Rules.html">Seven Golden Rules</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><a class="dropdown-item" href="../articles/index.html">More articles...</a></li>
   </ul></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
-<li class="nav-item"><a class="external-link nav-link" href="https://github.com/WallFcerLR/MSCC/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://github.com/drruili/MSCC/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
       </ul></div>
 
 
@@ -46,7 +47,7 @@ MSIP::MSIPAtomMap_get_FG_map()."></head><body>
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Annotate Isotopologues in Mass Spectra</h1>
-      <small class="dont-index">Source: <a href="https://github.com/WallFcerLR/MSCC/blob/HEAD/R/dev_CFM.R" class="external-link"><code>R/dev_CFM.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/drruili/MSCC/blob/main/R/dev_CFM.R" class="external-link"><code>R/dev_CFM.R</code></a></small>
       <div class="d-none name"><code>MSIP.Rd</code></div>
     </div>
 
@@ -56,8 +57,8 @@ to expected isotope patterns. This function assigns fragment groups and isotope 
 to observed peaks based on mass tolerance.</p>
 <p>Requires a <code>fragment_group</code> column on <code>peak_assignment</code> or
 <code>fragment_define</code>. For MSIPAtomMap workflows, prefer
-<code><a href="https://rdrr.io/pkg/MSIP/man/Spectra_annotate_MSIPAtomMap.html" class="external-link">MSIP::Spectra_annotate_MSIPAtomMap()</a></code> after
-<code><a href="https://rdrr.io/pkg/MSIP/man/MSIPAtomMap_get_FG_map.html" class="external-link">MSIP::MSIPAtomMap_get_FG_map()</a></code>.</p>
+<code>MSIP::Spectra_annotate_MSIPAtomMap()</code> after
+<code>MSIP::MSIPAtomMap_get_FG_map()</code>.</p>
     </div>
 
     <div class="section level2">

@@ -11,10 +11,12 @@ Heuristic filters for molecular formulas from accurate mass, from:
 
 ### MSCC API
 
-Use **`chemform_check_seven_golden_rules()`** to apply Rules **\#1, \#2
-(Senior3), \#4, \#5, \#6** to formula strings (no MassTools dependency;
-same thresholds as `MassTools::calcMF` post-filters). Rules **\#3**
-(isotope) and **\#7** (TMS) are not applied.
+Use
+**[`chemform_check_seven_golden_rules()`](https://drruili.github.io/MSCC/reference/chemform_check_seven_golden_rules.md)**
+to apply Rules **\#1, \#2 (Senior3), \#4, \#5, \#6** to formula strings
+(no MassTools dependency; same thresholds as `MassTools::calcMF`
+post-filters). Rules **\#3** (isotope) and **\#7** (TMS) are not
+applied.
 
 ``` r
 

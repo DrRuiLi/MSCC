@@ -452,8 +452,8 @@ so ordinary molecule decompositions are unchanged.</p>
 <h5 id="worked-example-cooh-coona-h-1na">Worked example: COOH → COONa (<code>H-1Na</code>)<a class="anchor" aria-label="anchor" href="#worked-example-cooh-coona-h-1na"></a>
 </h5>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">dM</span> <span class="op">&lt;-</span> <span class="fu">chemform_mz</span><span class="op">(</span><span class="st">"Na"</span><span class="op">)</span> <span class="op">-</span> <span class="fu">chemform_mz</span><span class="op">(</span><span class="st">"H"</span><span class="op">)</span>   <span class="co"># ≈ 21.98194</span></span>
-<span><span class="fu">chemform_decompose_mass</span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="va">dM</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/chemform_mz.html">chemform_mz</a></span><span class="op">(</span><span class="st">"Na"</span><span class="op">)</span> <span class="op">-</span> <span class="fu"><a href="../reference/chemform_mz.html">chemform_mz</a></span><span class="op">(</span><span class="st">"H"</span><span class="op">)</span>   <span class="co"># ≈ 21.98194</span></span>
+<span><span class="fu"><a href="../reference/chemform_decompose_mass.html">chemform_decompose_mass</a></span><span class="op">(</span></span>
 <span>  mass <span class="op">=</span> <span class="va">dM</span>,</span>
 <span>  elements <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"H"</span>, <span class="st">"Na"</span><span class="op">)</span>,</span>
 <span>  min_elements <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>H <span class="op">=</span> <span class="op">-</span><span class="fl">3</span><span class="op">)</span>,   <span class="co"># or "H-3"</span></span>
@@ -603,13 +603,56 @@ ppm, and the allowed elements list.</p>
 <hr>
 </div>
 <div class="section level3">
-<h3 id="practical-controls">6. Practical controls<a class="anchor" aria-label="anchor" href="#practical-controls"></a>
+<h3 id="max_elements-and-enumeration-cost-mscc">6. <code>max_elements</code> and enumeration cost (MSCC)<a class="anchor" aria-label="anchor" href="#max_elements-and-enumeration-cost-mscc"></a>
+</h3>
+<p>With non-negative mins (default), MCP enumerates <strong>all</strong>
+compositions that fit the mass window. The C++ core does
+<strong>not</strong> apply a separate
+<code>floor(mass / mono_mass)</code> cap: remaining mass during
+recursion already limits each count (e.g. mass 13 cannot yield two
+carbons).</p>
+<table class="table">
+<colgroup>
+<col width="36%">
+<col width="64%">
+</colgroup>
+<thead><tr class="header">
+<th>Control</th>
+<th>Role in MSCC</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td>Default <code>max_elements = NULL</code> → 999999</td>
+<td>Usually a <strong>no-op</strong> for realistic masses; mass matching
+already caps counts</td>
+</tr>
+<tr class="even">
+<td>User-set <code>max_elements</code> (e.g. <code>C = 10</code>)</td>
+<td>Useful as a <strong>chemical prior</strong>; applied as a
+<strong>post-filter</strong> after MCP (does <strong>not</strong> prune
+the search or reduce runtime)</td>
+</tr>
+<tr class="odd">
+<td>Cost drivers</td>
+<td>Larger mass, wider <code>ppm</code>/<code>mzabs</code>, more/lighter
+elements (especially H), larger alphabet → more solutions</td>
+</tr>
+</tbody>
+</table>
+<p>So “no max” ≠ infinite search, but default max also does not speed
+things up. Typical CHNO / CHNOPS formula finding is inexpensive; cost
+grows with <strong>how many</strong> formulas hit the window.</p>
+</div>
+<div class="section level3">
+<h3 id="practical-controls">7. Practical controls<a class="anchor" aria-label="anchor" href="#practical-controls"></a>
 </h3>
 <ol style="list-style-type: decimal">
 <li>Keep the alphabet small (CHNO or CHNOPS first).</li>
 <li>Tighten <code>ppm</code> / <code>mzabs</code>.</li>
-<li>Use <code>minElements</code> / <code>maxElements</code> to cap atom
-counts.</li>
+<li>Use <code>min_elements</code> / <code>max_elements</code> for
+chemical priors (MSCC: max is post-filter only; see §6). In Rdisop,
+<code>minElements</code> / <code>maxElements</code> similarly restrict
+accepted counts.</li>
 <li>Prefer <code>decomposeIsotopes</code> when M+1 / M+2 intensities
 exist.</li>
 <li>Post-filter (H/C ranges, RDBE, nitrogen rule) and keep
@@ -621,7 +664,7 @@ many heteroatoms.</li>
 <hr>
 </div>
 <div class="section level3">
-<h3 id="path-a-in-mscc-formula-only-mcp-calculator">7. Path A in MSCC (formula-only MCP calculator)<a class="anchor" aria-label="anchor" href="#path-a-in-mscc-formula-only-mcp-calculator"></a>
+<h3 id="path-a-in-mscc-formula-only-mcp-calculator">8. Path A in MSCC (formula-only MCP calculator)<a class="anchor" aria-label="anchor" href="#path-a-in-mscc-formula-only-mcp-calculator"></a>
 </h3>
 <p>MSCC vendors the same imslib MCP stack (see §3) behind two wrappers
 (no isotope ranking):</p>
@@ -638,22 +681,22 @@ many heteroatoms.</li>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td><code>chemform_decompose_mass()</code></td>
+<td><code><a href="../reference/chemform_decompose_mass.html">chemform_decompose_mass()</a></code></td>
 <td>Neutral exact mass</td>
 <td>Thin MCP wrapper only</td>
 </tr>
 <tr class="even">
-<td><code>chemform_decompose_mz()</code></td>
+<td><code><a href="../reference/chemform_decompose_mz.html">chemform_decompose_mz()</a></code></td>
 <td>Ion m/z + <code>charge</code>
 </td>
 <td>Convert m/z → neutral, then call
-<code>chemform_decompose_mass()</code>
+<code><a href="../reference/chemform_decompose_mass.html">chemform_decompose_mass()</a></code>
 </td>
 </tr>
 </tbody>
 </table>
 <p>Charge conversion (same electron-mass convention as
-<code>chemform_mz()</code>):</p>
+<code><a href="../reference/chemform_mz.html">chemform_mz()</a></code>):</p>
 <pre class="text"><code><span><span class="va">M_neutral</span> <span class="op">=</span> <span class="va">mz</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">charge</span><span class="op">)</span> <span class="op">+</span> <span class="va">e</span> <span class="op">*</span> <span class="va">charge</span>   <span class="co"># when charge != 0</span></span></code></pre>
 <p>Suggested parity check (formula sets, ignoring isotope ranking):</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
@@ -670,7 +713,7 @@ many heteroatoms.</li>
 <span>  maxisotopes <span class="op">=</span> <span class="fl">1</span></span>
 <span><span class="op">)</span><span class="op">$</span><span class="va">formula</span></span>
 <span></span>
-<span><span class="va">m</span> <span class="op">&lt;-</span> <span class="fu">chemform_decompose_mass</span><span class="op">(</span></span>
+<span><span class="va">m</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/chemform_decompose_mass.html">chemform_decompose_mass</a></span><span class="op">(</span></span>
 <span>  mass <span class="op">=</span> <span class="fl">203.0526</span>,</span>
 <span>  ppm <span class="op">=</span> <span class="fl">5</span>,</span>
 <span>  elements <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"C"</span>,<span class="st">"H"</span>,<span class="st">"N"</span>,<span class="st">"O"</span>,<span class="st">"P"</span><span class="op">)</span></span>
@@ -679,11 +722,11 @@ many heteroatoms.</li>
 <span><span class="fu"><a href="https://rdrr.io/r/base/stopifnot.html" class="external-link">stopifnot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sets.html" class="external-link">setequal</a></span><span class="op">(</span><span class="va">r</span>, <span class="va">m</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># ion m/z path</span></span>
-<span><span class="fu">chemform_decompose_mz</span><span class="op">(</span>mz <span class="op">=</span> <span class="fl">204.0599</span>, charge <span class="op">=</span> <span class="fl">1</span>, ppm <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/chemform_decompose_mz.html">chemform_decompose_mz</a></span><span class="op">(</span>mz <span class="op">=</span> <span class="fl">204.0599</span>, charge <span class="op">=</span> <span class="fl">1</span>, ppm <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># replacement / difference formula (signed mins; see §3.6)</span></span>
-<span><span class="va">dM</span> <span class="op">&lt;-</span> <span class="fu">chemform_mz</span><span class="op">(</span><span class="st">"Na"</span><span class="op">)</span> <span class="op">-</span> <span class="fu">chemform_mz</span><span class="op">(</span><span class="st">"H"</span><span class="op">)</span></span>
-<span><span class="fu">chemform_decompose_mass</span><span class="op">(</span></span>
+<span><span class="va">dM</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/chemform_mz.html">chemform_mz</a></span><span class="op">(</span><span class="st">"Na"</span><span class="op">)</span> <span class="op">-</span> <span class="fu"><a href="../reference/chemform_mz.html">chemform_mz</a></span><span class="op">(</span><span class="st">"H"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/chemform_decompose_mass.html">chemform_decompose_mass</a></span><span class="op">(</span></span>
 <span>  mass <span class="op">=</span> <span class="va">dM</span>,</span>
 <span>  elements <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"H"</span>, <span class="st">"Na"</span><span class="op">)</span>,</span>
 <span>  min_elements <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>H <span class="op">=</span> <span class="op">-</span><span class="fl">3</span><span class="op">)</span>,</span>
@@ -693,7 +736,7 @@ many heteroatoms.</li>
 <hr>
 </div>
 <div class="section level3">
-<h3 id="suggested-return-table">8. Suggested return table<a class="anchor" aria-label="anchor" href="#suggested-return-table"></a>
+<h3 id="suggested-return-table">9. Suggested return table<a class="anchor" aria-label="anchor" href="#suggested-return-table"></a>
 </h3>
 <p>After decomposition, tidy to something like:</p>
 <table class="table">
@@ -729,7 +772,7 @@ many heteroatoms.</li>
 <hr>
 </div>
 <div class="section level3">
-<h3 id="bottom-line">9. Bottom line<a class="anchor" aria-label="anchor" href="#bottom-line"></a>
+<h3 id="bottom-line">10. Bottom line<a class="anchor" aria-label="anchor" href="#bottom-line"></a>
 </h3>
 <ul>
 <li>
@@ -739,6 +782,8 @@ elements that fit the mass window.</li>
 <li>The engine is an <strong>MCP algorithm</strong> (scale → integer
 residue-table decompose → real-mass filter), not brute-force nested
 loops.</li>
+<li>MSCC <code>max_elements</code> is a post-filter chemical prior; the
+default (999999) does not limit cost — mass matching does.</li>
 <li>Adding element types still hurts a lot: the <strong>number of valid
 formulas</strong> grows combinatorially, so CPU and memory grow with
 output size.</li>

@@ -76,13 +76,13 @@
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rstudio.github.io/reticulate/" class="external-link">reticulate</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Default conda env for RDKit helpers (before any other reticulate Python init):</span></span>
-<span><span class="fu">ensure_RDKit_python</span><span class="op">(</span><span class="st">"env_for_r"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/ensure_RDKit_python.html">ensure_RDKit_python</a></span><span class="op">(</span><span class="st">"env_for_r"</span><span class="op">)</span></span>
 <span><span class="co"># or: options(MSCC.rdkit.condaenv = "env_for_r")</span></span></code></pre></div>
 </div>
 <section class="section level2"><h2 id="introduction">1. Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
 </h2>
 <p>MSCC calls RDKit through <strong>reticulate</strong>. This vignette pairs the native Python API with the MSCC R wrappers in <code>dev_rdkit.R</code>.</p>
-<p>Requires a Python environment with <code>rdkit</code> (and <code>numpy</code> / Cairo-enabled Draw for plotting). Default helpers target the conda env <code>env_for_r</code>. On Windows, <code>ensure_RDKit_python()</code> adds <code>Library/bin</code> to the DLL search path so <code>rdMolDraw2D</code> can load; prefer conda-forge builds of <code>rdkit</code> / <code>cairo</code> / <code>harfbuzz</code>.</p>
+<p>Requires a Python environment with <code>rdkit</code> (and <code>numpy</code> / Cairo-enabled Draw for plotting). Default helpers target the conda env <code>env_for_r</code>. On Windows, <code><a href="../reference/ensure_RDKit_python.html">ensure_RDKit_python()</a></code> adds <code>Library/bin</code> to the DLL search path so <code>rdMolDraw2D</code> can load; prefer conda-forge builds of <code>rdkit</code> / <code>cairo</code> / <code>harfbuzz</code>.</p>
 <p>Default demo molecule is glycine: <code>NCC(O)=O</code>.</p>
 </section><section class="section level2"><h2 id="main-functions">2. Main functions<a class="anchor" aria-label="anchor" href="#main-functions"></a>
 </h2>
@@ -98,8 +98,8 @@
 <p>R (MSCC wrapper):</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">Chem</span> <span class="op">&lt;-</span> <span class="fu">get_RDKit_Chem</span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="va">mol</span> <span class="op">&lt;-</span> <span class="fu">rdkit_mol_from_smiles</span><span class="op">(</span><span class="st">"NCC(O)=O"</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">Chem</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_RDKit_Chem.html">get_RDKit_Chem</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">mol</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/rdkit_mol_from_smiles.html">rdkit_mol_from_smiles</a></span><span class="op">(</span><span class="st">"NCC(O)=O"</span><span class="op">)</span></span>
 <span><span class="va">mol</span></span></code></pre></div>
 </div>
 </section><section class="level2"><h3 id="draw-a-molecule">2.2 Draw a molecule<a class="anchor" aria-label="anchor" href="#draw-a-molecule"></a>
@@ -116,8 +116,8 @@
 <p>R (MSCC wrapper — in-memory <code>Draw.MolToImage</code> → ggplot):</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">mol</span> <span class="op">&lt;-</span> <span class="fu">rdkit_mol_from_smiles</span><span class="op">(</span><span class="st">"NCC(O)=O"</span><span class="op">)</span></span>
-<span><span class="fu">rdkit_plot_mol</span><span class="op">(</span><span class="va">mol</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">mol</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/rdkit_mol_from_smiles.html">rdkit_mol_from_smiles</a></span><span class="op">(</span><span class="st">"NCC(O)=O"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/rdkit_plot_mol.html">rdkit_plot_mol</a></span><span class="op">(</span><span class="va">mol</span><span class="op">)</span></span></code></pre></div>
 </div>
 </section><section class="level2"><h3 id="molecule-properties-formula-and-exact-mass">2.3 Molecule properties (formula and exact mass)<a class="anchor" aria-label="anchor" href="#molecule-properties-formula-and-exact-mass"></a>
 </h3>
@@ -134,9 +134,9 @@
 <p>R (MSCC wrappers):</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">mol</span> <span class="op">&lt;-</span> <span class="fu">rdkit_mol_from_smiles</span><span class="op">(</span><span class="st">"NCC(O)=O"</span><span class="op">)</span></span>
-<span><span class="fu">rdkit_mol_formula</span><span class="op">(</span><span class="va">mol</span><span class="op">)</span></span>
-<span><span class="fu">rdkit_mol_exact_mass</span><span class="op">(</span><span class="va">mol</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">mol</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/rdkit_mol_from_smiles.html">rdkit_mol_from_smiles</a></span><span class="op">(</span><span class="st">"NCC(O)=O"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/rdkit_mol_formula.html">rdkit_mol_formula</a></span><span class="op">(</span><span class="va">mol</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/rdkit_mol_exact_mass.html">rdkit_mol_exact_mass</a></span><span class="op">(</span><span class="va">mol</span><span class="op">)</span></span></code></pre></div>
 </div>
 </section><section class="level2"><h3 id="substructure-match-smarts">2.4 Substructure match (SMARTS)<a class="anchor" aria-label="anchor" href="#substructure-match-smarts"></a>
 </h3>
@@ -151,9 +151,9 @@
 <p>R (MSCC wrapper):</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">mol</span> <span class="op">&lt;-</span> <span class="fu">rdkit_mol_from_smiles</span><span class="op">(</span><span class="st">"NCC(O)=O"</span><span class="op">)</span></span>
-<span><span class="fu">rdkit_has_substruct</span><span class="op">(</span><span class="va">mol</span>, <span class="st">"[NH2]"</span><span class="op">)</span></span>
-<span><span class="fu">rdkit_has_substruct</span><span class="op">(</span><span class="fu">rdkit_mol_from_smiles</span><span class="op">(</span><span class="st">"CCO"</span><span class="op">)</span>, <span class="st">"[OH]"</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">mol</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/rdkit_mol_from_smiles.html">rdkit_mol_from_smiles</a></span><span class="op">(</span><span class="st">"NCC(O)=O"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/rdkit_has_substruct.html">rdkit_has_substruct</a></span><span class="op">(</span><span class="va">mol</span>, <span class="st">"[NH2]"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/rdkit_has_substruct.html">rdkit_has_substruct</a></span><span class="op">(</span><span class="fu"><a href="../reference/rdkit_mol_from_smiles.html">rdkit_mol_from_smiles</a></span><span class="op">(</span><span class="st">"CCO"</span><span class="op">)</span>, <span class="st">"[OH]"</span><span class="op">)</span></span></code></pre></div>
 </div>
 </section></section><script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {

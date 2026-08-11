@@ -81,19 +81,19 @@ Bioinformatics 8:105.<br><a href="https://doi.org/10.1186/1471-2105-8-105" class
 <div class="section level3">
 <h3 id="mscc-api">MSCC API<a class="anchor" aria-label="anchor" href="#mscc-api"></a>
 </h3>
-<p>Use <strong><code>chemform_check_seven_golden_rules()</code></strong>
+<p>Use <strong><code><a href="../reference/chemform_check_seven_golden_rules.html">chemform_check_seven_golden_rules()</a></code></strong>
 to apply Rules <strong>#1, #2 (Senior3), #4, #5, #6</strong> to formula
 strings (no MassTools dependency; same thresholds as
 <code>MassTools::calcMF</code> post-filters). Rules <strong>#3</strong>
 (isotope) and <strong>#7</strong> (TMS) are not applied.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">chemform_check_seven_golden_rules</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"C6H12O6"</span>, <span class="st">"CH6N2"</span><span class="op">)</span>, return <span class="op">=</span> <span class="st">"chemform"</span><span class="op">)</span></span>
-<span><span class="fu">chemform_check_seven_golden_rules</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"C6H12O6"</span>, <span class="st">"CH6N2"</span><span class="op">)</span>, return <span class="op">=</span> <span class="st">"valid"</span><span class="op">)</span></span>
-<span><span class="fu">chemform_check_seven_golden_rules</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"C6H12O6"</span>, <span class="st">"CH6N2"</span><span class="op">)</span>, return <span class="op">=</span> <span class="st">"all"</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/chemform_check_seven_golden_rules.html">chemform_check_seven_golden_rules</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"C6H12O6"</span>, <span class="st">"CH6N2"</span><span class="op">)</span>, return <span class="op">=</span> <span class="st">"chemform"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/chemform_check_seven_golden_rules.html">chemform_check_seven_golden_rules</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"C6H12O6"</span>, <span class="st">"CH6N2"</span><span class="op">)</span>, return <span class="op">=</span> <span class="st">"valid"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/chemform_check_seven_golden_rules.html">chemform_check_seven_golden_rules</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"C6H12O6"</span>, <span class="st">"CH6N2"</span><span class="op">)</span>, return <span class="op">=</span> <span class="st">"all"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Optional post-filter on MCP candidates:</span></span>
-<span><span class="fu">chemform_decompose_mass</span><span class="op">(</span><span class="fl">180.0634</span>, check_rule <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="fu">chemform_decompose_mz</span><span class="op">(</span><span class="fl">181.0707</span>, charge <span class="op">=</span> <span class="fl">1</span>, check_rule <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/chemform_decompose_mass.html">chemform_decompose_mass</a></span><span class="op">(</span><span class="fl">180.0634</span>, check_rule <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/chemform_decompose_mz.html">chemform_decompose_mz</a></span><span class="op">(</span><span class="fl">181.0707</span>, charge <span class="op">=</span> <span class="fl">1</span>, check_rule <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
 <colgroup>
 <col width="55%">

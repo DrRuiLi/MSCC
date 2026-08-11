@@ -36,11 +36,11 @@ Named numeric vector: names are isotope labels, values are `mass_diff`.
 
 ``` r
 get_isotope_mass_diff(c("C10", "H10", "O2", "S"))
-#> Warning: Element not found in elem_table: C10
-#> Warning: Element not found in elem_table: H10
-#> Warning: Element not found in elem_table: O2
-#>     [33]S     [34]S 
-#> 0.9993878 1.9957961 
+#>      [13]C     [13]C2     [13]C3     [13]C4       [2]H      [18]O      [17]O 
+#>  1.0033548  2.0067097  3.0100645  4.0134194  1.0062767  2.0042458  1.0042169 
+#>     [18]O2 [17]O[18]O      [34]S      [33]S      [36]S 
+#>  4.0084916  3.0084627  1.9957961  0.9993878  3.9950101 
 get_isotope_mass_diff(element = c("C", "N", "S"), threshold = 0.01)
-#> Error in get_isotope_mass_diff(element = c("C", "N", "S"), threshold = 0.01): All inputs must be named with allowed elements: C, H, O, N, P, S
+#>     [13]C     [15]N     [34]S     [33]S     [36]S 
+#> 1.0033548 0.9970350 1.9957961 0.9993878 3.9950101 
 ```
