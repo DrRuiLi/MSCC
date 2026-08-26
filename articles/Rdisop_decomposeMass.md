@@ -393,6 +393,10 @@ isotope ranking):
 | [`chemform_decompose_mass()`](https://drruili.github.io/MSCC/reference/chemform_decompose_mass.md) | Neutral exact mass | Thin MCP wrapper only |
 | [`chemform_decompose_mz()`](https://drruili.github.io/MSCC/reference/chemform_decompose_mz.md) | Ion m/z + `charge` | Convert m/z → neutral, then call [`chemform_decompose_mass()`](https://drruili.github.io/MSCC/reference/chemform_decompose_mass.md) |
 
+MSCC mass window (not the Rdisop **sum** in §3.2):
+`abs_error = min(ppm * |mass| * 1e-6, mzabs)`. `NULL` is the same as
+`Inf` (unused). Default `ppm = 5`, `mzabs = NULL`.
+
 Charge conversion (same electron-mass convention as
 [`chemform_mz()`](https://drruili.github.io/MSCC/reference/chemform_mz.md)):
 

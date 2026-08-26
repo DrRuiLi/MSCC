@@ -55,7 +55,7 @@ solver and intentionally skips isotope distribution calculation/ranking.</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">chemform_decompose_mass</span><span class="op">(</span></span>
 <span>  <span class="va">mass</span>,</span>
 <span>  ppm <span class="op">=</span> <span class="fl">5</span>,</span>
-<span>  mzabs <span class="op">=</span> <span class="fl">1e-04</span>,</span>
+<span>  mzabs <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  elements <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"C"</span>, <span class="st">"H"</span>, <span class="st">"N"</span>, <span class="st">"O"</span>, <span class="st">"P"</span>, <span class="st">"S"</span><span class="op">)</span>,</span>
 <span>  min_elements <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  max_elements <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -72,11 +72,15 @@ solver and intentionally skips isotope distribution calculation/ranking.</p>
 
 
 <dt id="arg-ppm">ppm<a class="anchor" aria-label="anchor" href="#arg-ppm"></a></dt>
-<dd><p>Allowed deviation in ppm.</p></dd>
+<dd><p>Allowed deviation in ppm. <code>NULL</code> is the same as <code>Inf</code> (unused).
+Default <code>5</code>. Combined with <code>mzabs</code> by taking the <strong>tighter</strong> (smaller)
+window; they are not added. See <strong>Mass tolerance</strong>.</p></dd>
 
 
 <dt id="arg-mzabs">mzabs<a class="anchor" aria-label="anchor" href="#arg-mzabs"></a></dt>
-<dd><p>Allowed absolute deviation in Dalton.</p></dd>
+<dd><p>Allowed absolute deviation in Dalton. <code>NULL</code> is the same as
+<code>Inf</code> (unused). Default <code>NULL</code> (ppm-only). Combined with <code>ppm</code> by taking
+the tighter window (see <strong>Mass tolerance</strong>).</p></dd>
 
 
 <dt id="arg-elements">elements<a class="anchor" aria-label="anchor" href="#arg-elements"></a></dt>
@@ -114,6 +118,22 @@ Rows are sorted by increasing <code>abs(ppm)</code>.</p>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>For ion m/z input with charge, use <code><a href="chemform_decompose_mz.html">chemform_decompose_mz()</a></code>.</p><div class="section">
+<h3 id="mass-tolerance">Mass tolerance<a class="anchor" aria-label="anchor" href="#mass-tolerance"></a></h3>
+
+
+<p>The C++ MCP solver takes a single absolute window <code>abs_error</code> (Dalton).
+<code>NULL</code> and <code>Inf</code> are equivalent: that constraint is unused. <code>ppm</code> is
+converted to Dalton in R, then the <strong>minimum</strong> of the two windows is
+passed through (unused arguments treated as <code>Inf</code>):</p>
+<p><code>abs_error = min(ppm * |mass| * 1e-6, mzabs)</code></p>
+<p>Defaults are <code>ppm = 5</code> and <code>mzabs = NULL</code>, so the default search is 5 ppm.
+To use only an absolute window, set <code>ppm = NULL</code> (or <code>Inf</code>). If both are
+finite, the tighter window is used. A finite <code>0</code> collapses that side to
+exact match (within solver precision). At least one of <code>ppm</code> or <code>mzabs</code>
+must be finite.</p>
+</div>
+
+<div class="section">
 <h3 id="enumeration-and-cost">Enumeration and cost<a class="anchor" aria-label="anchor" href="#enumeration-and-cost"></a></h3>
 
 

@@ -696,6 +696,10 @@ many heteroatoms.</li>
 </tr>
 </tbody>
 </table>
+<p>MSCC mass window (not the Rdisop <strong>sum</strong> in §3.2):
+<code>abs_error = min(ppm * |mass| * 1e-6, mzabs)</code>.
+<code>NULL</code> is the same as <code>Inf</code> (unused). Default
+<code>ppm = 5</code>, <code>mzabs = NULL</code>.</p>
 <p>Charge conversion (same electron-mass convention as
 <code><a href="../reference/chemform_mz.html">chemform_mz()</a></code>):</p>
 <pre class="text"><code><span><span class="va">M_neutral</span> <span class="op">=</span> <span class="va">mz</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">charge</span><span class="op">)</span> <span class="op">+</span> <span class="va">e</span> <span class="op">*</span> <span class="va">charge</span>   <span class="co"># when charge != 0</span></span></code></pre>

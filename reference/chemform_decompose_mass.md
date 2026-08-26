@@ -11,7 +11,7 @@ calculation/ranking.
 chemform_decompose_mass(
   mass,
   ppm = 5,
-  mzabs = 1e-04,
+  mzabs = NULL,
   elements = c("C", "H", "N", "O", "P", "S"),
   min_elements = NULL,
   max_elements = NULL,
@@ -27,11 +27,15 @@ chemform_decompose_mass(
 
 - ppm:
 
-  Allowed deviation in ppm.
+  Allowed deviation in ppm. `NULL` is the same as `Inf` (unused).
+  Default `5`. Combined with `mzabs` by taking the **tighter** (smaller)
+  window; they are not added. See **Mass tolerance**.
 
 - mzabs:
 
-  Allowed absolute deviation in Dalton.
+  Allowed absolute deviation in Dalton. `NULL` is the same as `Inf`
+  (unused). Default `NULL` (ppm-only). Combined with `ppm` by taking the
+  tighter window (see **Mass tolerance**).
 
 - elements:
 
@@ -73,6 +77,21 @@ A data.frame with columns `formula`, `exactmass`, `ppm`, and
 
 For ion m/z input with charge, use
 [`chemform_decompose_mz()`](https://drruili.github.io/MSCC/reference/chemform_decompose_mz.md).
+
+### Mass tolerance
+
+The C++ MCP solver takes a single absolute window `abs_error` (Dalton).
+`NULL` and `Inf` are equivalent: that constraint is unused. `ppm` is
+converted to Dalton in R, then the **minimum** of the two windows is
+passed through (unused arguments treated as `Inf`):
+
+`abs_error = min(ppm * |mass| * 1e-6, mzabs)`
+
+Defaults are `ppm = 5` and `mzabs = NULL`, so the default search is 5
+ppm. To use only an absolute window, set `ppm = NULL` (or `Inf`). If
+both are finite, the tighter window is used. A finite `0` collapses that
+side to exact match (within solver precision). At least one of `ppm` or
+`mzabs` must be finite.
 
 ### Enumeration and cost
 

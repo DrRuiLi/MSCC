@@ -13,7 +13,7 @@ chemform_decompose_mz(
   mz,
   charge = 0,
   ppm = 5,
-  mzabs = 1e-04,
+  mzabs = NULL,
   elements = c("C", "H", "N", "O", "P", "S"),
   min_elements = NULL,
   max_elements = NULL,
@@ -33,11 +33,16 @@ chemform_decompose_mz(
 
 - ppm:
 
-  Allowed deviation in ppm (applied on the neutral mass used for MCP).
+  Allowed deviation in ppm. `NULL` is the same as `Inf` (unused).
+  Default `5`. Combined with `mzabs` by taking the **tighter** (smaller)
+  window on the **neutral** mass used for MCP; they are not added. See
+  **Mass tolerance**.
 
 - mzabs:
 
-  Allowed absolute deviation in Dalton.
+  Allowed absolute deviation in Dalton. `NULL` is the same as `Inf`
+  (unused). Default `NULL` (ppm-only). Combined with `ppm` by taking the
+  tighter window (see **Mass tolerance**).
 
 - elements:
 
@@ -73,6 +78,19 @@ m/z.
 
 Neutral mass conversion when `charge != 0`:
 `M = mz * abs(charge) + e * charge`, with `e = 0.00054857990943`.
+
+### Mass tolerance
+
+Same rule as
+[`chemform_decompose_mass()`](https://drruili.github.io/MSCC/reference/chemform_decompose_mass.md):
+`NULL` and `Inf` mean unused. `ppm` is converted to Dalton in R, then
+the **minimum** of the two windows is passed to C++:
+
+`abs_error = min(ppm * |M| * 1e-6, mzabs)`
+
+on the converted **neutral** mass `M`. Defaults are `ppm = 5` and
+`mzabs = NULL` (5 ppm). Set `ppm = NULL` (or `Inf`) for an absolute
+window only.
 
 ## See also
 
