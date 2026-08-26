@@ -331,6 +331,8 @@ MSCC vendors the same imslib MCP stack (see §3) behind two wrappers (no isotope
 | `chemform_decompose_mass()` | Neutral exact mass | Thin MCP wrapper only |
 | `chemform_decompose_mz()` | Ion m/z + `charge` | Convert m/z → neutral, then call `chemform_decompose_mass()` |
 
+MSCC mass window (not the Rdisop **sum** in §3.2): `abs_error = min(ppm * |mass| * 1e-6, mzabs)`. `NULL` is the same as `Inf` (unused). Default `ppm = 5`, `mzabs = NULL`.
+
 Charge conversion (same electron-mass convention as `chemform_mz()`):
 
 ```text

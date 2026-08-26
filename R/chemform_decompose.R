@@ -7,8 +7,12 @@
 #' For ion m/z input with charge, use [chemform_decompose_mz()].
 #'
 #' @param mass Neutral exact mass (scalar or vector).
-#' @param ppm Allowed deviation in ppm.
-#' @param mzabs Allowed absolute deviation in Dalton.
+#' @param ppm Allowed deviation in ppm. `NULL` is the same as `Inf` (unused).
+#'   Default `5`. Combined with `mzabs` by taking the **tighter** (smaller)
+#'   window; they are not added. See **Mass tolerance**.
+#' @param mzabs Allowed absolute deviation in Dalton. `NULL` is the same as
+#'   `Inf` (unused). Default `NULL` (ppm-only). Combined with `ppm` by taking
+#'   the tighter window (see **Mass tolerance**).
 #' @param elements Character vector of allowed elements, e.g. `c("C","H","N","O","P","S")`.
 #' @param min_elements Minimum element counts. Accepts `NULL` (defaults to 0 for each element),
 #'   a named integer vector (names are element symbols), or a single formula string like `"C0H0N0"`.
@@ -26,6 +30,20 @@
 #'   because the golden rules assume molecular formulas, not signed replacements.
 #'
 #' @details
+#' ## Mass tolerance
+#' The C++ MCP solver takes a single absolute window `abs_error` (Dalton).
+#' `NULL` and `Inf` are equivalent: that constraint is unused. `ppm` is
+#' converted to Dalton in R, then the **minimum** of the two windows is
+#' passed through (unused arguments treated as `Inf`):
+#'
+#' `abs_error = min(ppm * |mass| * 1e-6, mzabs)`
+#'
+#' Defaults are `ppm = 5` and `mzabs = NULL`, so the default search is 5 ppm.
+#' To use only an absolute window, set `ppm = NULL` (or `Inf`). If both are
+#' finite, the tighter window is used. A finite `0` collapses that side to
+#' exact match (within solver precision). At least one of `ppm` or `mzabs`
+#' must be finite.
+#'
 #' ## Enumeration and cost
 #' With non-negative `min_elements` (the default), MCP enumerates **all** compositions of the
 #' allowed `elements` whose exact mass falls in the tolerance window. There is no separate
@@ -58,7 +76,7 @@
 #' @seealso [chemform_decompose_mz()], [chemform_check_seven_golden_rules()]
 chemform_decompose_mass <- function(mass,
                                      ppm = 5,
-                                     mzabs = 1e-4,
+                                     mzabs = NULL,
                                      elements = c("C", "H", "N", "O", "P", "S"),
                                      min_elements = NULL,
                                      max_elements = NULL,
@@ -130,8 +148,24 @@ chemform_decompose_mass <- function(mass,
     check_rule <- FALSE
   }
 
+  # NULL == Inf: that side of the min() window is unused.
+  as_window <- function(x, nm) {
+    if (is.null(x)) return(Inf)
+    x <- as.numeric(x)
+    if (length(x) != 1L || is.na(x) || x < 0) {
+      stop("`", nm, "` must be NULL, Inf, or a single non-negative number.")
+    }
+    x
+  }
+  ppm_win <- as_window(ppm, "ppm")
+  mzabs_win <- as_window(mzabs, "mzabs")
+  if (!is.finite(ppm_win) && !is.finite(mzabs_win)) {
+    stop("At least one of `ppm` or `mzabs` must be a finite tolerance (`NULL`/`Inf` means unused).")
+  }
+
   call_one <- function(m_target) {
-    abs_error <- ppm * m_target * 1e-6 + mzabs
+    ppm_abs <- if (is.finite(ppm_win)) ppm_win * abs(m_target) * 1e-6 else Inf
+    abs_error <- min(ppm_abs, mzabs_win)
     res <- mcp_decompose_mass(
       mass = m_target,
       abs_error = abs_error,
@@ -184,13 +218,15 @@ chemform_decompose_mass <- function(mass,
 #' Convert ion m/z + charge to neutral exact mass (same electron-mass convention
 #' as [chemform_mz()]), then call [chemform_decompose_mass()].
 #'
-#' Neutral mass conversion when `charge != 0`:
-#' `M = mz * abs(charge) + e * charge`, with `e = 0.00054857990943`.
-#'
 #' @param mz Ion m/z (scalar or vector). If `charge = 0`, treated as neutral mass.
 #' @param charge Integer charge `z` (e.g. `+1`, `+2`, `-1`). Use `0` for neutral input.
-#' @param ppm Allowed deviation in ppm (applied on the neutral mass used for MCP).
-#' @param mzabs Allowed absolute deviation in Dalton.
+#' @param ppm Allowed deviation in ppm. `NULL` is the same as `Inf` (unused).
+#'   Default `5`. Combined with `mzabs` by taking the **tighter** (smaller)
+#'   window on the **neutral** mass used for MCP; they are not added. See
+#'   **Mass tolerance**.
+#' @param mzabs Allowed absolute deviation in Dalton. `NULL` is the same as
+#'   `Inf` (unused). Default `NULL` (ppm-only). Combined with `ppm` by taking
+#'   the tighter window (see **Mass tolerance**).
 #' @param elements Character vector of allowed elements.
 #' @param min_elements See [chemform_decompose_mass()].
 #' @param max_elements See [chemform_decompose_mass()].
@@ -199,6 +235,21 @@ chemform_decompose_mass <- function(mass,
 #'   [chemform_decompose_mass()]). Default `FALSE`. Disabled automatically
 #'   when any `min_elements` count is negative (see [chemform_decompose_mass()]).
 #'
+#' @details
+#' Neutral mass conversion when `charge != 0`:
+#' `M = mz * abs(charge) + e * charge`, with `e = 0.00054857990943`.
+#'
+#' ## Mass tolerance
+#' Same rule as [chemform_decompose_mass()]: `NULL` and `Inf` mean unused.
+#' `ppm` is converted to Dalton in R, then the **minimum** of the two windows
+#' is passed to C++:
+#'
+#' `abs_error = min(ppm * |M| * 1e-6, mzabs)`
+#'
+#' on the converted **neutral** mass `M`. Defaults are `ppm = 5` and
+#' `mzabs = NULL` (5 ppm). Set `ppm = NULL` (or `Inf`) for an absolute window
+#' only.
+#'
 #' @return A data.frame with columns `formula`, `exactmass`, `mz`, `ppm`, `charge`,
 #'   and `mz_target`. Rows are sorted by increasing `abs(ppm)` vs the input m/z.
 #' @export
@@ -206,7 +257,7 @@ chemform_decompose_mass <- function(mass,
 chemform_decompose_mz <- function(mz,
                                    charge = 0,
                                    ppm = 5,
-                                   mzabs = 1e-4,
+                                   mzabs = NULL,
                                    elements = c("C", "H", "N", "O", "P", "S"),
                                    min_elements = NULL,
                                    max_elements = NULL,
