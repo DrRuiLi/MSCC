@@ -181,13 +181,21 @@ get_sdf_smiles <- function(sdf){
 
 }
 
+#' Molecular formula from SMILES
+#'
+#' @param smile Character SMILES string(s). Callers should unique the
+#'   vector first when the same structure is repeated.
+#' @return Character formula(s), formatted by [chemform_formate()].
+#' @export
 get_smile_formula <- function(smile){
 
   smile.sdf <- get_smiles_sdf(smile)
   smile.formula <- get_sdf_formula(smile.sdf)
-  smile.formula <- case_when(smile=="O"~"H2O1",
-                 smile=="[HH]"~"H2",
-                 T~smile.formula)
+  smile.formula <- dplyr::case_when(
+    smile == "O" ~ "H2O1",
+    smile == "[HH]" ~ "H2",
+    TRUE ~ smile.formula
+  )
 
   return(smile.formula)
 }
