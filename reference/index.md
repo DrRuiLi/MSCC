@@ -149,6 +149,9 @@
 - [`get_sdf_igraph()`](https://drruili.github.io/MSCC/reference/get_sdf_igraph.md)
   : Convert SDF to igraph Object
 
+- [`get_smile_formula()`](https://drruili.github.io/MSCC/reference/get_smile_formula.md)
+  : Molecular formula from SMILES
+
 - [`get_smiles_sdf()`](https://drruili.github.io/MSCC/reference/get_smiles_sdf.md)
   : Convert SMILES strings to SDF format
 
