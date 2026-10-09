@@ -269,7 +269,10 @@ GPL-2 © [Rui Li](mailto:rli@sinh.ac.cn)
   : Build an RDKit molecule from SMILES
 
 - [`rdkit_plot_mol()`](https://drruili.github.io/MSCC/reference/rdkit_plot_mol.md)
-  : Plot an RDKit molecule (in-memory Draw)
+  : Plot an RDKit molecule (in-memory Cairo Draw)
+
+- [`rdkit_plot_mol_highlight()`](https://drruili.github.io/MSCC/reference/rdkit_plot_mol_highlight.md)
+  : Plot an RDKit molecule with SMARTS highlights
 
 - [`shiny_vis_cfm()`](https://drruili.github.io/MSCC/reference/shiny_vis_cfm.md)
   : Shiny app to visualize CFM_data spectra and fragments

@@ -3,7 +3,10 @@
 [`reticulate::import()`](https://rstudio.github.io/reticulate/reference/import.html)
 cannot take an env path; the interpreter must be chosen first. On
 Windows, also adds the conda env `Library/bin` directory to the DLL
-search path so `rdMolDraw2D` / Cairo drawing can load.
+search path so `rdMolDraw2D` / Cairo drawing can load. That add is *once
+per Python process*: each `os.add_dll_directory()` cookie is retained,
+because discarding them leaks Win32 search entries until `WinError 206`
+(the path itself is not too long).
 
 ## Usage
 

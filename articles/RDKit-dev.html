@@ -108,17 +108,26 @@
 <p>Python:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> rdkit <span class="im">import</span> Chem</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> rdkit.Chem <span class="im">import</span> Draw</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> rdkit.Chem.Draw <span class="im">import</span> rdMolDraw2D</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>mol <span class="op">=</span> Chem.MolFromSmiles(<span class="st">"NCC(O)=O"</span>)</span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>img <span class="op">=</span> Draw.MolToImage(mol, size<span class="op">=</span>(<span class="dv">300</span>, <span class="dv">300</span>))</span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>img  <span class="co"># PIL Image</span></span></code></pre></div>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>d2d <span class="op">=</span> rdMolDraw2D.MolDraw2DCairo(<span class="dv">800</span>, <span class="dv">800</span>)</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>opts <span class="op">=</span> d2d.drawOptions()</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>opts.bondLineWidth <span class="op">=</span> <span class="dv">7</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>opts.fixedFontSize <span class="op">=</span> <span class="dv">80</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>opts.minFontSize <span class="op">=</span> <span class="dv">72</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>opts.maxFontSize <span class="op">=</span> <span class="dv">88</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>opts.padding <span class="op">=</span> <span class="fl">0.12</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>d2d.DrawMolecule(mol)</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>d2d.FinishDrawing()</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>png <span class="op">=</span> d2d.GetDrawingText()</span></code></pre></div>
 </div>
-<p>R (MSCC wrapper — in-memory <code>Draw.MolToImage</code> → ggplot):</p>
+<p>R (MSCC wrapper — in-memory <code>MolDraw2DCairo</code> → ggplot). Defaults are a 800×800 canvas, thick bonds, and large C/O/N labels:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mol</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/rdkit_mol_from_smiles.html">rdkit_mol_from_smiles</a></span><span class="op">(</span><span class="st">"NCC(O)=O"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/rdkit_plot_mol.html">rdkit_plot_mol</a></span><span class="op">(</span><span class="va">mol</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/rdkit_plot_mol.html">rdkit_plot_mol</a></span><span class="op">(</span><span class="va">mol</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/rdkit_plot_mol.html">rdkit_plot_mol</a></span><span class="op">(</span><span class="va">mol</span>, fixedFontSize <span class="op">=</span> <span class="fl">48</span>, bondLineWidth <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span></code></pre></div>
 </div>
 </section><section class="level2"><h3 id="molecule-properties-formula-and-exact-mass">2.3 Molecule properties (formula and exact mass)<a class="anchor" aria-label="anchor" href="#molecule-properties-formula-and-exact-mass"></a>
 </h3>

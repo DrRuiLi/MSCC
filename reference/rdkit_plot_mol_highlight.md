@@ -1,14 +1,16 @@
-# Plot an RDKit molecule (in-memory Cairo Draw)
+# Plot an RDKit molecule with SMARTS highlights
 
-Renders `mol` with RDKit `MolDraw2DCairo` entirely in memory (no temp
-file) and returns a ggplot that prints like a normal plot. Defaults use
-a square canvas, thick bonds, and large C/O/N labels.
+Same Cairo drawing as
+[`rdkit_plot_mol()`](https://drruili.github.io/MSCC/reference/rdkit_plot_mol.md),
+but fills atoms and bonds that match `highlight_smarts`. Named roles
+`structure` / `co_elute` / `product` use gold, blue, and green.
 
 ## Usage
 
 ``` r
-rdkit_plot_mol(
+rdkit_plot_mol_highlight(
   mol = rdkit_mol_from_smiles(),
+  highlight_smarts = NULL,
   width = 800L,
   height = 800L,
   bondLineWidth = 7,
@@ -19,7 +21,8 @@ rdkit_plot_mol(
   additionalAtomLabelPadding = 0.04,
   multipleBondOffset = 0.16,
   scaleBondWidth = FALSE,
-  centreMoleculesBeforeDrawing = TRUE
+  centreMoleculesBeforeDrawing = TRUE,
+  background = c(1, 1, 1)
 )
 ```
 
@@ -29,6 +32,12 @@ rdkit_plot_mol(
 
   RDKit molecule. Defaults to glycine via
   [`rdkit_mol_from_smiles()`](https://drruili.github.io/MSCC/reference/rdkit_mol_from_smiles.md).
+
+- highlight_smarts:
+
+  SMARTS string or character vector. Matching atoms and bonds are
+  highlighted. Named values `structure` / `co_elute` / `product` select
+  the palette. Unnamed values use gold.
 
 - width, height:
 
@@ -68,6 +77,10 @@ rdkit_plot_mol(
 
   Centre the drawing in the canvas. Default `TRUE`.
 
+- background:
+
+  RGB vector in `[0, 1]`. Length 3 or 4 (alpha). Default white.
+
 ## Value
 
 A ggplot object with the molecule raster.
@@ -76,8 +89,7 @@ A ggplot object with the molecule raster.
 
 ``` r
 if (FALSE) { # \dontrun{
-rdkit_plot_mol()
-rdkit_plot_mol(rdkit_mol_from_smiles("CCO"))
-rdkit_plot_mol(rdkit_mol_from_smiles("CCO"), fixedFontSize = 48)
+mol <- rdkit_mol_from_smiles("C(=O)(N)N")
+rdkit_plot_mol_highlight(mol, c(structure = "[NX3H2][CX3]=O"))
 } # }
 ```
