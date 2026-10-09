@@ -46,7 +46,7 @@ Build one from a SMILES string via CFM-ID (Docker required):
 ```{r}
 #| label: cfm-demo
 #| eval: false
-cfm <- get_CFM_data_from_smiles(
+cfm <- MSAtomMap::get_CFM_data_from_smiles(
   smiles = "NCC(O)=O",
   compound_id = "glycine",
   adduct = "[M+H]+",
@@ -65,7 +65,7 @@ Launch the viewer:
 ```{r}
 #| label: shiny-vis
 #| eval: false
-shiny_vis_cfm(cfm)
+MSAtomMap::shiny_vis_cfm(cfm)
 ```
 
 Optionally plot the multi-CE spectra alone:
@@ -73,5 +73,5 @@ Optionally plot the multi-CE spectra alone:
 ```{r}
 #| label: plotly-only
 #| eval: false
-plotly_CFM_spectra(cfm)
+MSAtomMap::plotly_CFM_spectra(cfm)
 ```

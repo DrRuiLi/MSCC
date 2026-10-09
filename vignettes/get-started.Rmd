@@ -93,14 +93,14 @@ mol@molecule_info
 Prediction and annotation need a working CFM-ID Docker setup. Small molecules such as glycine are useful for a quick demo:
 
 ```{r cfm, eval = FALSE}
-cfm <- get_CFM_data_from_smiles(
+cfm <- MSAtomMap::get_CFM_data_from_smiles(
   smiles = "NCC(O)=O",
   compound_id = "glycine",
   adduct = "[M+H]+",
   check_cache = TRUE,
   cache_dir = tempdir()
 )
-shiny_vis_cfm(cfm)
+MSAtomMap::shiny_vis_cfm(cfm)
 ```
 
 More detail: the [CFM_shiny](CFM_shiny.html) vignette.
