@@ -73,10 +73,12 @@ import(data.table)
 import(magrittr)
 import(tidyverse)
 importClassesFrom(ChemmineR,SDF)
-importFrom(ChemmineR,atomblock)
-importFrom(ChemmineR,atomcountMA)
-importFrom(ChemmineR,bondblock)
-importFrom(ChemmineR,bonds)
-importFrom(ChemmineR,validSDF)
+importFrom(ChemmineR,
+  atomblock,
+  atomcountMA,
+  bondblock,
+  bonds,
+  validSDF
+)
 importFrom(magrittr,"%>%")
 useDynLib(MSCC, .registration = TRUE)
