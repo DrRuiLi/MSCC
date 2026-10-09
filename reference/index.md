@@ -2,29 +2,9 @@
 
 ## All functions
 
-- [`CFM_predict()`](https://drruili.github.io/MSCC/reference/CFM.md)
-  [`CFM_annotate()`](https://drruili.github.io/MSCC/reference/CFM.md)
-  [`CFM_annotate_by_fraggen()`](https://drruili.github.io/MSCC/reference/CFM.md)
-  [`CFM_annotate_by_predict()`](https://drruili.github.io/MSCC/reference/CFM.md)
-  [`CFM_fraggen()`](https://drruili.github.io/MSCC/reference/CFM.md)
-  [`read_CFM_predict_result()`](https://drruili.github.io/MSCC/reference/CFM.md)
-  : Predict Mass Spectra using CFM-ID
-
-- [`CFM_spectra_data_int_weight()`](https://drruili.github.io/MSCC/reference/CFM_spectra_data_int_weight.md)
-  : Weight CFM Spectra Intensities by Fragment Group
-
-- [`CFM_spectra_data_merge()`](https://drruili.github.io/MSCC/reference/CFM_spectra_data_merge.md)
-  : Merge CFM Spectra Isotopologue Ratios by Fragment Group
-
-- [`CFM_spectra_data_remove_natural()`](https://drruili.github.io/MSCC/reference/CFM_spectra_data_remove_natural.md)
-  : Remove Natural Isotope Contribution from Combined CFM Spectra
-
 - [`chemform_sum()`](https://drruili.github.io/MSCC/reference/Chemform_calculation.md)
   [`chemform_multi()`](https://drruili.github.io/MSCC/reference/Chemform_calculation.md)
   : Chemform Calculation
-
-- [`CFM_annotate_isotopologues()`](https://drruili.github.io/MSCC/reference/MSIP.md)
-  : Annotate Isotopologues in Mass Spectra
 
 - [`get_Molecule_atom_transfer_by_atom_map()`](https://drruili.github.io/MSCC/reference/Molecule_atom_transfer.md)
   : Auto map atom structure
@@ -96,15 +76,6 @@
 - [`ensure_RDKit_python()`](https://drruili.github.io/MSCC/reference/ensure_RDKit_python.md)
   : Select the Python env used for RDKit (before first import)
 
-- [`export_Spectra_peak_list_for_cfm()`](https://drruili.github.io/MSCC/reference/export_Spectra_peak_list_for_cfm.md)
-  : Export a Spectra object to a CFM-ID peak-list text file
-
-- [`get_CFM_data_Spectra()`](https://drruili.github.io/MSCC/reference/get_CFM_data_Spectra.md)
-  : Convert CFM Data to Spectra Object
-
-- [`get_CFM_data_from_smiles()`](https://drruili.github.io/MSCC/reference/get_CFM_data_from_smiles.md)
-  : Get CFM Data from SMILES
-
 - [`get_RDKit_Chem()`](https://drruili.github.io/MSCC/reference/get_RDKit_Chem.md)
   :
 
@@ -140,9 +111,6 @@
 - [`get_polarity_from_adduct()`](https://drruili.github.io/MSCC/reference/get_polarity_from_adduct.md)
   : Infer polarity from adduct expression
 
-- [`get_polarity_suffix()`](https://drruili.github.io/MSCC/reference/get_polarity_suffix.md)
-  : Get Polarity Suffix
-
 - [`get_sdf_IUPAC_index()`](https://drruili.github.io/MSCC/reference/get_sdf_IUPAC_index.md)
   : Map ChemmineR SDF atom IDs to openclatura IUPAC locants
 
@@ -164,9 +132,6 @@
 - [`%>%`](https://drruili.github.io/MSCC/reference/pipe.md) : Re-export
   the magrittr pipe
 
-- [`plotly_CFM_spectra()`](https://drruili.github.io/MSCC/reference/plotly_CFM_spectra.md)
-  : Plotly multi-CE spectrum for CFM_data
-
 - [`rdkit_has_substruct()`](https://drruili.github.io/MSCC/reference/rdkit_has_substruct.md)
   : Test whether a mol matches a SMARTS pattern
 
@@ -184,9 +149,6 @@
 
 - [`rdkit_plot_mol_highlight()`](https://drruili.github.io/MSCC/reference/rdkit_plot_mol_highlight.md)
   : Plot an RDKit molecule with SMARTS highlights
-
-- [`shiny_vis_cfm()`](https://drruili.github.io/MSCC/reference/shiny_vis_cfm.md)
-  : Shiny app to visualize CFM_data spectra and fragments
 
 - [`trans_iso_ele()`](https://drruili.github.io/MSCC/reference/trans_iso_ele.md)
   : Convert element to canonical isotope notation

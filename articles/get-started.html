@@ -171,29 +171,9 @@ isotopomers). Default demo molecule is glycine:</p>
 <span><span class="va">mol</span><span class="op">@</span><span class="va">molecule_info</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="cfm-id-spectra-optional">CFM-ID spectra (optional)<a class="anchor" aria-label="anchor" href="#cfm-id-spectra-optional"></a>
-</h2>
-<p>Prediction and annotation need a working CFM-ID Docker setup. Small
-molecules such as glycine are useful for a quick demo:</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">cfm</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_CFM_data_from_smiles.html">get_CFM_data_from_smiles</a></span><span class="op">(</span></span>
-<span>  smiles <span class="op">=</span> <span class="st">"NCC(O)=O"</span>,</span>
-<span>  compound_id <span class="op">=</span> <span class="st">"glycine"</span>,</span>
-<span>  adduct <span class="op">=</span> <span class="st">"[M+H]+"</span>,</span>
-<span>  check_cache <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  cache_dir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/shiny_vis_cfm.html">shiny_vis_cfm</a></span><span class="op">(</span><span class="va">cfm</span><span class="op">)</span></span></code></pre></div>
-<p>More detail: the <a href="CFM_shiny.html">CFM_shiny</a> vignette.</p>
-</div>
-<div class="section level2">
 <h2 id="conventions">Conventions<a class="anchor" aria-label="anchor" href="#conventions"></a>
 </h2>
 <table class="table">
-<colgroup>
-<col width="36%">
-<col width="63%">
-</colgroup>
 <thead><tr class="header">
 <th>Topic</th>
 <th>Convention</th>
@@ -216,12 +196,6 @@ molecules such as glycine are useful for a quick demo:</p>
 <td>
 <code>0</code> = negative, <code>1</code> = positive</td>
 </tr>
-<tr class="even">
-<td>CFM energies</td>
-<td>
-<code>energy0</code> → CE 10, <code>energy1</code> → CE 20,
-<code>energy2</code> → CE 40</td>
-</tr>
 </tbody>
 </table>
 </div>
@@ -230,8 +204,8 @@ molecules such as glycine are useful for a quick demo:</p>
 </h2>
 <ul>
 <li>Reference index: function-level help on the package site</li>
-<li>Articles: formula decomposition, Seven Golden Rules, CFM viewer,
-RDKit helpers</li>
+<li>Articles: formula decomposition, Seven Golden Rules, RDKit
+helpers</li>
 </ul>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

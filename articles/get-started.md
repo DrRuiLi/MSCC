@@ -127,38 +127,15 @@ mol <- get_Molecule_igraph_from_smiles("NCC(O)=O", id = "glycine")
 mol@molecule_info
 ```
 
-## CFM-ID spectra (optional)
-
-Prediction and annotation need a working CFM-ID Docker setup. Small
-molecules such as glycine are useful for a quick demo:
-
-``` r
-
-cfm <- get_CFM_data_from_smiles(
-  smiles = "NCC(O)=O",
-  compound_id = "glycine",
-  adduct = "[M+H]+",
-  check_cache = TRUE,
-  cache_dir = tempdir()
-)
-shiny_vis_cfm(cfm)
-```
-
-More detail: the
-[CFM_shiny](https://drruili.github.io/MSCC/articles/CFM_shiny.md)
-vignette.
-
 ## Conventions
 
-| Topic            | Convention                                              |
-|------------------|---------------------------------------------------------|
-| Isotope notation | `[13]C`, `[2]H`, `[15]N`, `[18]O`, `[34]S`              |
-| Adduct strings   | Prefer `[M+H]+` / `[M-H]-`                              |
-| Polarity         | `0` = negative, `1` = positive                          |
-| CFM energies     | `energy0` → CE 10, `energy1` → CE 20, `energy2` → CE 40 |
+| Topic            | Convention                                 |
+|------------------|--------------------------------------------|
+| Isotope notation | `[13]C`, `[2]H`, `[15]N`, `[18]O`, `[34]S` |
+| Adduct strings   | Prefer `[M+H]+` / `[M-H]-`                 |
+| Polarity         | `0` = negative, `1` = positive             |
 
 ## Next steps
 
 - Reference index: function-level help on the package site
-- Articles: formula decomposition, Seven Golden Rules, CFM viewer, RDKit
-  helpers
+- Articles: formula decomposition, Seven Golden Rules, RDKit helpers

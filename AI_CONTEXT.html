@@ -100,7 +100,7 @@
 <td>Fragment SMILES, <code>fragment_mz</code>, polarity</td>
 </tr><tr><td><code>fragment_transition</code></td>
 <td>Fragment graph edges (annotate path)</td>
-</tr></tbody></table><p>Typical entry: <code><a href="reference/get_CFM_data_from_smiles.html">get_CFM_data_from_smiles()</a></code> → <code>CFM_predict</code> / <code>CFM_annotate*</code> (Docker). Viewer: <code><a href="reference/shiny_vis_cfm.html">shiny_vis_cfm()</a></code>.</p>
+</tr></tbody></table><p>Typical entry: <code>get_CFM_data_from_smiles()</code> → <code>CFM_predict</code> / <code>CFM_annotate*</code> (Docker). Viewer: <code>shiny_vis_cfm()</code>.</p>
 </div>
 </div>
 <div class="section level2">
@@ -179,7 +179,7 @@
 <li>
 <strong>CFM runtime:</strong> Prediction/annotation needs a working CFM-ID Docker setup; local cache dirs are supported.</li>
 <li>
-<strong>No MSdev dependency:</strong> Do <strong>not</strong> rely on package <code>MSdev</code> (no <code>Imports</code>/<code>Suggests</code>/<code>Remotes</code>, no <code>MSdev::</code> calls). MSdev already depends on MSCC; adding the reverse creates a circular install loop. Use MSCC-local helpers in <code>migration_helpers.R</code> and CFM plotting via <code><a href="reference/plotly_CFM_spectra.html">plotly_CFM_spectra()</a></code> / <code><a href="reference/shiny_vis_cfm.html">shiny_vis_cfm()</a></code>.</li>
+<strong>No MSdev dependency:</strong> Do <strong>not</strong> rely on package <code>MSdev</code> (no <code>Imports</code>/<code>Suggests</code>/<code>Remotes</code>, no <code>MSdev::</code> calls). MSdev already depends on MSCC; adding the reverse creates a circular install loop. Use MSCC-local helpers in <code>migration_helpers.R</code> and CFM plotting via <code>plotly_CFM_spectra()</code> / <code>shiny_vis_cfm()</code>.</li>
 <li>
 <strong>Demo molecule:</strong> Glycine SMILES <code>NCC(O)=O</code> is the default in several helpers.</li>
 </ol></div>
@@ -228,10 +228,10 @@
 <td><code>get_Molecule_igraph_from_smiles()</code></td>
 </tr><tr><td>CFM predict</td>
 <td>
-<code><a href="reference/get_CFM_data_from_smiles.html">get_CFM_data_from_smiles()</a></code> / <code><a href="reference/CFM.html">CFM_predict()</a></code>
+<code>get_CFM_data_from_smiles()</code> / <code>CFM_predict()</code>
 </td>
 </tr><tr><td>CFM UI</td>
-<td><code><a href="reference/shiny_vis_cfm.html">shiny_vis_cfm()</a></code></td>
+<td><code>shiny_vis_cfm()</code></td>
 </tr><tr><td>RDKit</td>
 <td>
 <code><a href="reference/rdkit_mol_from_smiles.html">rdkit_mol_from_smiles()</a></code>, <code><a href="reference/rdkit_mol_formula.html">rdkit_mol_formula()</a></code>

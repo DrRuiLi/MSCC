@@ -60,10 +60,8 @@ Slots:
 | `fragment_define` | Fragment SMILES, `fragment_mz`, polarity |
 | `fragment_transition` | Fragment graph edges (annotate path) |
 
-Typical entry:
-[`get_CFM_data_from_smiles()`](https://drruili.github.io/MSCC/reference/get_CFM_data_from_smiles.md)
-→ `CFM_predict` / `CFM_annotate*` (Docker). Viewer:
-[`shiny_vis_cfm()`](https://drruili.github.io/MSCC/reference/shiny_vis_cfm.md).
+Typical entry: `get_CFM_data_from_smiles()` → `CFM_predict` /
+`CFM_annotate*` (Docker). Viewer: `shiny_vis_cfm()`.
 
 ## Module map (`R/`)
 
@@ -120,9 +118,7 @@ when schema harmonization is needed.
     `Imports`/`Suggests`/`Remotes`, no `MSdev::` calls). MSdev already
     depends on MSCC; adding the reverse creates a circular install loop.
     Use MSCC-local helpers in `migration_helpers.R` and CFM plotting via
-    [`plotly_CFM_spectra()`](https://drruili.github.io/MSCC/reference/plotly_CFM_spectra.md)
-    /
-    [`shiny_vis_cfm()`](https://drruili.github.io/MSCC/reference/shiny_vis_cfm.md).
+    `plotly_CFM_spectra()` / `shiny_vis_cfm()`.
 8.  **Demo molecule:** Glycine SMILES `NCC(O)=O` is the default in
     several helpers.
 
@@ -154,8 +150,8 @@ when schema harmonization is needed.
 | Formula + adduct | [`chemform_adduct()`](https://drruili.github.io/MSCC/reference/chemform_adduct.md), [`chemform_adduct_check()`](https://drruili.github.io/MSCC/reference/chemform_adduct_check.md) |
 | Isotope pattern | [`chemform_isotopes_pattern_enviPat()`](https://drruili.github.io/MSCC/reference/chemform_isotopes_pattern_enviPat.md) |
 | Molecule graph | `get_Molecule_igraph_from_smiles()` |
-| CFM predict | [`get_CFM_data_from_smiles()`](https://drruili.github.io/MSCC/reference/get_CFM_data_from_smiles.md) / [`CFM_predict()`](https://drruili.github.io/MSCC/reference/CFM.md) |
-| CFM UI | [`shiny_vis_cfm()`](https://drruili.github.io/MSCC/reference/shiny_vis_cfm.md) |
+| CFM predict | `get_CFM_data_from_smiles()` / `CFM_predict()` |
+| CFM UI | `shiny_vis_cfm()` |
 | RDKit | [`rdkit_mol_from_smiles()`](https://drruili.github.io/MSCC/reference/rdkit_mol_from_smiles.md), [`rdkit_mol_formula()`](https://drruili.github.io/MSCC/reference/rdkit_mol_formula.md) |
 | Natural correction | [`accucor_natural_correction()`](https://drruili.github.io/MSCC/reference/accucor_natural_correction.md) |
 | Atom mapping | [`get_atom_map()`](https://drruili.github.io/MSCC/reference/get_atom_map.md), [`get_Molecule_atom_transfer_by_atom_map()`](https://drruili.github.io/MSCC/reference/Molecule_atom_transfer.md), `RXNMapper_map()` |
