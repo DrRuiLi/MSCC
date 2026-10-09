@@ -12,3 +12,6 @@ man
 docs/
 /Script
 docs
+src/*.o
+src/*.so
+src/*.dll
