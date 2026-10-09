@@ -150,6 +150,13 @@ CFM_predict <- function(smiles_or_inchi_or_file = "[H]C1(O)O[C@]([H])(CO)[C@@]([
   #message("Make Command to docker: ")
   #message(crayon::red(cmd)%>%crayon::reset() )
   shell(cmd)
+  if (!file.exists(out.file)) {
+    stop(
+      "CFM-ID did not write output file '", out.file, "'. ",
+      "Is Docker Desktop running? Command: ", cmd,
+      call. = FALSE
+    )
+  }
   if (is.null(output_file_or_dir)) {
     polarity <- MSCC::get_polarity_from_adduct(param_adduct)
     cfm.result <- read_CFM_predict_result(out.file, polarity = polarity)
@@ -217,6 +224,13 @@ CFM_annotate<- function(smiles_or_inchi = "[H]C1(O)O[C@]([H])(CO)[C@@]([H])(O)[C
   #message("Make Command to docker: ")
   #message(crayon::red(cmd)%>%crayon::reset() )
   shell(cmd)
+  if (!file.exists(out.file)) {
+    stop(
+      "CFM-ID annotate did not write output file '", out.file, "'. ",
+      "Is Docker Desktop running? Command: ", cmd,
+      call. = FALSE
+    )
+  }
   if (is.null(output_file)) {
     polarity <- MSCC::get_polarity_from_adduct(param_adduct)
     return(invisible(read_CFM_annotate_result(out.file, polarity = polarity)))
@@ -555,6 +569,9 @@ CFM_fraggen <- function(smiles_or_inchi = "[H]C1(O)O[C@]([H])(CO)[C@@]([H])(O)[C
 read_CFM_annotate_result <- function(result_path = "c:/Users/91879/OneDrive/Code/Docker/cfm/data/cfm_annotate_result.txt",
                                      polarity = NA_real_)
   {
+  str_extract <- stringr::str_extract
+  case_when <- dplyr::case_when
+  bind_rows <- dplyr::bind_rows
 
   cfm_data <- readr::read_lines(result_path)
   cfm.df <- data.frame(line.no = 1:length(cfm_data),
@@ -717,6 +734,9 @@ read_CFM_annotate_result <- function(result_path = "c:/Users/91879/OneDrive/Code
 
 read_CFM_predict_result <- function(result_path =  "c:/Users/91879/OneDrive/Code/Docker/cfm/data/cfm_predict_result.txt",
                                     polarity = NA_real_){
+  str_extract <- stringr::str_extract
+  case_when <- dplyr::case_when
+  bind_rows <- dplyr::bind_rows
 
   cfm_data <- readr::read_lines(result_path)
   cfm.df <- data.frame(line.no = 1:length(cfm_data),
@@ -754,8 +774,8 @@ read_CFM_predict_result <- function(result_path =  "c:/Users/91879/OneDrive/Code
         dplyr::mutate(
           assigned = grepl(pattern = "\\(",x = line.data))%>%
         dplyr::mutate(
-          d1 = case_when(
-            assigned~str_extract(line.data,".*(?= \\()"),
+          d1 = dplyr::case_when(
+            assigned~stringr::str_extract(line.data,".*(?= \\()"),
             T~line.data
           ),
           fragment_score = str_extract(line.data,"(?<= \\()[^\\)]*"))%>%

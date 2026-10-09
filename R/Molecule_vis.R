@@ -9,6 +9,7 @@
 #' @importFrom ChemmineR atomblock bondblock bonds validSDF
 #' @export
 get_sdf_igraph <- function(sdf,addH = F){
+  rownames_to_column <- tibble::rownames_to_column
 
   .f <- function(sdf,addH){
 
@@ -105,7 +106,7 @@ vis_sdf_igraph <- function(sdf.igraph,show_id = F,...){
   vda <- vdata(sdf.igraph)%>%
     dplyr::mutate(x = x-mean(x),
                   y = y-mean(y))%>%
-    dplyr::select("id",everything())
+    dplyr::select("id", dplyr::everything())
   eda <- edata(sdf.igraph)%>%
     dplyr::select(c("from","to","bond_type","width","color","smooth"))
 
