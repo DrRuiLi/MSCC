@@ -1,7 +1,3 @@
-plot_CFM_annotated_Spectra <- function(cfmd) {
-  MSAtomMap::plotly_CFM_spectra(cfmd)
-}
-
 #' Get Igraph Objects for CFM Fragments
 #' @title Get Igraph Objects for CFM Fragments
 #' @description Converts fragment structures in a CFM_data object to igraph objects representing

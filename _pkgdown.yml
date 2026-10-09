@@ -8,13 +8,13 @@ home:
   title: MSCC
   description: >
     Mass spectrometry chemical calculation — formulas, isotopes, adducts,
-    molecular graphs, and CFM-ID helpers for metabolomics.
+    molecular graphs for metabolomics.
 
 development:
   mode: auto
 
 # Only vignettes under vignettes/articles/ appear in the Articles menu.
-# Root vignettes (MSCC, CFM_shiny, RDKit-dev, …) are built but hidden,
+# Root vignettes (MSCC, RDKit-dev, …) are built but hidden,
 # except get-started which is linked as navbar "Get started" (intro).
 articles:
 - title: Articles
@@ -26,7 +26,6 @@ articles:
   contents:
   - get-started
   - MSCC
-  - CFM_shiny
   - RDKit-dev
 
 navbar:

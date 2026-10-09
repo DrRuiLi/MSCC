@@ -27,7 +27,6 @@ LinkingTo:
     Rcpp
 Roxygen: list(markdown = TRUE)
 Suggests: 
-    MSAtomMap,
     accucor,
     CHNOSZ,
     crayon,
