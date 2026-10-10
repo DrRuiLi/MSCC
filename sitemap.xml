@@ -12,7 +12,6 @@
 <url><loc>https://drruili.github.io/MSCC/authors.html</loc></url>
 <url><loc>https://drruili.github.io/MSCC/index.html</loc></url>
 <url><loc>https://drruili.github.io/MSCC/reference/Chemform_calculation.html</loc></url>
-<url><loc>https://drruili.github.io/MSCC/reference/Molecule_atom_transfer.html</loc></url>
 <url><loc>https://drruili.github.io/MSCC/reference/Molecule_igraph_add_isotopomer.html</loc></url>
 <url><loc>https://drruili.github.io/MSCC/reference/accucor_natural_correction.html</loc></url>
 <url><loc>https://drruili.github.io/MSCC/reference/atom-SDF-method.html</loc></url>
@@ -38,7 +37,6 @@
 <url><loc>https://drruili.github.io/MSCC/reference/ensure_RDKit_python.html</loc></url>
 <url><loc>https://drruili.github.io/MSCC/reference/get_RDKit_Chem.html</loc></url>
 <url><loc>https://drruili.github.io/MSCC/reference/get_RXNMapper.html</loc></url>
-<url><loc>https://drruili.github.io/MSCC/reference/get_atom_map.html</loc></url>
 <url><loc>https://drruili.github.io/MSCC/reference/get_ele_uniso.html</loc></url>
 <url><loc>https://drruili.github.io/MSCC/reference/get_elem_table.html</loc></url>
 <url><loc>https://drruili.github.io/MSCC/reference/get_element.html</loc></url>
@@ -46,7 +44,6 @@
 <url><loc>https://drruili.github.io/MSCC/reference/get_iso_natural_ratio.html</loc></url>
 <url><loc>https://drruili.github.io/MSCC/reference/get_isotope_mass_diff.html</loc></url>
 <url><loc>https://drruili.github.io/MSCC/reference/get_matrix_value_fill_with_NA.html</loc></url>
-<url><loc>https://drruili.github.io/MSCC/reference/get_mcs_atom_map.html</loc></url>
 <url><loc>https://drruili.github.io/MSCC/reference/get_polarity_from_adduct.html</loc></url>
 <url><loc>https://drruili.github.io/MSCC/reference/get_sdf_IUPAC_index.html</loc></url>
 <url><loc>https://drruili.github.io/MSCC/reference/get_sdf_igraph.html</loc></url>

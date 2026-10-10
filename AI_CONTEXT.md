@@ -154,7 +154,7 @@ when schema harmonization is needed.
 | CFM UI | `shiny_vis_cfm()` |
 | RDKit | [`rdkit_mol_from_smiles()`](https://drruili.github.io/MSCC/reference/rdkit_mol_from_smiles.md), [`rdkit_mol_formula()`](https://drruili.github.io/MSCC/reference/rdkit_mol_formula.md) |
 | Natural correction | [`accucor_natural_correction()`](https://drruili.github.io/MSCC/reference/accucor_natural_correction.md) |
-| Atom mapping | [`get_atom_map()`](https://drruili.github.io/MSCC/reference/get_atom_map.md), [`get_Molecule_atom_transfer_by_atom_map()`](https://drruili.github.io/MSCC/reference/Molecule_atom_transfer.md), `RXNMapper_map()` |
+| Atom mapping | `get_atom_map()`, `get_Molecule_atom_transfer_by_atom_map()`, `RXNMapper_map()` |
 
 ## Agent guardrails
 

@@ -6,9 +6,6 @@
   [`chemform_multi()`](https://drruili.github.io/MSCC/reference/Chemform_calculation.md)
   : Chemform Calculation
 
-- [`get_Molecule_atom_transfer_by_atom_map()`](https://drruili.github.io/MSCC/reference/Molecule_atom_transfer.md)
-  : Auto map atom structure
-
 - [`Molecule_igraph_add_isotopomer()`](https://drruili.github.io/MSCC/reference/Molecule_igraph_add_isotopomer.md)
   : Add isotopomer to Molecule Igraph
 
@@ -84,9 +81,6 @@
 - [`get_RXNMapper()`](https://drruili.github.io/MSCC/reference/get_RXNMapper.md)
   : Create RXNMapper callable
 
-- [`get_atom_map()`](https://drruili.github.io/MSCC/reference/get_atom_map.md)
-  : Map atoms between parent and product molecules
-
 - [`get_ele_uniso()`](https://drruili.github.io/MSCC/reference/get_ele_uniso.md)
   : Convert isotope notation to element symbol
 
@@ -104,9 +98,6 @@
 
 - [`get_isotope_mass_diff()`](https://drruili.github.io/MSCC/reference/get_isotope_mass_diff.md)
   : get_isotope_mass_diff
-
-- [`get_mcs_atom_map()`](https://drruili.github.io/MSCC/reference/get_mcs_atom_map.md)
-  : Build atom map from fmcsR mcs object
 
 - [`get_polarity_from_adduct()`](https://drruili.github.io/MSCC/reference/get_polarity_from_adduct.md)
   : Infer polarity from adduct expression
