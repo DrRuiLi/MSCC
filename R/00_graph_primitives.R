@@ -63,29 +63,6 @@ setGeneric("atom", function(object, element = "ANY") standardGeneric("atom"))
 #' @export
 setGeneric("get_element", function(object, ...) standardGeneric("get_element"))
 
-#' Build atom map from fmcsR mcs object
-#'
-#' @param mcs fmcsR `mcs` result object.
-#'
-#' @return List of atom-map data frames.
-#' @export
-get_mcs_atom_map <- function(mcs) {
-  mcs.count <- length(mcs@mcs1[[2]])
-  mcs1.atom <- rownames(ChemmineR::atomblock(mcs@mcs1$query)[[1]])
-  mcs2.atom <- rownames(ChemmineR::atomblock(mcs@mcs2$target)[[1]])
-  atom.map <- vector("list", mcs.count)
-  for (i in seq_len(mcs.count)) {
-    this.map <- data.frame(
-      mc1.idx = mcs@mcs1$mcs1[[i]],
-      mc2.idx = mcs@mcs2$mcs2[[i]]
-    )
-    this.map$mc1.atom <- mcs1.atom[this.map$mc1.idx]
-    this.map$mc2.atom <- mcs2.atom[this.map$mc2.idx]
-    atom.map[[i]] <- this.map
-  }
-  atom.map
-}
-
 #' Create RXNMapper callable
 #'
 #' @return Python callable from `rxnmapper`.
