@@ -130,6 +130,13 @@ sdf_igraph_add_border_color <- function(sdf.igraph,
 
 
 }
+#' Color atom backgrounds on a structure graph.
+#'
+#' @param sdf.igraph An igraph from a molecular structure.
+#' @param value Named numeric weights. Names are atom ids.
+#' @param color.ramp Color ramp used by the structure viewer.
+#' @return The graph with `color.background` set on vertices.
+#' @export
 sdf_igraph_add_background_color <- function(sdf.igraph,
                                         value,
                                         color.ramp = colramp(breaks = c(0,Inf,1),
@@ -196,6 +203,12 @@ sdf_igraph_merge <- function(sdf.igraphA,sdf.igraphB){
 }
 
 
+#' Place several structure graphs side by side.
+#'
+#' @param ... Structure graphs.
+#' @param vertical Stack along y when `TRUE`, otherwise along x.
+#' @return One igraph containing every input structure.
+#' @export
 sdf_igraph_merge_all <- function(...,vertical = T){
 
 
