@@ -9,6 +9,9 @@
 - [`Molecule_igraph_add_isotopomer()`](https://drruili.github.io/MSCC/reference/Molecule_igraph_add_isotopomer.md)
   : Add isotopomer to Molecule Igraph
 
+- [`Molecule_igraph_vis_format()`](https://drruili.github.io/MSCC/reference/Molecule_igraph_vis_format.md)
+  : Format a molecule graph for visNetwork.
+
 - [`accucor_natural_correction()`](https://drruili.github.io/MSCC/reference/accucor_natural_correction.md)
   : AccuCor-style natural isotope correction for ratio matrix
 
@@ -99,6 +102,9 @@
 - [`get_isotope_mass_diff()`](https://drruili.github.io/MSCC/reference/get_isotope_mass_diff.md)
   : get_isotope_mass_diff
 
+- [`get_isotopomer_name()`](https://drruili.github.io/MSCC/reference/get_isotopomer_name.md)
+  : Label an isotopomer from its labeled atom ids.
+
 - [`get_polarity_from_adduct()`](https://drruili.github.io/MSCC/reference/get_polarity_from_adduct.md)
   : Infer polarity from adduct expression
 
@@ -140,6 +146,12 @@
 
 - [`rdkit_plot_mol_highlight()`](https://drruili.github.io/MSCC/reference/rdkit_plot_mol_highlight.md)
   : Plot an RDKit molecule with SMARTS highlights
+
+- [`sdf_igraph_add_background_color()`](https://drruili.github.io/MSCC/reference/sdf_igraph_add_background_color.md)
+  : Color atom backgrounds on a structure graph.
+
+- [`sdf_igraph_merge_all()`](https://drruili.github.io/MSCC/reference/sdf_igraph_merge_all.md)
+  : Place several structure graphs side by side.
 
 - [`trans_iso_ele()`](https://drruili.github.io/MSCC/reference/trans_iso_ele.md)
   : Convert element to canonical isotope notation
