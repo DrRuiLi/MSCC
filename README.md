@@ -6,7 +6,7 @@
 [![License: GPL-2](https://img.shields.io/badge/license-GPL--2-blue.svg)](https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html)
 <!-- badges: end -->
 
-**MSCC** (Mass Spectrometry Chemical Calculation) provides chemical-formula arithmetic, isotope and adduct handling, molecular graph helpers, and CFM-ID spectrum prediction/annotation for metabolomics and mass spectrometry workflows.
+**MSCC** (Mass Spectrometry Chemical Calculation) provides chemical-formula arithmetic, isotope and adduct handling, and molecular graph helpers for metabolomics and mass spectrometry workflows. CFM-ID prediction and atom maps live in [MSAtomMap](https://github.com/DrRuiLi/MSAtomMap).
 
 📚 **Documentation:** [https://drruili.github.io/MSCC/](https://drruili.github.io/MSCC/)
 
@@ -56,7 +56,6 @@ chemform_check_seven_golden_rules(c("C6H12O6", "CH6N2"))
 | **Adducts / isotopes** | Adduct tables, isotope mass diffs, labeled formulas, enviPat patterns |
 | **Decomposition** | MCP-based `chemform_decompose_mass()` / `chemform_decompose_mz()` with optional golden-rule filtering |
 | **Molecules** | `Molecule_igraph` (SDF + igraph + isotopomers), SMILES/SDF bridges, visualization |
-| **CFM-ID** | Docker-backed prediction/annotation (`CFM_data`), Spectra I/O, Shiny viewer |
 | **Optional chem** | RDKit / RXNMapper via reticulate; natural-abundance correction (`accucor`) |
 
 ## Conventions
@@ -64,7 +63,6 @@ chemform_check_seven_golden_rules(c("C6H12O6", "CH6N2"))
 - **Isotope notation:** `[13]C`, `[2]H`, `[15]N`, `[18]O`, `[34]S`
 - **Adduct strings:** prefer `[M+H]+` / `[M-H]-`
 - **Polarity:** `0` = negative, `1` = positive
-- **CFM collision energies:** `energy0` → CE 10, `energy1` → CE 20, `energy2` → CE 40
 
 ## Documentation
 

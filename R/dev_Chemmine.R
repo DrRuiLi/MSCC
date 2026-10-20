@@ -289,40 +289,6 @@ vis_sdf <- function(sdf,show_id = F,...){
 
 
 
-### to be removed
-get_atom_id_from_parent <- function(parent.sdf.graph,
-                                    product.sdf.graph){
-
-  #parent.sdf.graph <- fragment.igraph[[1]]
-  #product.sdf.graph <- fragment.igraph[[3]]
-
-  old.root.id <- V(product.sdf.graph)$root_atom_id
-  V(product.sdf.graph)$root_atom_id <- "unknown"
-  ig <- intersection(parent.sdf.graph,
-                     product.sdf.graph,
-                     byname = F, keep.all.vertices = F)
-
-  ig <- ig - V(ig)[atom_1!=atom_2]
-
-  ig.vd <- vdata(ig)
-  rownames(ig.vd) <- (ig.vd$name_2)
-
-  #vis_sdf_igraph(parent.sdf.graph,show.label = F)
-  #vis_sdf_igraph(product.sdf.graph,show.label = F)
-  new.id <- ig.vd[V(product.sdf.graph)$name,]$root_atom_id_1
-  if (!is.null(old.root.id)) {
-    new.id <- case_when(is.na(new.id)~old.root.id,
-              new.id == "unknown"~old.root.id,
-              T~new.id)
-  }
-
-  V(product.sdf.graph)$root_atom_id <- new.id
-
-  return(product.sdf.graph)
-
-}
-
-
 #' @title Visualize a molecule from SMILES string
 #' @description Creates an interactive visualization of a molecular structure from a SMILES string.
 #'   Converts the SMILES to an SDF object, then to an igraph representation, and generates an HTML widget

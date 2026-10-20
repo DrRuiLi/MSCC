@@ -20,7 +20,6 @@ Imports:
     magrittr,
     methods,
     S4Vectors,
-    Spectra,
     stringr,
     tidyverse
 LinkingTo: 
@@ -34,11 +33,9 @@ Suggests:
     igraph,
     knitr,
     nnls,
-    plotly,
     quarto,
     reticulate,
     rmarkdown,
-    shiny,
     visNetwork
 VignetteBuilder: knitr, quarto
 Config/roxygen2/version: 8.1.0
