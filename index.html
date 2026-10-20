@@ -62,7 +62,7 @@
 </h1></div>
 <!-- badges: start -->
 
-<p><strong>MSCC</strong> (Mass Spectrometry Chemical Calculation) provides chemical-formula arithmetic, isotope and adduct handling, molecular graph helpers, and CFM-ID spectrum prediction/annotation for metabolomics and mass spectrometry workflows.</p>
+<p><strong>MSCC</strong> (Mass Spectrometry Chemical Calculation) provides chemical-formula arithmetic, isotope and adduct handling, and molecular graph helpers for metabolomics and mass spectrometry workflows. CFM-ID prediction and atom maps live in <a href="https://github.com/DrRuiLi/MSAtomMap" class="external-link">MSAtomMap</a>.</p>
 <p>📚 <strong>Documentation:</strong> <a href="https://drruili.github.io/MSCC/">https://drruili.github.io/MSCC/</a></p>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
@@ -129,10 +129,6 @@
 <code>Molecule_igraph</code> (SDF + igraph + isotopomers), SMILES/SDF bridges, visualization</td>
 </tr>
 <tr>
-<td><strong>CFM-ID</strong></td>
-<td>Docker-backed prediction/annotation (<code>CFM_data</code>), Spectra I/O, Shiny viewer</td>
-</tr>
-<tr>
 <td><strong>Optional chem</strong></td>
 <td>RDKit / RXNMapper via reticulate; natural-abundance correction (<code>accucor</code>)</td>
 </tr>
@@ -151,8 +147,6 @@
 </li>
 <li>
 <strong>Polarity:</strong> <code>0</code> = negative, <code>1</code> = positive</li>
-<li>
-<strong>CFM collision energies:</strong> <code>energy0</code> → CE 10, <code>energy1</code> → CE 20, <code>energy2</code> → CE 40</li>
 </ul>
 </div>
 <div class="section level2">

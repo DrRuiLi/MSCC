@@ -120,9 +120,6 @@
 - [`get_smiles_sdf()`](https://drruili.github.io/MSCC/reference/get_smiles_sdf.md)
   : Convert SMILES strings to SDF format
 
-- [`heatmap_atom_iso_prob()`](https://drruili.github.io/MSCC/reference/heatmap_atom_iso_prob.md)
-  : Get Igraph Objects for CFM Fragments
-
 - [`isotope_mass_diff()`](https://drruili.github.io/MSCC/reference/isotope_mass_diff.md)
   : isotope_mass_diff
 

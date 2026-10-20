@@ -1,9 +1,10 @@
 # MSCC
 
 **MSCC** (Mass Spectrometry Chemical Calculation) provides
-chemical-formula arithmetic, isotope and adduct handling, molecular
-graph helpers, and CFM-ID spectrum prediction/annotation for
-metabolomics and mass spectrometry workflows.
+chemical-formula arithmetic, isotope and adduct handling, and molecular
+graph helpers for metabolomics and mass spectrometry workflows. CFM-ID
+prediction and atom maps live in
+[MSAtomMap](https://github.com/DrRuiLi/MSAtomMap).
 
 📚 **Documentation:** <https://drruili.github.io/MSCC/>
 
@@ -56,7 +57,6 @@ chemform_check_seven_golden_rules(c("C6H12O6", "CH6N2"))
 | **Adducts / isotopes** | Adduct tables, isotope mass diffs, labeled formulas, enviPat patterns |
 | **Decomposition** | MCP-based [`chemform_decompose_mass()`](https://drruili.github.io/MSCC/reference/chemform_decompose_mass.md) / [`chemform_decompose_mz()`](https://drruili.github.io/MSCC/reference/chemform_decompose_mz.md) with optional golden-rule filtering |
 | **Molecules** | `Molecule_igraph` (SDF + igraph + isotopomers), SMILES/SDF bridges, visualization |
-| **CFM-ID** | Docker-backed prediction/annotation (`CFM_data`), Spectra I/O, Shiny viewer |
 | **Optional chem** | RDKit / RXNMapper via reticulate; natural-abundance correction (`accucor`) |
 
 ## Conventions
@@ -64,8 +64,6 @@ chemform_check_seven_golden_rules(c("C6H12O6", "CH6N2"))
 - **Isotope notation:** `[13]C`, `[2]H`, `[15]N`, `[18]O`, `[34]S`
 - **Adduct strings:** prefer `[M+H]+` / `[M-H]-`
 - **Polarity:** `0` = negative, `1` = positive
-- **CFM collision energies:** `energy0` → CE 10, `energy1` → CE 20,
-  `energy2` → CE 40
 
 ## Documentation
 
@@ -208,9 +206,6 @@ GPL-2 © [Rui Li](mailto:rli@sinh.ac.cn)
 
 - [`get_smiles_sdf()`](https://drruili.github.io/MSCC/reference/get_smiles_sdf.md)
   : Convert SMILES strings to SDF format
-
-- [`heatmap_atom_iso_prob()`](https://drruili.github.io/MSCC/reference/heatmap_atom_iso_prob.md)
-  : Get Igraph Objects for CFM Fragments
 
 - [`isotope_mass_diff()`](https://drruili.github.io/MSCC/reference/isotope_mass_diff.md)
   : isotope_mass_diff
