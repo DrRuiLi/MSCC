@@ -15,17 +15,30 @@ get_sdf_igraph <- function(sdf,addH = F){
 
     #sdf <- canonicalize(sdf)
     #cn <- canonicalNumbering_OB(obmol(sdf))[[1]]
-    atom.data <- ChemmineR::atomblock(sdf)[,1:2]%>%
-      `colnames<-`(c("x","y"))%>%
-      as.data.frame()%>%
-      rownames_to_column("Atom_id" )#%>%
-      #dplyr::mutate(Canonical_Numbering = cn )
+    # drop = FALSE keeps a one-atom fragment (for example [SH-]) as a one-row table.
+    atom.data <- ChemmineR::atomblock(sdf)[, 1:2, drop = FALSE] %>%
+      `colnames<-`(c("x", "y")) %>%
+      as.data.frame() %>%
+      rownames_to_column("Atom_id")
 
-    atom.data <- cbind(atom.data,ChemmineR::bonds(sdf))%>%
-      dplyr::group_by(atom)%>%
+    bnd <- as.data.frame(ChemmineR::bonds(sdf))
+    # A molecule with no bond gets a placeholder row named "0".
+    # cbind would recycle the single atom and duplicate its vertex name.
+    if ("0" %in% rownames(bnd)) {
+      bnd <- bnd[setdiff(rownames(bnd), "0"), , drop = FALSE]
+    }
+    if (nrow(bnd) != nrow(atom.data)) {
+      stop(
+        "Atom and bond tables do not match (",
+        nrow(atom.data), " atoms, ", nrow(bnd), " bond rows).",
+        call. = FALSE
+      )
+    }
+    atom.data <- cbind(atom.data, bnd) %>%
+      dplyr::group_by(atom) %>%
       dplyr::mutate(id = Atom_id,
-                    label = paste0(" ",atom," "),
-                    x = x*100,y = y *100,
+                    label = paste0(" ", atom, " "),
+                    x = x * 100, y = y * 100,
                     font.size = 30,
                     borderWidth = 20,
                     font.vadjust = 5,
@@ -34,15 +47,18 @@ get_sdf_igraph <- function(sdf,addH = F){
                     color.background = "#FFFFFF",
                     borderWidth = 5,
                     shape = "circle",
-                    physics = F)%>%
+                    physics = FALSE) %>%
       dplyr::ungroup()
-    bond.data <- ChemmineR::bondblock(sdf)[,1:3,drop =F]%>%
-      `colnames<-`(c("from","to","bond_type"))%>%
-      as.data.frame()%>%
+    bond.data <- ChemmineR::bondblock(sdf)[, 1:3, drop = FALSE] %>%
+      `colnames<-`(c("from", "to", "bond_type")) %>%
+      as.data.frame()
+    # OpenBabel writes a 0,0,0 placeholder when the fragment has no bond.
+    bond.data <- bond.data[bond.data$from > 0 & bond.data$to > 0, , drop = FALSE]
+    bond.data <- bond.data %>%
       dplyr::mutate(from = atom.data$Atom_id[from],
                     to = atom.data$Atom_id[to],
-                    width = 10*bond_type,
-                    color = c("#888888","#444444","#000000")[bond_type],
+                    width = 10 * bond_type,
+                    color = c("#888888", "#444444", "#000000")[bond_type],
                     smooth = FALSE
                     )
 
