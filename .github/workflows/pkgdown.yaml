@@ -38,7 +38,7 @@ jobs:
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          extra-packages: any::pkgdown, any::roxygen2, any::quarto, local::.
+          extra-packages: any::pkgdown, any::roxygen2, any::quarto, any::pkgnet, local::.
           needs: website
 
       - name: Document and build site

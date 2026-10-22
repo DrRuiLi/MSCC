@@ -33,6 +33,7 @@ Suggests:
     igraph,
     knitr,
     nnls,
+    pkgnet,
     quarto,
     reticulate,
     rmarkdown,

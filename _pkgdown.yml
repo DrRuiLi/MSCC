@@ -16,11 +16,17 @@ development:
 # Only vignettes under vignettes/articles/ appear in the Articles menu.
 # Root vignettes (MSCC, RDKit-dev, …) are built but hidden,
 # except get-started which is linked as navbar "Get started" (intro).
+# pkgnet-report must be listed or pkgdown::build_site() errors.
 articles:
 - title: Articles
   navbar: ~
   contents:
   - starts_with("articles")
+
+- title: Package structure
+  navbar: Package structure
+  contents:
+  - pkgnet-report
 
 - title: internal
   contents:
