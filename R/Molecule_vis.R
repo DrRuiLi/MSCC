@@ -120,13 +120,49 @@ vis_sdf_igraph <- function(sdf.igraph,show_id = F,...){
     sdf_igraph_show_id(show_id)
 
   vda <- vdata(sdf.igraph)%>%
-    dplyr::mutate(x = x-mean(x),
-                  y = y-mean(y))%>%
+    dplyr::mutate(
+      x = (x - mean(x, na.rm = TRUE)) * 100,
+      y = (y - mean(y, na.rm = TRUE)) * 100,
+      physics = FALSE,
+      shape = "circle",
+      borderWidth = 4,
+      label = trimws(as.character(label)),
+      font.size = 20,
+      font.align = "center",
+      font.vadjust = 4,
+      font.color = "#1b1b1b"
+    )%>%
     dplyr::select("id", dplyr::everything())
-  eda <- edata(sdf.igraph)%>%
-    dplyr::select(c("from","to","bond_type","width","color","smooth"))
+  eda <- edata(sdf.igraph)
+  if (!"bond_type" %in% names(eda)) eda$bond_type <- 1
+  if (!"width" %in% names(eda)) {
+    bt <- suppressWarnings(as.numeric(eda$bond_type))
+    bt[!is.finite(bt)] <- 1
+    eda$width <- 4 * bt
+  }
+  if (!"smooth" %in% names(eda)) eda$smooth <- FALSE
+  if (!"color" %in% names(eda)) eda$color <- "#848484"
+  eda <- dplyr::select(
+    eda,
+    dplyr::any_of(c("from", "to", "bond_type", "width", "color", "smooth"))
+  )
 
   visNetwork::visNetwork(nodes = vda, edges = eda) %>%
+    visNetwork::visNodes(
+      shape = "circle",
+      borderWidth = 4,
+      # Equal top/bottom margins grow the circle around the letter.
+      # A slightly larger left margin cancels the viewer's leftward bias.
+      margin = list(top = 16, right = 12, bottom = 16, left = 18),
+      font = list(
+        size = 20,
+        face = "arial",
+        align = "center",
+        vadjust = 4,
+        color = "#1b1b1b"
+      )
+    ) %>%
+    visNetwork::visPhysics(enabled = FALSE) %>%
     visNetwork::visLayout(hierarchical = FALSE)
 
 }
@@ -170,19 +206,25 @@ sdf_igraph_add_background_color <- function(sdf.igraph,
 
 
 #' @export
-sdf_igraph_show_id <- function(sdf.igraph,show_id){
-
-  #message_with_time(show_id)
-  if (show_id) {
-    vdata(sdf.igraph)$label <-   vdata(sdf.igraph)$id%>%
-      str_format_len()
-    vdata(sdf.igraph)$font.size <- vdata(sdf.igraph)$font.size * 0.5
-
-  }else{
-    vdata(sdf.igraph)$label <-  paste0(" ",vdata(sdf.igraph)$atom," ")
+sdf_igraph_show_id <- function(sdf.igraph, show_id) {
+  vd <- vdata(sdf.igraph)
+  if (!nrow(vd)) return(sdf.igraph)
+  if (isTRUE(show_id)) {
+    ids <- vd$id
+    if (is.null(ids) || length(ids) != nrow(vd)) ids <- vd$name
+    ids <- as.character(ids)
+    if (length(ids) != nrow(vd)) ids <- as.character(seq_len(nrow(vd)))
+    vd$label <- ids
+    # Graphs built from SMILES have no font.size. Multiplying NULL is an
+    # empty vector and `$<-.data.frame` then reports "replacement has 0 rows".
+    if (!is.null(vd$font.size) && length(vd$font.size) == nrow(vd)) {
+      vd$font.size <- vd$font.size * 0.5
+    }
+  } else if ("atom" %in% names(vd)) {
+    vd$label <- trimws(as.character(vd$atom))
   }
-
-  return(sdf.igraph)
+  vdata(sdf.igraph) <- vd
+  sdf.igraph
 }
 
 #' @export
