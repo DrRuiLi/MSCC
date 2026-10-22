@@ -4,10 +4,11 @@ pkgdown_sha: ~
 articles:
   get-started: get-started.html
   MSCC: MSCC.html
+  pkgnet-report: pkgnet-report.html
   articles/Rdisop_decomposeMass: Rdisop_decomposeMass.html
   RDKit-dev: RDKit-dev.html
   articles/Seven_Golden_Rules: Seven_Golden_Rules.html
-last_built: 2026-10-21T13:13Z
+last_built: 2026-10-22T06:23Z
 urls:
   reference: https://drruili.github.io/MSCC/reference
   article: https://drruili.github.io/MSCC/articles
