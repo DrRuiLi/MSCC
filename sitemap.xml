@@ -16,7 +16,6 @@
 <url><loc>https://drruili.github.io/MSCC/reference/Molecule_igraph_add_isotopomer.html</loc></url>
 <url><loc>https://drruili.github.io/MSCC/reference/Molecule_igraph_vis_format.html</loc></url>
 <url><loc>https://drruili.github.io/MSCC/reference/accucor_natural_correction.html</loc></url>
-<url><loc>https://drruili.github.io/MSCC/reference/atom-SDF-method.html</loc></url>
 <url><loc>https://drruili.github.io/MSCC/reference/atom.html</loc></url>
 <url><loc>https://drruili.github.io/MSCC/reference/chemform_adduct.html</loc></url>
 <url><loc>https://drruili.github.io/MSCC/reference/chemform_adduct_check.html</loc></url>
@@ -59,12 +58,17 @@
 <url><loc>https://drruili.github.io/MSCC/reference/make_vector.html</loc></url>
 <url><loc>https://drruili.github.io/MSCC/reference/num2str.html</loc></url>
 <url><loc>https://drruili.github.io/MSCC/reference/pipe.html</loc></url>
+<url><loc>https://drruili.github.io/MSCC/reference/rdkit_canonical_python.html</loc></url>
+<url><loc>https://drruili.github.io/MSCC/reference/rdkit_canonical_smiles.html</loc></url>
 <url><loc>https://drruili.github.io/MSCC/reference/rdkit_has_substruct.html</loc></url>
+<url><loc>https://drruili.github.io/MSCC/reference/rdkit_mcs_pairs.html</loc></url>
 <url><loc>https://drruili.github.io/MSCC/reference/rdkit_mol_exact_mass.html</loc></url>
 <url><loc>https://drruili.github.io/MSCC/reference/rdkit_mol_formula.html</loc></url>
 <url><loc>https://drruili.github.io/MSCC/reference/rdkit_mol_from_smiles.html</loc></url>
+<url><loc>https://drruili.github.io/MSCC/reference/rdkit_molecule_parts.html</loc></url>
 <url><loc>https://drruili.github.io/MSCC/reference/rdkit_plot_mol.html</loc></url>
 <url><loc>https://drruili.github.io/MSCC/reference/rdkit_plot_mol_highlight.html</loc></url>
+<url><loc>https://drruili.github.io/MSCC/reference/rdkit_rxn_ids.html</loc></url>
 <url><loc>https://drruili.github.io/MSCC/reference/sdf_igraph_add_background_color.html</loc></url>
 <url><loc>https://drruili.github.io/MSCC/reference/sdf_igraph_merge_all.html</loc></url>
 <url><loc>https://drruili.github.io/MSCC/reference/str_extract_num.html</loc></url>

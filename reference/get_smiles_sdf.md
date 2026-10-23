@@ -8,7 +8,7 @@ with stored SDFs.
 ## Usage
 
 ``` r
-get_smiles_sdf(smiles, smiles.id = names(smiles), canonicalize = T)
+get_smiles_sdf(smiles, smiles.id = names(smiles), canonicalize = TRUE)
 ```
 
 ## Arguments

@@ -1,24 +1,24 @@
-# Convert SDF to igraph Object
+# Molecule graph from a SMILES string
 
-Converts a chemical structure from SDF format to an igraph object for
-network visualization.
+Builds an igraph from the canonical RDKit molecule. Hydrogen atoms are
+not included.
 
 ## Usage
 
 ``` r
-get_sdf_igraph(sdf, addH = F)
+get_sdf_igraph(sdf, addH = FALSE)
 ```
 
 ## Arguments
 
 - sdf:
 
-  An SDF or SDFset object.
+  A SMILES string, or several SMILES strings.
 
 - addH:
 
-  Logical, whether to include hydrogen atoms (default FALSE).
+  Ignored. Hydrogens are not part of the graph.
 
 ## Value
 
-An igraph object representing the molecular structure.
+An igraph object, or a list of them when `sdf` has several strings.

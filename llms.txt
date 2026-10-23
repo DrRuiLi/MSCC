@@ -102,9 +102,6 @@ GPL-2 © [Rui Li](mailto:rli@sinh.ac.cn)
 - [`accucor_natural_correction()`](https://drruili.github.io/MSCC/reference/accucor_natural_correction.md)
   : AccuCor-style natural isotope correction for ratio matrix
 
-- [`atom(`*`<SDF>`*`)`](https://drruili.github.io/MSCC/reference/atom-SDF-method.md)
-  : Atom IDs from a ChemmineR SDF
-
 - [`atom()`](https://drruili.github.io/MSCC/reference/atom.md) : Atom
   accessor generic
 
@@ -199,7 +196,7 @@ GPL-2 © [Rui Li](mailto:rli@sinh.ac.cn)
   : Map ChemmineR SDF atom IDs to openclatura IUPAC locants
 
 - [`get_sdf_igraph()`](https://drruili.github.io/MSCC/reference/get_sdf_igraph.md)
-  : Convert SDF to igraph Object
+  : Molecule graph from a SMILES string
 
 - [`get_smile_formula()`](https://drruili.github.io/MSCC/reference/get_smile_formula.md)
   : Molecular formula from SMILES
@@ -213,8 +210,17 @@ GPL-2 © [Rui Li](mailto:rli@sinh.ac.cn)
 - [`%>%`](https://drruili.github.io/MSCC/reference/pipe.md) : Re-export
   the magrittr pipe
 
+- [`rdkit_canonical_python()`](https://drruili.github.io/MSCC/reference/rdkit_canonical_python.md)
+  : RDKit interpreter that matches ICEBERG.
+
+- [`rdkit_canonical_smiles()`](https://drruili.github.io/MSCC/reference/rdkit_canonical_smiles.md)
+  : Canonical SMILES from the copied ICEBERG canonical_root.
+
 - [`rdkit_has_substruct()`](https://drruili.github.io/MSCC/reference/rdkit_has_substruct.md)
   : Test whether a mol matches a SMARTS pattern
+
+- [`rdkit_mcs_pairs()`](https://drruili.github.io/MSCC/reference/rdkit_mcs_pairs.md)
+  : One maximum common substructure, in canonical atom ids.
 
 - [`rdkit_mol_exact_mass()`](https://drruili.github.io/MSCC/reference/rdkit_mol_exact_mass.md)
   : Monoisotopic exact mass from an RDKit mol
@@ -225,11 +231,17 @@ GPL-2 © [Rui Li](mailto:rli@sinh.ac.cn)
 - [`rdkit_mol_from_smiles()`](https://drruili.github.io/MSCC/reference/rdkit_mol_from_smiles.md)
   : Build an RDKit molecule from SMILES
 
+- [`rdkit_molecule_parts()`](https://drruili.github.io/MSCC/reference/rdkit_molecule_parts.md)
+  : Atoms, bonds, formula, and a temporary molblock for one SMILES.
+
 - [`rdkit_plot_mol()`](https://drruili.github.io/MSCC/reference/rdkit_plot_mol.md)
   : Plot an RDKit molecule (in-memory Cairo Draw)
 
 - [`rdkit_plot_mol_highlight()`](https://drruili.github.io/MSCC/reference/rdkit_plot_mol_highlight.md)
   : Plot an RDKit molecule with SMARTS highlights
+
+- [`rdkit_rxn_ids()`](https://drruili.github.io/MSCC/reference/rdkit_rxn_ids.md)
+  : RXNMapper atom-map numbers named by canonical atom ids.
 
 - [`sdf_igraph_add_background_color()`](https://drruili.github.io/MSCC/reference/sdf_igraph_add_background_color.md)
   : Color atom backgrounds on a structure graph.
