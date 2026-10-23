@@ -1,9 +1,9 @@
 ggplot_sdf <- function(sdf,
                        cex = 1,
                        show_ele = F){
+  stop("ggplot_sdf() no longer reads SDF objects. Use vis_smiles().", call. = FALSE)
 
-
-  sdf.formula <- MF(sdf,addH=T)
+  sdf.formula <- NULL
   sdf.mz <- MSCC::chemform_mz(sdf.formula)%>%round(digits = 4)
   atom.data <- atomblock(sdf)[,1:2]%>%
     `colnames<-`(c("x","y"))%>%
@@ -88,11 +88,7 @@ ggplot_sdf <- function(sdf,
 }
 
 check_sdf <- function(sdf){
-
-  atom.map.matrix <- ChemmineR::atomcountMA(sdf)
-  atom.map.matrix <- atom.map.matrix[,setdiff(colnames(atom.map.matrix),"0"),drop =F]
-  id.atom <- apply(atom.map.matrix,1,sum)>1
-
+  stop("check_sdf() no longer reads SDF objects. Use check_smile().", call. = FALSE)
 }
 
 check_smile <- function(smile){
@@ -104,15 +100,10 @@ check_smile <- function(smile){
 
 #' @export
 get_sdf_formula <- function(sdfs){
-
-  if (class(sdfs)=="SDF"    ) {
-    sdfs <- ChemmineR::SDFset(list(sdfs))
+  if (!is.character(sdfs)) {
+    stop("Pass SMILES to get_smile_formula().", call. = FALSE)
   }
-  sdfs.checked <- check_sdf(sdfs)
-  sdfs.formula <- character()
-  sdfs.formula[sdfs.checked] <- MF2(sdfs[sdfs.checked],addH=T)
-  sdfs.formula <- MSCC::chemform_formate(sdfs.formula)
-  return(sdfs.formula)
+  get_smile_formula(sdfs)
 }
 
 #' get_smiles_sdf
@@ -129,56 +120,16 @@ get_sdf_formula <- function(sdfs){
 #' @export
 get_smiles_sdf <- function(smiles,
                            smiles.id = names(smiles),
-                           canonicalize = T){
-
-  if (is.null(names(smiles))) {
-    if (is.null(smiles.id)) {
-      names(smiles) <- paste0("CMP",num2str(seq_along(smiles)))
-    }else{
-      names(smiles) <- smiles.id
-    }
-
-  }
-  smiles.sdf <- suppressWarnings(
-  ChemmineR::smiles2sdf(smiles)
+                           canonicalize = TRUE){
+  stop(
+    "get_smiles_sdf() is no longer an entry. Use rdkit_canonical_smiles() or get_Molecule_igraph_from_smiles().",
+    call. = FALSE
   )
-
- #sdfs <- plyr::llply(smiles,.progress = "text",.fun = function(x){
- #  if (is.na(x)) return(NA)
- #  #print(x)
- #  ChemmineR::smiles2sdf(x)[[1]]
- #})
- #smiles.sdf <- ChemmineR::SDFset(sdfs)
-
-  data("smiles_map", package = "MSCC", envir = environment())
-  for (id in ChemmineR::cid(smiles_map)) {
-    which(smiles == id)
-    suppressWarnings(smiles.sdf[smiles == id] <- smiles_map[[id]])
-  }
-
-
-  if (canonicalize) {
-
-    #sdfs <- plyr::llply(a,.progress = "text",.fun = function(x){
-    #  if (is.na(x)) return(NA)
-    #  #print(x)
-    #  ChemmineR::canonicalize(x)
-    #})
-    #smiles.sdf <- ChemmineR::SDFset(sdfs)
-    smiles.sdf <- ChemmineR::canonicalize(smiles.sdf)
-  }
-  #cid(smiles.sdf) <- smiles.id
-  return(smiles.sdf)
-
 }
 
 #' @export
 get_sdf_smiles <- function(sdf){
-  if (inherits(sdf,"SDF")) {
-    sdf <- ChemmineR::SDFset(list(sdf))
-  }
-  ChemmineR::sdf2smiles(sdf)
-
+  stop("get_sdf_smiles() is no longer an entry. Use rdkit_canonical_smiles().", call. = FALSE)
 }
 
 #' Molecular formula from SMILES
@@ -188,16 +139,18 @@ get_sdf_smiles <- function(sdf){
 #' @return Character formula(s), formatted by [chemform_formate()].
 #' @export
 get_smile_formula <- function(smile){
-
-  smile.sdf <- get_smiles_sdf(smile)
-  smile.formula <- get_sdf_formula(smile.sdf)
+  smile.formula <- vapply(as.character(smile), function(one) {
+    if (is.na(one) || !nzchar(one)) {
+      return(NA_character_)
+    }
+    MSCC::chemform_formate(rdkit_molecule_parts(one)$formula)
+  }, character(1))
   smile.formula <- dplyr::case_when(
     smile == "O" ~ "H2O1",
     smile == "[HH]" ~ "H2",
-    TRUE ~ smile.formula
+    TRUE ~ unname(smile.formula)
   )
-
-  return(smile.formula)
+  smile.formula
 }
 
 
@@ -304,14 +257,13 @@ vis_smiles <- function(smiles,
                        show_id =T,
                        highlight =NULL){
 
-  smiles.sdf <- get_smiles_sdf(smiles)[[1]]
-  smiles.igraph <- get_sdf_igraph(smiles.sdf)
+  smiles.igraph <- get_sdf_igraph(smiles)
   smiles.vis <- vis_sdf_igraph(smiles.igraph,
                                show_id = show_id,
                                highlight = highlight)
 
   if (show.formula) {
-    smiles.vis$x$main<- list(text = unname(ChemmineR::MF(smiles.sdf,addH = T)),
+    smiles.vis$x$main<- list(text = unname(get_smile_formula(smiles)),
                              style = "text-align:center")
   }
   smiles.vis
@@ -385,32 +337,11 @@ is.isotope <- function(atoms){
 
 
 #' @export
-#' @importFrom ChemmineR atomcountMA
 MF2 <- function (x, ...){
-
-  if (class(x) == "SDF")
-    x <- as(x, "SDFset")
-  propma <- ChemmineR::atomcountMA(x, ...)
-  propma <- propma[c(1, seq(along = propma[, 1])), ,drop = F]
-  hillorder <- colnames(propma)
-  names(hillorder) <- hillorder
-  hillorder <- na.omit(unique(hillorder[c("C", "H", sort(hillorder))]))
-  propma <- propma[, hillorder,drop = F]
-  propma[propma == 1] <- ""
-  MF <- paste(colnames(propma), t(propma), sep = "")
-  propma <- matrix(MF, nrow = length(propma[, 1]), ncol = length(propma[1,
-  ]), dimnames = list(rownames(propma), colnames(propma)),
-  byrow = TRUE)
-  MF <- seq(along = propma[, 1])
-  names(MF) <- rownames(propma)
-  zeroma <- matrix(grepl("[\\*A-Za-z]0$", propma), nrow = length(propma[,
-                                                                        1]), ncol = length(propma[1, ]), dimnames = list(rownames(propma),
-                                                                                                                         colnames(propma)))
-  propma[zeroma] <- ""
-  for (i in seq(along = MF)) {
-    MF[i] <- paste(propma[i, ], collapse = "")
+  if (is.character(x)) {
+    return(get_smile_formula(x))
   }
-  return(MF[-1])
+  stop("MF2 no longer reads SDF objects. Pass a SMILES string.", call. = FALSE)
 }
 
 

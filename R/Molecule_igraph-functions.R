@@ -1,80 +1,36 @@
 #' @export
-get_Molecule_igraph_from_sdf <- function(sdf = sdfsample,
-                                         id = paste0("CP",num2str(1:length(sdf)))) {
-
-
-  if (class(sdf) == "SDF")
-    Molecule_igraphs <- sdf_to_Molecule_igraph(sdf,id = id)
-
-
-  if (class(sdf) == "SDFset") {
-    Molecule_igraphs <- list()
-    sdf.valid <- validSDF(sdf)
-    for (i in 1:length(sdf)) {
-      Molecule_igraphs[[i]] <- sdf_to_Molecule_igraph(sdf[[i]],id = id[i])
-    }
-    names(Molecule_igraphs) <- cid(sdf)
-  }
-
-  return(Molecule_igraphs)
-
-}
-
-
-sdf_to_Molecule_igraph <- function(sdf,
-                                   id ) {
-
-
-  bond.data <- bonds(sdf)
-  bond.data <- bond.data[rownames(bond.data)!="0",,drop = F]
-  atom.block <- atomblock(sdf) %>%
-    as.data.frame() %>%
-    rownames_to_column("id") %>%
-    dplyr::mutate(name = id,
-                  bond.data,
-                  element = atom,
-                  x = C1,
-                  y = C2,
-                  .before = id)
-
-  atom.ids <- make_vector(c(atom.block$id,"NA"),
-                          c(as.character(seq_len(nrow(atom.block))),"0"
-                            ))
-  bond.block  <- bondblock(sdf) %>%
-    as.data.frame() %>%
-    dplyr::mutate(from = atom.ids[as.character(C1)],
-                  to = atom.ids[as.character(C2)],
-                  id = paste0(from,"_",to), ### identifier for visNet
-                  bond_type = C3,
-                  .before = C1)
-  bond.block <- bond.block[!((bond.block$from=="NA")&
-                               (bond.block$to=="NA")),]
-  sdf.igraph <- igraph::graph_from_data_frame(bond.block, vertices = atom.block)
-
-  isotopomer.df <-  make_vector(atom.block$element,atom.block$id)%>%
-    as.list()%>%
-    as.data.frame()%>%
-    dplyr::mutate(isotopomer = paste0(rep(0,length(atom(sdf,element = "C"))),collapse = ""),
-                  isotopologue = "M+0",
-                  label = "base",
-                  abundance = 1,
-                  path = "",
-                  .before = everything()
-    )
-  rownames(isotopomer.df) <- isotopomer.df$isotopomer
-  Molecule_igraph <- new("Molecule_igraph",
-                         sdf = sdf, igraph = sdf.igraph,isotopomer = isotopomer.df)
-  Molecule_igraph@molecule_info$smiles <- unname(as.character(MSCC::get_sdf_smiles(sdf)))
-  Molecule_igraph@molecule_info$id <- id
-  return(Molecule_igraph)
+get_Molecule_igraph_from_sdf <- function(sdf = NULL,
+                                         id = NULL) {
+  stop(
+    "get_Molecule_igraph_from_sdf() is no longer an entry. Pass SMILES to get_Molecule_igraph_from_smiles().",
+    call. = FALSE
+  )
 }
 
 
 #' @export
-get_Molecule_igraph_from_smiles <- function(smiles = "NCC(O)=O",id ="A",canonicalize= T) {
-  sdf <- MSCC::get_smiles_sdf(smiles,smiles.id = id,canonicalize = canonicalize)
-  if (length(sdf)==1) sdf <- sdf[[1]]
-  get_Molecule_igraph_from_sdf(sdf,id = id)
+get_Molecule_igraph_from_smiles <- function(smiles = "NCC(O)=O", id = "A", canonicalize = TRUE) {
+  smiles <- as.character(smiles)
+  if (length(smiles) != 1L) {
+    out <- lapply(seq_along(smiles), function(i) {
+      one_id <- if (length(id) >= i) id[[i]] else paste0("CP", i)
+      get_Molecule_igraph_from_smiles(smiles[[i]], id = one_id)
+    })
+    if (length(id) == length(out)) names(out) <- id
+    return(out)
+  }
+  parts <- rdkit_molecule_parts(smiles)
+  isotopomer.df <- .rdkit_parts_isotopomer(parts)
+  rownames(isotopomer.df) <- isotopomer.df$isotopomer
+  mol <- new(
+    "Molecule_igraph",
+    igraph = .rdkit_parts_igraph(parts),
+    isotopomer = isotopomer.df
+  )
+  mol@molecule_info$smiles <- parts$smiles
+  mol@molecule_info$formula <- parts$formula
+  mol@molecule_info$id <- id
+  mol
 }
 
 
@@ -179,7 +135,7 @@ Molecule_igraph_add_isotopologue <- function(
 
 Molecule_igraph_fill_isotopologues <- function(Molecule_igraph,target_ele = "[13]C"){
 
-  mol.ig.formula <- MSCC::get_sdf_formula(Molecule_igraph@sdf)
+  mol.ig.formula <- formula(Molecule_igraph)
   istp.df <- Molecule_igraph@isotopomer
 
   atom.matrix <- as.matrix(istp.df[,atom(Molecule_igraph)])
@@ -380,12 +336,11 @@ Molecule_igraph_vis_format <- function(Molecule_igraph){
 
 
 canonicalize_smiles <- function(smiles){
-
-  smiles.sdf <- MSCC::get_smiles_sdf(smiles,canonicalize = T)
-  smiles.canonicalized <-  ChemmineR::sdf2smiles(smiles.sdf)%>%
-    as.character()
-  names(smiles.canonicalized) <- names(smiles)
-  return(smiles.canonicalized)
+  out <- vapply(as.character(smiles), function(one) {
+    if (is.na(one) || !nzchar(one)) NA_character_ else rdkit_canonical_smiles(one)
+  }, character(1))
+  names(out) <- names(smiles)
+  out
 }
 
 

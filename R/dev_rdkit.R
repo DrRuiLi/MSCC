@@ -602,26 +602,17 @@ rdkit_plot_mol_highlight <- function(mol = rdkit_mol_from_smiles(),
 get_sdf_IUPAC_index <- function(sdf,
                                 condaenv = getOption("MSCC.rdkit.condaenv", "env_for_r"),
                                 python = getOption("MSCC.rdkit.python", NULL)) {
-  if (inherits(sdf, "SDFset")) {
-    out <- lapply(seq_along(sdf), function(i) {
-      get_sdf_IUPAC_index(sdf[[i]], condaenv = condaenv, python = python)
-    })
-    nms <- tryCatch(ChemmineR::cid(sdf), error = function(e) NULL)
-    if (!is.null(nms) && length(nms) == length(out)) {
-      names(out) <- nms
-    }
-    return(out)
+  if (length(sdf) > 1L && is.character(sdf)) {
+    return(lapply(sdf, get_sdf_IUPAC_index, condaenv = condaenv, python = python))
   }
-  if (!inherits(sdf, "SDF")) {
-    stop("'sdf' must be a ChemmineR SDF or SDFset.")
+  if (!is.character(sdf) || length(sdf) != 1L || !nzchar(sdf)) {
+    stop("Pass a SMILES string to get_sdf_IUPAC_index().", call. = FALSE)
   }
   if (!requireNamespace("reticulate", quietly = TRUE)) {
     stop("Package 'reticulate' is required for get_sdf_IUPAC_index().")
   }
-  if (!requireNamespace("ChemmineR", quietly = TRUE)) {
-    stop("Package 'ChemmineR' is required for get_sdf_IUPAC_index().")
-  }
 
+  parts <- rdkit_molecule_parts(sdf)
   ensure_RDKit_python(condaenv = condaenv, python = python)
   Chem <- get_RDKit_Chem(condaenv = condaenv, python = python)
   oc <- tryCatch(
@@ -636,10 +627,9 @@ get_sdf_IUPAC_index <- function(sdf,
     }
   )
 
-  mb <- paste(ChemmineR::sdf2str(sdf), collapse = "\n")
-  mol <- Chem$MolFromMolBlock(mb, removeHs = TRUE)
+  mol <- Chem$MolFromSmiles(parts$smiles)
   if (is.null(mol) || reticulate::py_is_null_xptr(mol)) {
-    stop("Failed to parse SDF molblock with RDKit MolFromMolBlock().")
+    stop("Failed to parse the canonical SMILES with RDKit MolFromSmiles().")
   }
 
   an <- oc$analyze_rdkit_mol(mol)
@@ -659,20 +649,10 @@ get_sdf_IUPAC_index <- function(sdf,
   loc_raw <- num_step$data$atom_to_locant
   loc_map <- .openclatura_locant_map(loc_raw)
 
-  ab <- ChemmineR::atomblock(sdf)
-  atom_ids <- rownames(ab)
-  if (is.null(atom_ids) || !length(atom_ids)) {
-    stop("SDF atomblock has no rownames (Atom_id).")
-  }
-  # ChemmineR bonds()/atomblock element column is typically named via cbind in
-  # Molecule helpers; atomblock itself has element in column used by atom labels.
-  # Prefer the atom symbol from the bonds table when available.
-  bonds_df <- tryCatch(ChemmineR::bonds(sdf), error = function(e) NULL)
-  if (!is.null(bonds_df) && "atom" %in% colnames(bonds_df)) {
-    elements <- as.character(bonds_df$atom[seq_along(atom_ids)])
-  } else {
-    # Fallback: parse Element_N style rownames
-    elements <- sub("_.*$", "", atom_ids)
+  atom_ids <- vapply(parts$atoms, function(a) a$id, character(1))
+  elements <- vapply(parts$atoms, function(a) a$element, character(1))
+  if (!length(atom_ids)) {
+    stop("The canonical molecule has no atoms.", call. = FALSE)
   }
 
   n <- length(atom_ids)

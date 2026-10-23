@@ -1,10 +1,11 @@
 Package: MSCC
 Type: Package
 Title: Mass Spectrometry Chemical Calculation 
-Version: 1.2.0
+Version: 1.3.0
 Author: Rui Li
 Maintainer: <rli@sinh.ac.cn>
-Description: Chemical formula, isotopes calculation, and some more function developing
+Description: Chemical formula, isotopes calculation, and some more function developing.
+    Molecule graphs and atom ids are built with RDKit instead of ChemmineR.
 License: GPL-2
 Encoding: UTF-8
 LazyData: true
@@ -15,8 +16,8 @@ Depends:
 Imports:
     Rcpp,
     data.table,
-    ChemmineR,
     igraph,
+    jsonlite,
     magrittr,
     methods,
     S4Vectors,

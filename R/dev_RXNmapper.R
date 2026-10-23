@@ -103,29 +103,14 @@ RXNMapper_mapped_rxn_parse <- function(rxn.result){
 
   rxn.canonical.id <- lapply(rxn.result.split,function(x){
     lapply(x, function(y){
-      y.sdf <- get_smiles_sdf(y,canonicalize = F)
-      y.mig <- get_Molecule_igraph_from_sdf(y.sdf[[1]])
-
-      ###
-      {
-        element_table <- MSCC::get_elem_table()
-        spli.char <- element_table$element %>%
-          setdiff("H")%>%
-          union(c("c","n","o","s","p","b"))%>%
-          paste0(collapse = "|")
-        y.rxn.id <- str_split(y,pattern = spli.char)%>%
-          unlist()%>%
-          str_extract_all("(?<=:)(\\d+)")%>%
-          sapply(function(x){
-            x <- ifelse(length(x)==0,NA,x)
-            return(x)
-          })%>%    as.numeric()
-        y.rxn.id <- y.rxn.id[-1]
-        names(y.rxn.id) <- atom(y.mig)
-      }
-
-      y.canon.id <- ChemmineR::canonicalNumbering(y.sdf)[[1]]
-      y.rxn.id[order(y.canon.id)]#%>%unname()
+      parsed <- rdkit_rxn_ids(y)
+      ids <- parsed$rxn_id
+      stats::setNames(
+        vapply(ids, function(one) {
+          if (is.null(one) || !length(one)) NA_integer_ else as.integer(one[[1]])
+        }, integer(1)),
+        names(ids)
+      )
     })
   })
 

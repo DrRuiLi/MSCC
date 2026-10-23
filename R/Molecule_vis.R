@@ -1,101 +1,47 @@
-#' Convert SDF to igraph Object
+#' Molecule graph from a SMILES string
 #'
-#' @description Converts a chemical structure from SDF format to an igraph object for network visualization.
+#' @description Builds an igraph from the canonical RDKit molecule.
+#'   Hydrogen atoms are not included.
 #'
-#' @param sdf An SDF or SDFset object.
-#' @param addH Logical, whether to include hydrogen atoms (default FALSE).
+#' @param sdf A SMILES string, or several SMILES strings.
+#' @param addH Ignored. Hydrogens are not part of the graph.
 #'
-#' @return An igraph object representing the molecular structure.
-#' @importFrom ChemmineR atomblock bondblock bonds validSDF
+#' @return An igraph object, or a list of them when `sdf` has several strings.
 #' @export
-get_sdf_igraph <- function(sdf,addH = F){
-  rownames_to_column <- tibble::rownames_to_column
-
-  .f <- function(sdf,addH){
-
-    #sdf <- canonicalize(sdf)
-    #cn <- canonicalNumbering_OB(obmol(sdf))[[1]]
-    # drop = FALSE keeps a one-atom fragment (for example [SH-]) as a one-row table.
-    atom.data <- ChemmineR::atomblock(sdf)[, 1:2, drop = FALSE] %>%
-      `colnames<-`(c("x", "y")) %>%
-      as.data.frame() %>%
-      rownames_to_column("Atom_id")
-
-    bnd <- as.data.frame(ChemmineR::bonds(sdf))
-    # A molecule with no bond gets a placeholder row named "0".
-    # cbind would recycle the single atom and duplicate its vertex name.
-    if ("0" %in% rownames(bnd)) {
-      bnd <- bnd[setdiff(rownames(bnd), "0"), , drop = FALSE]
-    }
-    if (nrow(bnd) != nrow(atom.data)) {
-      stop(
-        "Atom and bond tables do not match (",
-        nrow(atom.data), " atoms, ", nrow(bnd), " bond rows).",
-        call. = FALSE
+get_sdf_igraph <- function(sdf, addH = FALSE) {
+  if (!is.character(sdf)) {
+    stop("Pass a SMILES string to get_sdf_igraph().", call. = FALSE)
+  }
+  .one <- function(smiles) {
+    g <- .rdkit_parts_igraph(rdkit_molecule_parts(smiles))
+    vdata(g) <- vdata(g) %>%
+      dplyr::mutate(
+        x = x * 100,
+        y = y * 100,
+        font.size = 30,
+        borderWidth = 5,
+        font.vadjust = 5,
+        font.align = "center",
+        color.border = "#AAAAAA",
+        color.background = "#FFFFFF",
+        shape = "circle",
+        physics = FALSE
       )
+    ed <- edata(g)
+    if (nrow(ed)) {
+      bt <- suppressWarnings(as.integer(round(ed$bond_type)))
+      bt[!is.finite(bt) | bt < 1L | bt > 3L] <- 1L
+      ed$width <- 10 * ed$bond_type
+      ed$color <- c("#888888", "#444444", "#000000")[bt]
+      ed$smooth <- FALSE
+      edata(g) <- ed
     }
-    atom.data <- cbind(atom.data, bnd) %>%
-      dplyr::group_by(atom) %>%
-      dplyr::mutate(id = Atom_id,
-                    label = paste0(" ", atom, " "),
-                    x = x * 100, y = y * 100,
-                    font.size = 30,
-                    borderWidth = 20,
-                    font.vadjust = 5,
-                    font.align = "center",
-                    color.border = "#AAAAAA",
-                    color.background = "#FFFFFF",
-                    borderWidth = 5,
-                    shape = "circle",
-                    physics = FALSE) %>%
-      dplyr::ungroup()
-    bond.data <- ChemmineR::bondblock(sdf)[, 1:3, drop = FALSE] %>%
-      `colnames<-`(c("from", "to", "bond_type")) %>%
-      as.data.frame()
-    # OpenBabel writes a 0,0,0 placeholder when the fragment has no bond.
-    bond.data <- bond.data[bond.data$from > 0 & bond.data$to > 0, , drop = FALSE]
-    bond.data <- bond.data %>%
-      dplyr::mutate(from = atom.data$Atom_id[from],
-                    to = atom.data$Atom_id[to],
-                    width = 10 * bond_type,
-                    color = c("#888888", "#444444", "#000000")[bond_type],
-                    smooth = FALSE
-                    )
-
-  #  atom.data <- atom.data%>%
-   #   dplyr::arrange(desc(Canonical_Numbering))%>%
-   #   dplyr::mutate(RCN_id = paste0(atom,num2str(1:n())),
-   #                 label = RCN_id)%>%
-   #   dplyr::ungroup()
-
-    sdf.igraph <- igraph::graph_from_data_frame(
-      bond.data,vertices = atom.data
-    )
-    if (!addH) {
-      sdf.igraph <- igraph::delete.vertices(sdf.igraph,
-                                    igraph::V(sdf.igraph)$atom=="H")
-    }
-
-    return(sdf.igraph)
+    g
   }
-
-  if (inherits(sdf, "SDF"))
-    sdf.igraph <-.f(sdf,addH)
-
-
-  if (inherits(sdf, "SDFset")) {
-    sdf.igraph <- list()
-    sdf.valid <- ChemmineR::validSDF(sdf)
-    for (i in 1:length(sdf)) {
-
-      sdf.igraph[[i]] <- .f(sdf[[i]],addH  )
-
-    }
+  if (length(sdf) == 1L) {
+    return(.one(sdf))
   }
-
-  return(sdf.igraph)
-
-
+  lapply(sdf, .one)
 }
 
 

@@ -1,12 +1,10 @@
 setClass("Molecule_igraph",
          slots = list(
            molecule_info = "list",
-           sdf = "SDF",
            igraph = "ANY",
            isotopomer = "data.frame"
          ))
 
-#' @importClassesFrom ChemmineR SDF
 #' @export
 Molecule_igraph <- function(){
   new("Molecule_igraph")
@@ -16,13 +14,11 @@ Molecule_igraph <- function(){
 setMethod("show",
   "Molecule_igraph",
   definition = function(object) {
-    mf <- tryCatch(
-      unname(MSCC::MF2(object@sdf, addH = TRUE)),
-      error = function(e) {
-        smi <- object@molecule_info$smiles
-        if (is.null(smi) || !length(smi) || is.na(smi[[1]])) "unknown" else smi[[1]]
-      }
-    )
+    mf <- object@molecule_info$formula
+    if (is.null(mf) || !length(mf) || is.na(mf[[1]]) || !nzchar(mf[[1]])) {
+      smi <- object@molecule_info$smiles
+      mf <- if (is.null(smi) || !length(smi) || is.na(smi[[1]])) "unknown" else smi[[1]]
+    }
     cat(
       "Molecule_igraph: ", paste(mf, collapse = ", "), " ",
       nrow(object@isotopomer), " isotopomers\n",
@@ -79,7 +75,11 @@ setMethod("edata<-",
 setMethod(f = "plot",
   signature = "Molecule_igraph",
   definition = function(object,x,y) {
-    plot(object@sdf)
+    smi <- object@molecule_info$smiles
+    if (is.null(smi) || !length(smi) || is.na(smi[[1]]) || !nzchar(smi[[1]])) {
+      stop("This molecule has no SMILES to plot.", call. = FALSE)
+    }
+    print(rdkit_plot_mol(rdkit_mol_from_smiles(smi[[1]])))
     invisible()
   }
 )
@@ -101,24 +101,6 @@ setMethod("atom",
           })
 
 
-#' Atom IDs from a ChemmineR SDF
-#'
-#' @param object An `SDF` object.
-#' @param element Element symbol(s) to keep, or `"ANY"` for all non-H atoms.
-#'
-#' @return Character vector of atom IDs (vertex names).
-#' @importClassesFrom ChemmineR SDF
-#' @export
-setMethod("atom",
-          "SDF",
-          definition = function(object,
-                                element = "ANY"){
-            ig <- MSCC::get_sdf_igraph(object)
-            ele <- if (identical(element, "ANY")) "all" else as.character(element)[[1]]
-            MSCC::get_sdf_igraph_atom(ig, ele = ele)
-          })
-
-
 setMethod("get_element",
           "Molecule_igraph",
           definition = function(object,...){
@@ -129,14 +111,15 @@ setMethod("get_element",
 
 setMethod("formula","Molecule_igraph",
           definition = function(x,...){
-            unname(MF(x@sdf,addH = T))
+            mf <- x@molecule_info$formula
+            if (is.null(mf) || !length(mf)) NA_character_ else as.character(mf[[1]])
           })
 
 
 setMethod("as.character",
           "Molecule_igraph",
           definition =  function(x,...){
-            print(paste0("Molecule_igraph: ", unname(MF(x@sdf, addH =  T))))
+            print(paste0("Molecule_igraph: ", formula(x)))
           })
 
 
