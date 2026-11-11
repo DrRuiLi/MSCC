@@ -6,10 +6,10 @@
 #' single catch-all \code{get_RDKit()} for the whole package.
 #'
 #' Requires a Python environment with \code{rdkit} configured for
-#' \pkg{reticulate}. By default helpers select the conda env named
-#' \code{env_for_r} (override with option \code{MSCC.rdkit.condaenv} or
-#' argument \code{condaenv}). Call this \emph{before} any other reticulate
-#' Python init in the session.
+#' \pkg{reticulate}. Helpers use the same interpreter as
+#' \code{\link{rdkit_canonical_python}}: \code{MSCC_RDKIT_PYTHON} when set,
+#' otherwise \code{/mnt/nas/conda/envs/lirui_iceberg_cpu/bin/python}.
+#' Call this \emph{before} any other reticulate Python init in the session.
 #'
 #' @name dev_rdkit
 NULL
@@ -24,15 +24,15 @@ NULL
 #' cookie is retained, because discarding them leaks Win32 search
 #' entries until \code{WinError 206} (the path itself is not too long).
 #'
-#' @param condaenv Conda env name or path. Default
-#'   \code{getOption("MSCC.rdkit.condaenv", "env_for_r")}. Use \code{NULL}
-#'   to skip auto-selection.
+#' @param condaenv Optional conda env name or path. Used only when
+#'   \code{python} is not set. The default is \code{NULL}, which selects
+#'   \code{\link{rdkit_canonical_python}}.
 #' @param python Optional path to a \code{python} executable. If set, takes
-#'   precedence over \code{condaenv}.
+#'   precedence over \code{condaenv} and \code{MSCC_RDKIT_PYTHON}.
 #' @return \code{invisible(TRUE)}.
 #' @export
-ensure_RDKit_python <- function(condaenv = getOption("MSCC.rdkit.condaenv", "env_for_r"),
-                                python = getOption("MSCC.rdkit.python", NULL)) {
+ensure_RDKit_python <- function(condaenv = NULL,
+                                python = NULL) {
   if (!requireNamespace("reticulate", quietly = TRUE)) {
     stop("Package 'reticulate' is required for RDKit. Install it and configure a Python env with rdkit.")
   }
@@ -41,6 +41,8 @@ ensure_RDKit_python <- function(condaenv = getOption("MSCC.rdkit.condaenv", "env
       reticulate::use_python(python, required = TRUE)
     } else if (!is.null(condaenv) && nzchar(condaenv)) {
       reticulate::use_condaenv(condaenv, required = TRUE)
+    } else {
+      reticulate::use_python(rdkit_canonical_python(), required = TRUE)
     }
   }
   .rdkit_add_windows_dll_dirs()
@@ -97,8 +99,8 @@ ensure_RDKit_python <- function(condaenv = getOption("MSCC.rdkit.condaenv", "env
 #' @param condaenv,python Passed to [ensure_RDKit_python()] before import.
 #' @return The imported \code{rdkit.Chem} module.
 #' @export
-get_RDKit_Chem <- function(condaenv = getOption("MSCC.rdkit.condaenv", "env_for_r"),
-                           python = getOption("MSCC.rdkit.python", NULL)) {
+get_RDKit_Chem <- function(condaenv = NULL,
+                           python = NULL) {
   chem <- .rdkit_mod$Chem
   if (!is.null(chem)) {
     dead <- tryCatch(
@@ -600,8 +602,8 @@ rdkit_plot_mol_highlight <- function(mol = rdkit_mol_from_smiles(),
 #'
 #' @export
 get_sdf_IUPAC_index <- function(sdf,
-                                condaenv = getOption("MSCC.rdkit.condaenv", "env_for_r"),
-                                python = getOption("MSCC.rdkit.python", NULL)) {
+                                condaenv = NULL,
+                                python = NULL) {
   if (length(sdf) > 1L && is.character(sdf)) {
     return(lapply(sdf, get_sdf_IUPAC_index, condaenv = condaenv, python = python))
   }
@@ -620,7 +622,8 @@ get_sdf_IUPAC_index <- function(sdf,
     error = function(e) {
       stop(
         "Python package 'openclatura' is required. ",
-        "Install with: conda run -n env_for_r python -m pip install openclatura\n",
+        "Install with: ", rdkit_canonical_python(),
+        " -m pip install openclatura\n",
         conditionMessage(e),
         call. = FALSE
       )

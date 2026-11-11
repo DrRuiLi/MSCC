@@ -1,6 +1,8 @@
 #' RDKit interpreter that matches ICEBERG.
 #'
-#' @param python Optional path. The default is the ICEBERG CPU environment.
+#' @param python Optional path. When omitted, uses \code{MSCC_RDKIT_PYTHON}
+#'   if set, otherwise the ICEBERG CPU interpreter. \code{ensure_RDKit_python()}
+#'   selects the same executable for reticulate.
 #' @return The python executable.
 #' @export
 rdkit_canonical_python <- function(python = NULL) {

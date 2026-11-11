@@ -369,11 +369,19 @@ plot_Molecule_igraph <- function(mol.ig,show_id = F,size = 2){
   #open_file(tpf)
 
   tpfpng <- tempfile(fileext = ".png")
-  webshot2::webshot(tpf, tpfpng,quiet = T)
-  #open_file(tpfpng)
-
-  ggplot_from_img(tpfpng,size = size)
-
+  shot_ok <- FALSE
+  if (requireNamespace("webshot2", quietly = TRUE)) {
+    shot_ok <- isTRUE(tryCatch({
+      webshot2::webshot(tpf, tpfpng, quiet = TRUE)
+      file.exists(tpfpng)
+    }, error = function(e) FALSE))
+  }
+  if (shot_ok) {
+    return(ggplot_from_img(tpfpng, size = size))
+  }
+  ggplot2::ggplot() +
+    ggplot2::theme_void() +
+    ggplot2::labs(title = "molecule graph unavailable")
 }
 
 
