@@ -51,6 +51,7 @@
 <url><loc>https://drruili.github.io/MSCC/reference/get_sdf_igraph.html</loc></url>
 <url><loc>https://drruili.github.io/MSCC/reference/get_smile_formula.html</loc></url>
 <url><loc>https://drruili.github.io/MSCC/reference/get_smiles_sdf.html</loc></url>
+<url><loc>https://drruili.github.io/MSCC/reference/ggplot_Molecule_igraph.html</loc></url>
 <url><loc>https://drruili.github.io/MSCC/reference/igraph_filter_distance.html</loc></url>
 <url><loc>https://drruili.github.io/MSCC/reference/igraph_filter_vertex.html</loc></url>
 <url><loc>https://drruili.github.io/MSCC/reference/index.html</loc></url>
@@ -66,6 +67,7 @@
 <url><loc>https://drruili.github.io/MSCC/reference/rdkit_mol_formula.html</loc></url>
 <url><loc>https://drruili.github.io/MSCC/reference/rdkit_mol_from_smiles.html</loc></url>
 <url><loc>https://drruili.github.io/MSCC/reference/rdkit_molecule_parts.html</loc></url>
+<url><loc>https://drruili.github.io/MSCC/reference/rdkit_plot_Molecule_igraph.html</loc></url>
 <url><loc>https://drruili.github.io/MSCC/reference/rdkit_plot_mol.html</loc></url>
 <url><loc>https://drruili.github.io/MSCC/reference/rdkit_plot_mol_highlight.html</loc></url>
 <url><loc>https://drruili.github.io/MSCC/reference/rdkit_rxn_ids.html</loc></url>

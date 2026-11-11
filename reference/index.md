@@ -117,6 +117,9 @@
 - [`get_smiles_sdf()`](https://drruili.github.io/MSCC/reference/get_smiles_sdf.md)
   : Convert SMILES strings to SDF format
 
+- [`ggplot_Molecule_igraph()`](https://drruili.github.io/MSCC/reference/ggplot_Molecule_igraph.md)
+  : Plot a Molecule_igraph with ggplot geometry
+
 - [`isotope_mass_diff()`](https://drruili.github.io/MSCC/reference/isotope_mass_diff.md)
   : isotope_mass_diff
 
@@ -146,6 +149,9 @@
 
 - [`rdkit_molecule_parts()`](https://drruili.github.io/MSCC/reference/rdkit_molecule_parts.md)
   : Atoms, bonds, formula, and a temporary molblock for one SMILES.
+
+- [`rdkit_plot_Molecule_igraph()`](https://drruili.github.io/MSCC/reference/rdkit_plot_Molecule_igraph.md)
+  : Plot a Molecule_igraph with RDKit atom ids
 
 - [`rdkit_plot_mol()`](https://drruili.github.io/MSCC/reference/rdkit_plot_mol.md)
   : Plot an RDKit molecule (in-memory Cairo Draw)

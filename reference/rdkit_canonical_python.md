@@ -12,7 +12,10 @@ rdkit_canonical_python(python = NULL)
 
 - python:
 
-  Optional path. The default is the ICEBERG CPU environment.
+  Optional path. When omitted, uses `MSCC_RDKIT_PYTHON` if set,
+  otherwise the ICEBERG CPU interpreter.
+  [`ensure_RDKit_python()`](https://drruili.github.io/MSCC/reference/ensure_RDKit_python.md)
+  selects the same executable for reticulate.
 
 ## Value
 

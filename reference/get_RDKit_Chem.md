@@ -6,10 +6,7 @@ explicitly (e.g. `reticulate::import("rdkit.Chem.Descriptors")`).
 ## Usage
 
 ``` r
-get_RDKit_Chem(
-  condaenv = getOption("MSCC.rdkit.condaenv", "env_for_r"),
-  python = getOption("MSCC.rdkit.python", NULL)
-)
+get_RDKit_Chem(condaenv = NULL, python = NULL)
 ```
 
 ## Arguments

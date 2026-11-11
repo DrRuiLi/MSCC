@@ -11,24 +11,21 @@ because discarding them leaks Win32 search entries until `WinError 206`
 ## Usage
 
 ``` r
-ensure_RDKit_python(
-  condaenv = getOption("MSCC.rdkit.condaenv", "env_for_r"),
-  python = getOption("MSCC.rdkit.python", NULL)
-)
+ensure_RDKit_python(condaenv = NULL, python = NULL)
 ```
 
 ## Arguments
 
 - condaenv:
 
-  Conda env name or path. Default
-  `getOption("MSCC.rdkit.condaenv", "env_for_r")`. Use `NULL` to skip
-  auto-selection.
+  Optional conda env name or path. Used only when `python` is not set.
+  The default is `NULL`, which selects
+  [`rdkit_canonical_python`](https://drruili.github.io/MSCC/reference/rdkit_canonical_python.md).
 
 - python:
 
   Optional path to a `python` executable. If set, takes precedence over
-  `condaenv`.
+  `condaenv` and `MSCC_RDKIT_PYTHON`.
 
 ## Value
 

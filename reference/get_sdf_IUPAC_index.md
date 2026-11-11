@@ -8,11 +8,7 @@ locants.
 ## Usage
 
 ``` r
-get_sdf_IUPAC_index(
-  sdf,
-  condaenv = getOption("MSCC.rdkit.condaenv", "env_for_r"),
-  python = getOption("MSCC.rdkit.python", NULL)
-)
+get_sdf_IUPAC_index(sdf, condaenv = NULL, python = NULL)
 ```
 
 ## Arguments
