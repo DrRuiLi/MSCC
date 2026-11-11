@@ -277,6 +277,490 @@ rdkit_plot_mol <- function(mol = rdkit_mol_from_smiles(),
   )
 }
 
+#' Plot a Molecule_igraph with RDKit atom ids
+#'
+#' Draws \code{mol.ig@molecule_info$smiles} with [rdkit_plot_mol()].
+#' When \code{show_id} is \code{TRUE}, each atom label is the graph
+#' vertex \code{id} (\code{C_1}, \code{N_1}, \ldots). Those ids are the
+#' RDKit atom index plus one, prefixed by the element, and they are the
+#' column names of \code{@isotopomer}. The label is written as RDKit's
+#' \code{atomLabel} property before drawing, which replaces the element
+#' symbol.
+#'
+#' Vertex row order must match the atom order of the canonical SMILES.
+#' The function stops if the atom count or element symbols disagree.
+#'
+#' @param mol.ig A \code{Molecule_igraph}.
+#' @param show_id If \code{TRUE}, label atoms with vertex ids. Default
+#'   \code{TRUE}.
+#' @param ... Passed to [rdkit_plot_mol()]. With \code{show_id = TRUE},
+#'   \code{fixedFontSize} defaults to \code{28} and \code{padding} to
+#'   \code{0.16} unless those arguments are supplied.
+#' @return A ggplot object with the molecule raster.
+#'
+#' @examples
+#' \dontrun{
+#' mig <- get_Molecule_igraph_from_smiles("NCC(O)=O")
+#' rdkit_plot_Molecule_igraph(mig)
+#' }
+#'
+#' @export
+rdkit_plot_Molecule_igraph <- function(mol.ig, show_id = TRUE, ...) {
+  if (!inherits(mol.ig, "Molecule_igraph")) {
+    stop("'mol.ig' must be a Molecule_igraph.", call. = FALSE)
+  }
+  smi <- mol.ig@molecule_info$smiles
+  if (is.null(smi) || !length(smi) || is.na(smi[[1]]) || !nzchar(smi[[1]])) {
+    stop("This molecule has no SMILES to plot.", call. = FALSE)
+  }
+  mol <- rdkit_mol_from_smiles(smi[[1]])
+  if (is.null(mol)) {
+    stop("RDKit could not parse the molecule SMILES.", call. = FALSE)
+  }
+  dots <- list(...)
+  if (isTRUE(show_id)) {
+    mol <- .rdkit_set_igraph_atom_labels(mol, mol.ig)
+    if (is.null(dots$fixedFontSize)) dots$fixedFontSize <- 28
+    if (is.null(dots$padding)) dots$padding <- 0.16
+  }
+  dots$mol <- mol
+  do.call(rdkit_plot_mol, dots)
+}
+
+.rdkit_set_igraph_atom_labels <- function(mol, mol.ig) {
+  vd <- vdata(mol.ig)
+  if (!all(c("id", "element") %in% colnames(vd))) {
+    stop("Molecule_igraph vertices have no id and element.", call. = FALSE)
+  }
+  ids <- as.character(vd$id)
+  elements <- as.character(vd$element)
+  n <- as.integer(mol$GetNumAtoms())
+  if (length(ids) != n || length(elements) != n) {
+    stop(
+      "Molecule_igraph has ", length(ids),
+      " atoms and the SMILES has ", n, ".",
+      call. = FALSE
+    )
+  }
+  if (any(!nzchar(ids) | is.na(ids))) {
+    stop("Molecule_igraph has an empty atom id.", call. = FALSE)
+  }
+  for (i in seq_len(n)) {
+    atom <- mol$GetAtomWithIdx(as.integer(i - 1L))
+    symbol <- as.character(atom$GetSymbol())
+    if (!identical(symbol, elements[[i]])) {
+      stop(
+        "Atom ", i, " is ", elements[[i]],
+        " on the graph and ", symbol, " in the SMILES.",
+        call. = FALSE
+      )
+    }
+    atom$SetProp("atomLabel", ids[[i]])
+  }
+  mol
+}
+
+#' Plot a Molecule_igraph with ggplot geometry
+#'
+#' Reads 2D coordinates, Kekule bond orders, ring membership, and wedge
+#' directions from RDKit after \code{PrepareMolForDrawing()}. Bonds are
+#' \code{geom_segment} layers and atom ids are \code{geom_text}, so a PDF
+#' device keeps them as vectors. Element colours follow RDKit's default
+#' palette. A ring double bond is offset toward the ring centre; a
+#' non-ring double bond is a symmetric pair of lines.
+#'
+#' @param mol.ig A \code{Molecule_igraph}.
+#' @param show_id If \code{TRUE}, label every atom with its vertex id.
+#'   If \code{FALSE}, label heteroatoms with the element symbol. Default
+#'   \code{TRUE}.
+#' @return A ggplot object.
+#'
+#' @examples
+#' \dontrun{
+#' mig <- get_Molecule_igraph_from_smiles("NCC(O)=O")
+#' ggplot_Molecule_igraph(mig)
+#' }
+#'
+#' @export
+ggplot_Molecule_igraph <- function(mol.ig, show_id = TRUE) {
+  drawn <- .ggplot_molecule_drawing(mol.ig, show_id = isTRUE(show_id))
+  p <- ggplot2::ggplot()
+  if (nrow(drawn$segments)) {
+    p <- p + ggplot2::geom_segment(
+      data = drawn$segments,
+      ggplot2::aes(x = x, y = y, xend = xend, yend = yend, colour = colour),
+      linewidth = 0.7,
+      lineend = "butt"
+    )
+  }
+  if (nrow(drawn$wedges)) {
+    p <- p + ggplot2::geom_polygon(
+      data = drawn$wedges,
+      ggplot2::aes(x = x, y = y, group = group, fill = fill),
+      colour = NA
+    )
+  }
+  if (nrow(drawn$labels)) {
+    p <- p + ggplot2::geom_text(
+      data = drawn$labels,
+      ggplot2::aes(x = x, y = y, label = label, colour = colour),
+      size = 3.2
+    )
+  }
+  p +
+    ggplot2::scale_colour_identity() +
+    ggplot2::scale_fill_identity() +
+    ggplot2::coord_equal(clip = "off") +
+    ggplot2::theme_void() +
+    ggplot2::theme(plot.margin = ggplot2::margin(6, 6, 6, 6))
+}
+
+.ggplot_element_colour <- function(element) {
+  switch(
+    as.character(element)[[1]],
+    C = "#111111",
+    N = "#0000FF",
+    O = "#E00000",
+    S = "#808000",
+    P = "#FF8800",
+    F = "#33CCCC",
+    Cl = "#00AA00",
+    Br = "#992222",
+    I = "#660066",
+    H = "#888888",
+    "#444444"
+  )
+}
+
+.rdkit_point_xy <- function(conf, idx0) {
+  pos <- conf$GetAtomPosition(as.integer(idx0))
+  c(as.numeric(pos$x), as.numeric(pos$y))
+}
+
+.rdkit_atom_rings <- function(mol) {
+  raw <- mol$GetRingInfo()$AtomRings()
+  if (is.null(raw) || !length(raw)) {
+    return(list())
+  }
+  if (is.list(raw)) {
+    lapply(raw, as.integer)
+  } else {
+    list(as.integer(raw))
+  }
+}
+
+.ggplot_molecule_drawing <- function(mol.ig, show_id) {
+  if (!inherits(mol.ig, "Molecule_igraph")) {
+    stop("'mol.ig' must be a Molecule_igraph.", call. = FALSE)
+  }
+  smi <- mol.ig@molecule_info$smiles
+  if (is.null(smi) || !length(smi) || is.na(smi[[1]]) || !nzchar(smi[[1]])) {
+    stop("This molecule has no SMILES to plot.", call. = FALSE)
+  }
+  mol <- rdkit_mol_from_smiles(smi[[1]])
+  if (is.null(mol)) {
+    stop("RDKit could not parse the molecule SMILES.", call. = FALSE)
+  }
+  vd <- vdata(mol.ig)
+  if (!all(c("id", "element") %in% colnames(vd))) {
+    stop("Molecule_igraph vertices have no id and element.", call. = FALSE)
+  }
+  ids <- as.character(vd$id)
+  elements <- as.character(vd$element)
+  n <- as.integer(mol$GetNumAtoms())
+  if (length(ids) != n || length(elements) != n) {
+    stop(
+      "Molecule_igraph has ", length(ids),
+      " atoms and the SMILES has ", n, ".",
+      call. = FALSE
+    )
+  }
+  for (i in seq_len(n)) {
+    symbol <- as.character(mol$GetAtomWithIdx(as.integer(i - 1L))$GetSymbol())
+    if (!identical(symbol, elements[[i]])) {
+      stop(
+        "Atom ", i, " is ", elements[[i]],
+        " on the graph and ", symbol, " in the SMILES.",
+        call. = FALSE
+      )
+    }
+  }
+  rings <- .rdkit_atom_rings(mol)
+  rdMolDraw2D <- reticulate::import(
+    "rdkit.Chem.Draw.rdMolDraw2D",
+    convert = TRUE
+  )
+  mol <- rdMolDraw2D$PrepareMolForDrawing(mol)
+  conf <- mol$GetConformer()
+  n_draw <- as.integer(mol$GetNumAtoms())
+  xy <- vapply(seq_len(n_draw) - 1L, function(i) .rdkit_point_xy(conf, i), numeric(2))
+  atoms <- data.frame(
+    idx0 = seq_len(n_draw) - 1L,
+    x = xy[1, ],
+    y = xy[2, ],
+    element = vapply(
+      seq_len(n_draw) - 1L,
+      function(i) as.character(mol$GetAtomWithIdx(as.integer(i))$GetSymbol()),
+      character(1)
+    ),
+    stringsAsFactors = FALSE
+  )
+  atoms$label <- ""
+  atoms$label[seq_len(n)] <- if (show_id) {
+    ids
+  } else {
+    ifelse(elements == "C", "", elements)
+  }
+  atoms$colour <- vapply(atoms$element, .ggplot_element_colour, character(1))
+  bond_len <- .ggplot_bond_lengths(mol, atoms)
+  unit_len <- if (length(bond_len)) stats::median(bond_len) else 1.5
+  segments <- .ggplot_bond_segments(mol, atoms, rings, unit_len)
+  styled <- .ggplot_bond_wedges(mol, atoms, unit_len)
+  segments <- rbind(segments, styled$dashes)
+  labels <- atoms[nzchar(atoms$label), c("x", "y", "label", "colour"), drop = FALSE]
+  list(segments = segments, wedges = styled$wedges, labels = labels)
+}
+
+.ggplot_bond_lengths <- function(mol, atoms) {
+  n_bond <- as.integer(mol$GetNumBonds())
+  if (!n_bond) {
+    return(numeric())
+  }
+  vapply(seq_len(n_bond) - 1L, function(i) {
+    bond <- mol$GetBondWithIdx(as.integer(i))
+    a <- atoms[atoms$idx0 == as.integer(bond$GetBeginAtomIdx()), ]
+    b <- atoms[atoms$idx0 == as.integer(bond$GetEndAtomIdx()), ]
+    sqrt((b$x - a$x)^2 + (b$y - a$y)^2)
+  }, numeric(1))
+}
+
+.ggplot_bond_order <- function(bond) {
+  ord <- suppressWarnings(as.numeric(bond$GetBondTypeAsDouble()))
+  if (!is.finite(ord) || ord < 1.5) {
+    1L
+  } else if (ord < 2.5) {
+    2L
+  } else {
+    3L
+  }
+}
+
+.ggplot_bond_style <- function(bond) {
+  dir <- toupper(as.character(bond$GetBondDir()))
+  if (grepl("WEDGE", dir, fixed = TRUE)) {
+    "wedge"
+  } else if (grepl("DASH", dir, fixed = TRUE)) {
+    "dash"
+  } else {
+    "plain"
+  }
+}
+
+.ggplot_shorten <- function(x1, y1, x2, y2, gap1, gap2) {
+  dx <- x2 - x1
+  dy <- y2 - y1
+  len <- sqrt(dx * dx + dy * dy)
+  if (!is.finite(len) || len < 1e-8) {
+    return(NULL)
+  }
+  ux <- dx / len
+  uy <- dy / len
+  if (gap1 + gap2 > len * 0.8) {
+    scale <- (len * 0.8) / max(gap1 + gap2, 1e-8)
+    gap1 <- gap1 * scale
+    gap2 <- gap2 * scale
+  }
+  list(
+    x = x1 + ux * gap1,
+    y = y1 + uy * gap1,
+    xend = x2 - ux * gap2,
+    yend = y2 - uy * gap2,
+    px = -uy,
+    py = ux,
+    len = len
+  )
+}
+
+.ggplot_ring_centre <- function(rings, i0, j0, atoms) {
+  hits <- Filter(function(r) i0 %in% r && j0 %in% r, rings)
+  if (!length(hits)) {
+    return(NULL)
+  }
+  ring <- hits[[which.min(lengths(hits))]]
+  pts <- atoms[atoms$idx0 %in% ring, c("x", "y"), drop = FALSE]
+  if (!nrow(pts)) {
+    return(NULL)
+  }
+  c(mean(pts$x), mean(pts$y))
+}
+
+.ggplot_half_segments <- function(x, y, xend, yend, col1, col2) {
+  mx <- (x + xend) / 2
+  my <- (y + yend) / 2
+  data.frame(
+    x = c(x, mx),
+    y = c(y, my),
+    xend = c(mx, xend),
+    yend = c(my, yend),
+    colour = c(col1, col2),
+    stringsAsFactors = FALSE
+  )
+}
+
+.ggplot_bond_segments <- function(mol, atoms, rings, unit_len) {
+  empty <- data.frame(
+    x = numeric(), y = numeric(), xend = numeric(), yend = numeric(),
+    colour = character(), stringsAsFactors = FALSE
+  )
+  n_bond <- as.integer(mol$GetNumBonds())
+  if (!n_bond) {
+    return(empty)
+  }
+  gap_for <- function(idx0) {
+    lab <- atoms$label[atoms$idx0 == idx0]
+    if (length(lab) && nzchar(lab[[1]])) 0.22 * unit_len else 0
+  }
+  pieces <- list()
+  for (i in seq_len(n_bond) - 1L) {
+    bond <- mol$GetBondWithIdx(as.integer(i))
+    if (.ggplot_bond_style(bond) != "plain") {
+      next
+    }
+    i0 <- as.integer(bond$GetBeginAtomIdx())
+    j0 <- as.integer(bond$GetEndAtomIdx())
+    a <- atoms[atoms$idx0 == i0, ]
+    b <- atoms[atoms$idx0 == j0, ]
+    order <- .ggplot_bond_order(bond)
+    base <- .ggplot_shorten(a$x, a$y, b$x, b$y, gap_for(i0), gap_for(j0))
+    if (is.null(base)) {
+      next
+    }
+    centre <- .ggplot_ring_centre(rings, i0, j0, atoms)
+    lines <- .ggplot_offset_lines(base, order, centre, unit_len)
+    for (k in seq_len(nrow(lines))) {
+      pieces[[length(pieces) + 1L]] <- .ggplot_half_segments(
+        lines$x[k], lines$y[k], lines$xend[k], lines$yend[k],
+        a$colour, b$colour
+      )
+    }
+  }
+  if (!length(pieces)) {
+    return(empty)
+  }
+  do.call(rbind, pieces)
+}
+
+.ggplot_offset_lines <- function(base, order, centre, unit_len) {
+  one <- data.frame(
+    x = base$x, y = base$y, xend = base$xend, yend = base$yend,
+    stringsAsFactors = FALSE
+  )
+  if (order < 2L) {
+    return(one)
+  }
+  sep <- 0.16 * unit_len
+  shift <- function(line, dist) {
+    data.frame(
+      x = line$x + base$px * dist,
+      y = line$y + base$py * dist,
+      xend = line$xend + base$px * dist,
+      yend = line$yend + base$py * dist,
+      stringsAsFactors = FALSE
+    )
+  }
+  if (order >= 3L) {
+    return(rbind(shift(one, sep), one, shift(one, -sep)))
+  }
+  if (is.null(centre)) {
+    return(rbind(shift(one, sep / 2), shift(one, -sep / 2)))
+  }
+  mid_x <- (base$x + base$xend) / 2
+  mid_y <- (base$y + base$yend) / 2
+  sign <- if ((centre[1] - mid_x) * base$px + (centre[2] - mid_y) * base$py >= 0) {
+    1
+  } else {
+    -1
+  }
+  inner_gap <- 0.14 * unit_len
+  dx <- base$xend - base$x
+  dy <- base$yend - base$y
+  len <- sqrt(dx * dx + dy * dy)
+  if (len > 1e-8 && 2 * inner_gap < len * 0.7) {
+    ux <- dx / len
+    uy <- dy / len
+    inner <- data.frame(
+      x = base$x + ux * inner_gap,
+      y = base$y + uy * inner_gap,
+      xend = base$xend - ux * inner_gap,
+      yend = base$yend - uy * inner_gap,
+      stringsAsFactors = FALSE
+    )
+  } else {
+    inner <- one
+  }
+  rbind(one, shift(inner, sign * sep))
+}
+
+.ggplot_bond_wedges <- function(mol, atoms, unit_len) {
+  empty_w <- data.frame(
+    x = numeric(), y = numeric(), group = integer(), fill = character(),
+    stringsAsFactors = FALSE
+  )
+  empty_d <- data.frame(
+    x = numeric(), y = numeric(), xend = numeric(), yend = numeric(),
+    colour = character(), stringsAsFactors = FALSE
+  )
+  n_bond <- as.integer(mol$GetNumBonds())
+  wedges <- list()
+  dashes <- list()
+  for (i in seq_len(n_bond) - 1L) {
+    bond <- mol$GetBondWithIdx(as.integer(i))
+    style <- .ggplot_bond_style(bond)
+    if (style == "plain") {
+      next
+    }
+    i0 <- as.integer(bond$GetBeginAtomIdx())
+    j0 <- as.integer(bond$GetEndAtomIdx())
+    a <- atoms[atoms$idx0 == i0, ]
+    b <- atoms[atoms$idx0 == j0, ]
+    gap1 <- if (nzchar(a$label)) 0.22 * unit_len else 0
+    gap2 <- if (nzchar(b$label)) 0.22 * unit_len else 0.08 * unit_len
+    base <- .ggplot_shorten(a$x, a$y, b$x, b$y, gap1, gap2)
+    if (is.null(base)) {
+      next
+    }
+    if (style == "wedge") {
+      wide <- 0.18 * unit_len
+      wedges[[length(wedges) + 1L]] <- data.frame(
+        x = c(base$x, base$xend + base$px * wide, base$xend - base$px * wide),
+        y = c(base$y, base$yend + base$py * wide, base$yend - base$py * wide),
+        group = length(wedges) + 1L,
+        fill = a$colour,
+        stringsAsFactors = FALSE
+      )
+    } else {
+      n_dash <- 6L
+      dx <- base$xend - base$x
+      dy <- base$yend - base$y
+      for (k in seq_len(n_dash)) {
+        if (k %% 2L == 0L) {
+          next
+        }
+        t0 <- (k - 1) / n_dash
+        t1 <- (k - 0.25) / n_dash
+        dashes[[length(dashes) + 1L]] <- .ggplot_half_segments(
+          base$x + dx * t0, base$y + dy * t0,
+          base$x + dx * t1, base$y + dy * t1,
+          a$colour, b$colour
+        )
+      }
+    }
+  }
+  list(
+    wedges = if (length(wedges)) do.call(rbind, wedges) else empty_w,
+    dashes = if (length(dashes)) do.call(rbind, dashes) else empty_d
+  )
+}
 #' Plot an RDKit molecule with SMARTS highlights
 #'
 #' Same Cairo drawing as [rdkit_plot_mol()], but fills atoms and bonds
