@@ -134,6 +134,10 @@ get_RDKit_Chem <- function(condaenv = NULL,
 #'
 #' @param smiles Character scalar SMILES. Default \code{"NCC(O)=O"} (glycine),
 #'   matching MSCC helpers such as \code{get_Molecule_igraph_from_smiles()}.
+#' @param sanitize If \code{TRUE} (default), use RDKit's normal SMILES
+#'   parse. If \code{FALSE}, parse without sanitization (needed for some
+#'   charged CFM fragment SMILES with non-standard valence) and then run
+#'   a soft \code{SanitizeMol(..., catchErrors = TRUE)}.
 #' @param Chem Optional \code{rdkit.Chem} module from [get_RDKit_Chem()].
 #' @return An RDKit mol object, or \code{NULL} if invalid.
 #'
@@ -141,15 +145,31 @@ get_RDKit_Chem <- function(condaenv = NULL,
 #' \dontrun{
 #' mol <- rdkit_mol_from_smiles()
 #' mol <- rdkit_mol_from_smiles("CCO")
+#' mol <- rdkit_mol_from_smiles("C=CC#CC#[CH2+]", sanitize = FALSE)
 #' }
 #'
 #' @export
-rdkit_mol_from_smiles <- function(smiles = "NCC(O)=O", Chem = get_RDKit_Chem()) {
+rdkit_mol_from_smiles <- function(smiles = "NCC(O)=O",
+                                  sanitize = TRUE,
+                                  Chem = get_RDKit_Chem()) {
   if (is.null(smiles) || length(smiles) != 1L || is.na(smiles) || !nzchar(smiles)) {
     return(NULL)
   }
-  mol <- Chem$MolFromSmiles(as.character(smiles))
-  if (reticulate::py_is_null_xptr(mol) || is.null(mol)) {
+  smi <- as.character(smiles)[[1]]
+  if (isTRUE(sanitize)) {
+    mol <- Chem$MolFromSmiles(smi)
+  } else {
+    mol <- Chem$MolFromSmiles(smi, sanitize = FALSE)
+    if (!is.null(mol) && !reticulate::py_is_null_xptr(mol)) {
+      tryCatch(
+        Chem$SanitizeMol(mol, catchErrors = TRUE),
+        error = function(e) NULL
+      )
+    }
+  }
+  # is.null first: py_is_null_xptr(NULL) errors with
+  # "Expected a python object, received a NULL".
+  if (is.null(mol) || reticulate::py_is_null_xptr(mol)) {
     return(NULL)
   }
   mol
@@ -305,19 +325,29 @@ rdkit_plot_mol <- function(mol = rdkit_mol_from_smiles(),
 #' @param mol.ig A \code{Molecule_igraph}.
 #' @param show_id If \code{TRUE}, label atoms with vertex ids. Default
 #'   \code{TRUE}.
-#' @param ... Passed to [rdkit_plot_mol()]. With \code{show_id = TRUE},
-#'   \code{fixedFontSize} defaults to \code{28} and \code{padding} to
-#'   \code{0.16} unless those arguments are supplied.
+#' @param highlight_ids Optional atom ids to highlight, or a named
+#'   numeric vector of mapping probabilities (names = vertex ids).
+#'   Values \code{> 0} are highlighted; colour intensity follows the
+#'   probability when names are supplied. Bonds between highlighted
+#'   atoms are filled too.
+#' @param ... Passed to [rdkit_plot_mol()] / the Cairo drawer. With
+#'   \code{show_id = TRUE}, \code{fixedFontSize} defaults to \code{28}
+#'   and \code{padding} to \code{0.16} unless those arguments are
+#'   supplied.
 #' @return A ggplot object with the molecule raster.
 #'
 #' @examples
 #' \dontrun{
 #' mig <- get_Molecule_igraph_from_smiles("NCC(O)=O")
 #' rdkit_plot_Molecule_igraph(mig)
+#' rdkit_plot_Molecule_igraph(mig, highlight_ids = c("C_2", "C_3"))
 #' }
 #'
 #' @export
-rdkit_plot_Molecule_igraph <- function(mol.ig, show_id = TRUE, ...) {
+rdkit_plot_Molecule_igraph <- function(mol.ig,
+                                       show_id = TRUE,
+                                       highlight_ids = NULL,
+                                       ...) {
   if (!inherits(mol.ig, "Molecule_igraph")) {
     stop("'mol.ig' must be a Molecule_igraph.", call. = FALSE)
   }
@@ -335,8 +365,130 @@ rdkit_plot_Molecule_igraph <- function(mol.ig, show_id = TRUE, ...) {
     if (is.null(dots$fixedFontSize)) dots$fixedFontSize <- 28
     if (is.null(dots$padding)) dots$padding <- 0.16
   }
-  dots$mol <- mol
-  do.call(rdkit_plot_mol, dots)
+  hl <- .rdkit_highlight_from_igraph_ids(mol, mol.ig, highlight_ids)
+  draw_args <- list(
+    mol = mol,
+    width = if (is.null(dots$width)) 800L else dots$width,
+    height = if (is.null(dots$height)) 800L else dots$height,
+    bondLineWidth = if (is.null(dots$bondLineWidth)) 7 else dots$bondLineWidth,
+    fixedFontSize = if (is.null(dots$fixedFontSize)) 80L else dots$fixedFontSize,
+    minFontSize = if (is.null(dots$minFontSize)) 72L else dots$minFontSize,
+    maxFontSize = if (is.null(dots$maxFontSize)) 88L else dots$maxFontSize,
+    padding = if (is.null(dots$padding)) 0.12 else dots$padding,
+    additionalAtomLabelPadding = if (is.null(dots$additionalAtomLabelPadding)) {
+      0.04
+    } else {
+      dots$additionalAtomLabelPadding
+    },
+    multipleBondOffset = if (is.null(dots$multipleBondOffset)) {
+      0.16
+    } else {
+      dots$multipleBondOffset
+    },
+    scaleBondWidth = isTRUE(dots$scaleBondWidth),
+    centreMoleculesBeforeDrawing = if (is.null(dots$centreMoleculesBeforeDrawing)) {
+      TRUE
+    } else {
+      isTRUE(dots$centreMoleculesBeforeDrawing)
+    },
+    highlight = hl,
+    background = if (is.null(dots$background)) c(1, 1, 1) else dots$background
+  )
+  do.call(.rdkit_draw_mol_ggplot, draw_args)
+}
+
+#' Highlight atoms by Molecule_igraph vertex ids / map probabilities.
+#'
+#' @param mol An RDKit molecule matching \code{mol.ig} atom order.
+#' @param mol.ig A \code{Molecule_igraph}.
+#' @param highlight_ids Character atom ids, or named numeric probabilities.
+#' @return Highlight list for [.rdkit_draw_mol_ggplot()].
+#' @keywords internal
+.rdkit_highlight_from_igraph_ids <- function(mol, mol.ig, highlight_ids) {
+  empty <- list(
+    atoms = integer(),
+    bonds = integer(),
+    atom_colors = reticulate::dict(),
+    bond_colors = reticulate::dict()
+  )
+  if (is.null(highlight_ids) || !length(highlight_ids)) {
+    return(empty)
+  }
+  vd <- vdata(mol.ig)
+  if (!"id" %in% colnames(vd)) {
+    return(empty)
+  }
+  graph_ids <- as.character(vd$id)
+  if (is.numeric(highlight_ids)) {
+    probs <- as.numeric(highlight_ids)
+    nms <- names(highlight_ids)
+    if (is.null(nms) || !any(nzchar(nms))) {
+      return(empty)
+    }
+    names(probs) <- as.character(nms)
+  } else {
+    nms <- as.character(highlight_ids)
+    nms <- nms[!is.na(nms) & nzchar(nms)]
+    if (!length(nms)) return(empty)
+    probs <- stats::setNames(rep(1, length(nms)), nms)
+  }
+  probs[!is.finite(probs) | is.na(probs)] <- 0
+  probs <- probs[probs > 0]
+  if (!length(probs)) return(empty)
+
+  idx0 <- match(names(probs), graph_ids) - 1L
+  keep <- !is.na(idx0)
+  idx0 <- as.integer(idx0[keep])
+  probs <- probs[keep]
+  if (!length(idx0)) return(empty)
+
+  base_rgb <- .rdkit_highlight_palette("co_elute")
+  atom_col <- list()
+  for (i in seq_along(idx0)) {
+    p <- max(0, min(1, as.numeric(probs[[i]])))
+    # white -> blue by mapping probability
+    rgb <- c(
+      1 - (1 - base_rgb[1]) * p,
+      1 - (1 - base_rgb[2]) * p,
+      1 - (1 - base_rgb[3]) * p
+    )
+    atom_col[[as.character(idx0[[i]])]] <- rgb
+  }
+
+  bond_col <- list()
+  if (length(idx0) >= 2L) {
+    cmb <- utils::combn(idx0, 2L)
+    for (j in seq_len(ncol(cmb))) {
+      b <- mol$GetBondBetweenAtoms(
+        as.integer(cmb[1L, j]),
+        as.integer(cmb[2L, j])
+      )
+      if (is.null(b) || reticulate::py_is_null_xptr(b)) next
+      a1 <- as.character(cmb[1L, j])
+      a2 <- as.character(cmb[2L, j])
+      rgb <- (atom_col[[a1]] + atom_col[[a2]]) / 2
+      bond_col[[as.character(as.integer(b$GetIdx()))]] <- rgb
+    }
+  }
+
+  atoms <- as.integer(names(atom_col))
+  bonds <- as.integer(names(bond_col))
+  atom_colors <- reticulate::dict()
+  for (nm in names(atom_col)) {
+    rgb <- atom_col[[nm]]
+    atom_colors[as.integer(nm)] <- reticulate::tuple(rgb[1], rgb[2], rgb[3])
+  }
+  bond_colors <- reticulate::dict()
+  for (nm in names(bond_col)) {
+    rgb <- bond_col[[nm]]
+    bond_colors[as.integer(nm)] <- reticulate::tuple(rgb[1], rgb[2], rgb[3])
+  }
+  list(
+    atoms = atoms,
+    bonds = bonds,
+    atom_colors = atom_colors,
+    bond_colors = bond_colors
+  )
 }
 
 .rdkit_set_igraph_atom_labels <- function(mol, mol.ig) {
@@ -385,23 +537,107 @@ rdkit_plot_Molecule_igraph <- function(mol.ig, show_id = TRUE, ...) {
 #' @param show_id If \code{TRUE}, label every atom with its vertex id.
 #'   If \code{FALSE}, label heteroatoms with the element symbol. Default
 #'   \code{TRUE}.
+#' @param highlight_ids Optional atom ids to highlight, or a named
+#'   numeric vector of mapping probabilities (names = vertex ids).
+#'   Values \code{> 0} get a filled disc under the atom; colour
+#'   intensity follows the probability.
+#' @param label_size \code{geom_text} size. Default \code{3.2}.
+#' @param bond_linewidth Bond \code{linewidth}. Default \code{0.7}.
+#' @param highlight_size Highlight disc size in mm for \code{geom_point}.
+#'   Default \code{8}.
 #' @return A ggplot object.
 #'
 #' @examples
 #' \dontrun{
 #' mig <- get_Molecule_igraph_from_smiles("NCC(O)=O")
 #' ggplot_Molecule_igraph(mig)
+#' ggplot_Molecule_igraph(mig, highlight_ids = c("C_2", "C_3"))
 #' }
 #'
 #' @export
-ggplot_Molecule_igraph <- function(mol.ig, show_id = TRUE) {
+ggplot_Molecule_igraph <- function(mol.ig,
+                                   show_id = TRUE,
+                                   highlight_ids = NULL,
+                                   label_size = 3.2,
+                                   bond_linewidth = 0.7,
+                                   highlight_size = 8) {
   drawn <- .ggplot_molecule_drawing(mol.ig, show_id = isTRUE(show_id))
+  .ggplot_drawn_plot(
+    drawn,
+    highlight_ids = highlight_ids,
+    label_size = label_size,
+    bond_linewidth = bond_linewidth,
+    highlight_size = highlight_size
+  )
+}
+
+#' Plot a SMILES string with ggplot geometry
+#'
+#' Like [ggplot_Molecule_igraph()], but takes SMILES directly. Useful for
+#' CFM fragment SMILES that fail strict sanitization / canonicalization
+#' (for example \code{C=CC#CC#[CH2+]}); those are drawn with
+#' \code{sanitize = FALSE}.
+#'
+#' @param smiles Character scalar SMILES.
+#' @param atom_label \code{"element"} labels every atom with its element
+#'   (and formal charge when non-zero), \code{"id"} uses \code{C_1}-style
+#'   ids, \code{"hetero"} hides neutral carbons.
+#' @param sanitize Passed to [rdkit_mol_from_smiles()]. If \code{TRUE} and
+#'   parsing fails, automatically retries with \code{sanitize = FALSE}.
+#' @param highlight_ids Optional atom ids / named probabilities.
+#' @param label_size,bond_linewidth,highlight_size Drawing sizes.
+#' @return A ggplot object.
+#'
+#' @examples
+#' \dontrun{
+#' ggplot_smiles("CCO", atom_label = "element")
+#' ggplot_smiles("C=CC#CC#[CH2+]", atom_label = "element")
+#' }
+#'
+#' @export
+ggplot_smiles <- function(smiles,
+                          atom_label = c("element", "id", "hetero"),
+                          sanitize = TRUE,
+                          highlight_ids = NULL,
+                          label_size = 3.2,
+                          bond_linewidth = 0.7,
+                          highlight_size = 8) {
+  atom_label <- match.arg(atom_label)
+  drawn <- .ggplot_smiles_drawing(
+    smiles,
+    atom_label = atom_label,
+    sanitize = isTRUE(sanitize)
+  )
+  .ggplot_drawn_plot(
+    drawn,
+    highlight_ids = highlight_ids,
+    label_size = label_size,
+    bond_linewidth = bond_linewidth,
+    highlight_size = highlight_size
+  )
+}
+
+.ggplot_drawn_plot <- function(drawn,
+                               highlight_ids = NULL,
+                               label_size = 3.2,
+                               bond_linewidth = 0.7,
+                               highlight_size = 8) {
+  hl <- .ggplot_highlight_atoms(drawn$atoms, highlight_ids, highlight_size)
   p <- ggplot2::ggplot()
+  if (nrow(hl)) {
+    # Use colour (not fill+colour=NA): shape 21 with NA stroke draws nothing.
+    p <- p + ggplot2::geom_point(
+      data = hl,
+      ggplot2::aes(x = x, y = y, colour = fill, size = size),
+      alpha = 0.55
+    ) +
+      ggplot2::scale_size_identity()
+  }
   if (nrow(drawn$segments)) {
     p <- p + ggplot2::geom_segment(
       data = drawn$segments,
       ggplot2::aes(x = x, y = y, xend = xend, yend = yend, colour = colour),
-      linewidth = 0.7,
+      linewidth = bond_linewidth,
       lineend = "butt"
     )
   }
@@ -416,7 +652,7 @@ ggplot_Molecule_igraph <- function(mol.ig, show_id = TRUE) {
     p <- p + ggplot2::geom_text(
       data = drawn$labels,
       ggplot2::aes(x = x, y = y, label = label, colour = colour),
-      size = 3.2
+      size = label_size
     )
   }
   p +
@@ -425,6 +661,61 @@ ggplot_Molecule_igraph <- function(mol.ig, show_id = TRUE) {
     ggplot2::coord_equal(clip = "off") +
     ggplot2::theme_void() +
     ggplot2::theme(plot.margin = ggplot2::margin(6, 6, 6, 6))
+}
+
+#' Build highlight points for [ggplot_Molecule_igraph()].
+#'
+#' @param atoms Atom table from [.ggplot_molecule_drawing()].
+#' @param highlight_ids Character ids or named numeric probabilities.
+#' @param highlight_size Point size in mm.
+#' @return A data.frame with x, y, fill, size (possibly 0 rows).
+#' @keywords internal
+.ggplot_highlight_atoms <- function(atoms, highlight_ids, highlight_size = 8) {
+  empty <- data.frame(
+    x = numeric(), y = numeric(), fill = character(), size = numeric(),
+    stringsAsFactors = FALSE
+  )
+  if (is.null(atoms) || !nrow(atoms) || is.null(highlight_ids) ||
+      !length(highlight_ids)) {
+    return(empty)
+  }
+  if (is.numeric(highlight_ids)) {
+    probs <- as.numeric(highlight_ids)
+    nms <- names(highlight_ids)
+    if (is.null(nms) || !any(nzchar(nms))) return(empty)
+    names(probs) <- as.character(nms)
+  } else {
+    nms <- as.character(highlight_ids)
+    nms <- nms[!is.na(nms) & nzchar(nms)]
+    if (!length(nms)) return(empty)
+    probs <- stats::setNames(rep(1, length(nms)), nms)
+  }
+  probs[!is.finite(probs) | is.na(probs)] <- 0
+  probs <- probs[probs > 0]
+  if (!length(probs)) return(empty)
+
+  hit <- match(names(probs), as.character(atoms$id))
+  keep <- !is.na(hit)
+  if (!any(keep)) return(empty)
+  hit <- hit[keep]
+  probs <- probs[keep]
+  base_rgb <- .rdkit_highlight_palette("co_elute")
+  fill <- vapply(probs, function(p) {
+    p <- max(0, min(1, as.numeric(p)))
+    rgb <- c(
+      1 - (1 - base_rgb[1]) * p,
+      1 - (1 - base_rgb[2]) * p,
+      1 - (1 - base_rgb[3]) * p
+    )
+    grDevices::rgb(rgb[1], rgb[2], rgb[3])
+  }, character(1))
+  data.frame(
+    x = atoms$x[hit],
+    y = atoms$y[hit],
+    fill = fill,
+    size = rep(as.numeric(highlight_size)[1L], length(hit)),
+    stringsAsFactors = FALSE
+  )
 }
 
 .ggplot_element_colour <- function(element) {
@@ -459,6 +750,108 @@ ggplot_Molecule_igraph <- function(mol.ig, show_id = TRUE) {
   } else {
     list(as.integer(raw))
   }
+}
+
+.ggplot_atom_labels <- function(ids,
+                                elements,
+                                charges = NULL,
+                                atom_label = c("id", "element", "hetero")) {
+  atom_label <- match.arg(atom_label)
+  n <- length(elements)
+  if (!n) return(character())
+  if (identical(atom_label, "id")) {
+    return(as.character(ids))
+  }
+  lab <- as.character(elements)
+  if (!is.null(charges) && length(charges) == n) {
+    ch <- as.integer(charges)
+    ch[!is.finite(ch)] <- 0L
+    lab <- ifelse(
+      ch == 0L,
+      lab,
+      ifelse(
+        ch == 1L,
+        paste0(lab, "+"),
+        ifelse(
+          ch == -1L,
+          paste0(lab, "-"),
+          paste0(lab, ifelse(ch > 0L, paste0("+", ch), as.character(ch)))
+        )
+      )
+    )
+  }
+  if (identical(atom_label, "hetero")) {
+    hide <- elements == "C"
+    if (!is.null(charges) && length(charges) == n) {
+      hide <- hide & (as.integer(charges) == 0L)
+    }
+    lab[hide] <- ""
+  }
+  lab
+}
+
+.ggplot_mol_drawing <- function(mol,
+                                ids,
+                                elements,
+                                charges = NULL,
+                                atom_label = c("id", "element", "hetero")) {
+  atom_label <- match.arg(atom_label)
+  if (as.integer(mol$GetNumConformers()) < 1L) {
+    AllChem <- reticulate::import("rdkit.Chem.AllChem", convert = TRUE)
+    AllChem$Compute2DCoords(mol)
+  }
+  rings <- .rdkit_atom_rings(mol)
+  rdMolDraw2D <- reticulate::import(
+    "rdkit.Chem.Draw.rdMolDraw2D",
+    convert = TRUE
+  )
+  mol <- tryCatch(
+    rdMolDraw2D$PrepareMolForDrawing(mol),
+    error = function(e) rdMolDraw2D$PrepareMolForDrawing(mol, kekulize = FALSE)
+  )
+  conf <- mol$GetConformer()
+  n_draw <- as.integer(mol$GetNumAtoms())
+  n <- length(elements)
+  xy <- vapply(seq_len(n_draw) - 1L, function(i) .rdkit_point_xy(conf, i), numeric(2))
+  atoms <- data.frame(
+    idx0 = seq_len(n_draw) - 1L,
+    id = NA_character_,
+    x = xy[1, ],
+    y = xy[2, ],
+    element = vapply(
+      seq_len(n_draw) - 1L,
+      function(i) as.character(mol$GetAtomWithIdx(as.integer(i))$GetSymbol()),
+      character(1)
+    ),
+    stringsAsFactors = FALSE
+  )
+  use_n <- min(n, n_draw)
+  atoms$id[seq_len(use_n)] <- as.character(ids)[seq_len(use_n)]
+  ch <- if (is.null(charges)) {
+    NULL
+  } else {
+    as.integer(charges)[seq_len(use_n)]
+  }
+  atoms$label <- ""
+  atoms$label[seq_len(use_n)] <- .ggplot_atom_labels(
+    ids = as.character(ids)[seq_len(use_n)],
+    elements = as.character(elements)[seq_len(use_n)],
+    charges = ch,
+    atom_label = atom_label
+  )
+  atoms$colour <- vapply(atoms$element, .ggplot_element_colour, character(1))
+  bond_len <- .ggplot_bond_lengths(mol, atoms)
+  unit_len <- if (length(bond_len)) stats::median(bond_len) else 1.5
+  segments <- .ggplot_bond_segments(mol, atoms, rings, unit_len)
+  styled <- .ggplot_bond_wedges(mol, atoms, unit_len)
+  segments <- rbind(segments, styled$dashes)
+  labels <- atoms[nzchar(atoms$label), c("x", "y", "label", "colour"), drop = FALSE]
+  list(
+    atoms = atoms,
+    segments = segments,
+    wedges = styled$wedges,
+    labels = labels
+  )
 }
 
 .ggplot_molecule_drawing <- function(mol.ig, show_id) {
@@ -497,40 +890,45 @@ ggplot_Molecule_igraph <- function(mol.ig, show_id = TRUE) {
       )
     }
   }
-  rings <- .rdkit_atom_rings(mol)
-  rdMolDraw2D <- reticulate::import(
-    "rdkit.Chem.Draw.rdMolDraw2D",
-    convert = TRUE
+  .ggplot_mol_drawing(
+    mol = mol,
+    ids = ids,
+    elements = elements,
+    charges = NULL,
+    atom_label = if (isTRUE(show_id)) "id" else "hetero"
   )
-  mol <- rdMolDraw2D$PrepareMolForDrawing(mol)
-  conf <- mol$GetConformer()
-  n_draw <- as.integer(mol$GetNumAtoms())
-  xy <- vapply(seq_len(n_draw) - 1L, function(i) .rdkit_point_xy(conf, i), numeric(2))
-  atoms <- data.frame(
-    idx0 = seq_len(n_draw) - 1L,
-    x = xy[1, ],
-    y = xy[2, ],
-    element = vapply(
-      seq_len(n_draw) - 1L,
-      function(i) as.character(mol$GetAtomWithIdx(as.integer(i))$GetSymbol()),
-      character(1)
-    ),
-    stringsAsFactors = FALSE
-  )
-  atoms$label <- ""
-  atoms$label[seq_len(n)] <- if (show_id) {
-    ids
-  } else {
-    ifelse(elements == "C", "", elements)
+}
+
+.ggplot_smiles_drawing <- function(smiles,
+                                   atom_label = c("element", "id", "hetero"),
+                                   sanitize = TRUE) {
+  atom_label <- match.arg(atom_label)
+  if (is.null(smiles) || length(smiles) != 1L || is.na(smiles) || !nzchar(smiles)) {
+    stop("SMILES is empty.", call. = FALSE)
   }
-  atoms$colour <- vapply(atoms$element, .ggplot_element_colour, character(1))
-  bond_len <- .ggplot_bond_lengths(mol, atoms)
-  unit_len <- if (length(bond_len)) stats::median(bond_len) else 1.5
-  segments <- .ggplot_bond_segments(mol, atoms, rings, unit_len)
-  styled <- .ggplot_bond_wedges(mol, atoms, unit_len)
-  segments <- rbind(segments, styled$dashes)
-  labels <- atoms[nzchar(atoms$label), c("x", "y", "label", "colour"), drop = FALSE]
-  list(segments = segments, wedges = styled$wedges, labels = labels)
+  mol <- rdkit_mol_from_smiles(smiles, sanitize = isTRUE(sanitize))
+  if (is.null(mol) && isTRUE(sanitize)) {
+    mol <- rdkit_mol_from_smiles(smiles, sanitize = FALSE)
+  }
+  if (is.null(mol)) {
+    stop("RDKit could not parse the SMILES.", call. = FALSE)
+  }
+  n <- as.integer(mol$GetNumAtoms())
+  elements <- character(n)
+  charges <- integer(n)
+  for (i in seq_len(n)) {
+    atom <- mol$GetAtomWithIdx(as.integer(i - 1L))
+    elements[[i]] <- as.character(atom$GetSymbol())
+    charges[[i]] <- as.integer(atom$GetFormalCharge())
+  }
+  ids <- paste0(elements, "_", seq_len(n))
+  .ggplot_mol_drawing(
+    mol = mol,
+    ids = ids,
+    elements = elements,
+    charges = charges,
+    atom_label = atom_label
+  )
 }
 
 .ggplot_bond_lengths <- function(mol, atoms) {
