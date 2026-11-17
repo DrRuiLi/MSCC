@@ -6,15 +6,16 @@
 #' single catch-all \code{get_RDKit()} for the whole package.
 #'
 #' Requires a Python environment with \code{rdkit} configured for
-#' \pkg{reticulate}. Helpers use the same interpreter as
-#' \code{\link{rdkit_canonical_python}}: \code{MSCC_RDKIT_PYTHON} when set,
-#' otherwise \code{/mnt/nas/conda/envs/lirui_iceberg_cpu/bin/python}.
-#' Call this \emph{before} any other reticulate Python init in the session.
+#' \pkg{reticulate}. Call \code{\link{rdkit_reticulate_python}} \emph{before}
+#' any other reticulate Python init in the session. Default interpreter:
+#' \code{MSCC_RDKIT_RETICULATE_PYTHON}, then \code{MSCC_RDKIT_CLI_PYTHON},
+#' then the ICEBERG CPU path (see \code{\link{rdkit_cli_python}}).
+#' CLI / subprocess helpers use \code{\link{rdkit_cli_python}} separately.
 #'
 #' @name dev_rdkit
 NULL
 
-#' Select the Python env used for RDKit (before first import)
+#' Bind reticulate to the RDKit Python interpreter (before first import)
 #'
 #' \code{reticulate::import()} cannot take an env path; the interpreter must
 #' be chosen first. On Windows, also adds the conda env
@@ -24,25 +25,36 @@ NULL
 #' cookie is retained, because discarding them leaks Win32 search
 #' entries until \code{WinError 206} (the path itself is not too long).
 #'
+#' Resolution when \code{python} and \code{condaenv} are both unset:
+#' \code{MSCC_RDKIT_RETICULATE_PYTHON}, then \code{MSCC_RDKIT_CLI_PYTHON},
+#' then the ICEBERG hardcoded path via \code{\link{rdkit_cli_python}}.
+#'
 #' @param condaenv Optional conda env name or path. Used only when
-#'   \code{python} is not set. The default is \code{NULL}, which selects
-#'   \code{\link{rdkit_canonical_python}}.
+#'   \code{python} is not set.
 #' @param python Optional path to a \code{python} executable. If set, takes
-#'   precedence over \code{condaenv} and \code{MSCC_RDKIT_PYTHON}.
+#'   precedence over \code{condaenv} and the env vars above.
 #' @return \code{invisible(TRUE)}.
 #' @export
-ensure_RDKit_python <- function(condaenv = NULL,
-                                python = NULL) {
+rdkit_reticulate_python <- function(condaenv = NULL,
+                                    python = NULL) {
   if (!requireNamespace("reticulate", quietly = TRUE)) {
     stop("Package 'reticulate' is required for RDKit. Install it and configure a Python env with rdkit.")
   }
   if (!isTRUE(reticulate::py_available(initialize = FALSE))) {
     if (!is.null(python) && nzchar(python)) {
-      reticulate::use_python(python, required = TRUE)
+      reticulate::use_python(rdkit_cli_python(python), required = TRUE)
     } else if (!is.null(condaenv) && nzchar(condaenv)) {
       reticulate::use_condaenv(condaenv, required = TRUE)
     } else {
-      reticulate::use_python(rdkit_canonical_python(), required = TRUE)
+      py <- Sys.getenv("MSCC_RDKIT_RETICULATE_PYTHON", "")
+      if (!nzchar(py)) {
+        py <- Sys.getenv("MSCC_RDKIT_CLI_PYTHON", "")
+      }
+      if (nzchar(py)) {
+        reticulate::use_python(rdkit_cli_python(py), required = TRUE)
+      } else {
+        reticulate::use_python(rdkit_cli_python(), required = TRUE)
+      }
     }
   }
   .rdkit_add_windows_dll_dirs()
@@ -96,7 +108,7 @@ ensure_RDKit_python <- function(condaenv = NULL,
 #' Returns only \code{rdkit.Chem}. For other RDKit submodules, import them
 #' explicitly (e.g. \code{reticulate::import("rdkit.Chem.Descriptors")}).
 #'
-#' @param condaenv,python Passed to [ensure_RDKit_python()] before import.
+#' @param condaenv,python Passed to [rdkit_reticulate_python()] before import.
 #' @return The imported \code{rdkit.Chem} module.
 #' @export
 get_RDKit_Chem <- function(condaenv = NULL,
@@ -111,7 +123,7 @@ get_RDKit_Chem <- function(condaenv = NULL,
       return(chem)
     }
   }
-  ensure_RDKit_python(condaenv = condaenv, python = python)
+  rdkit_reticulate_python(condaenv = condaenv, python = python)
   .rdkit_mod$Chem <- reticulate::py_suppress_warnings(
     reticulate::import("rdkit.Chem", convert = TRUE)
   )
@@ -798,7 +810,7 @@ rdkit_plot_mol_highlight <- function(mol = rdkit_mol_from_smiles(),
                                      scaleBondWidth = FALSE,
                                      centreMoleculesBeforeDrawing = TRUE,
                                      background = c(1, 1, 1)) {
-  ensure_RDKit_python()
+  rdkit_reticulate_python()
   hl <- .rdkit_highlight_from_smarts(mol, highlight_smarts)
   .rdkit_draw_mol_ggplot(
     mol = mol,
@@ -832,7 +844,7 @@ rdkit_plot_mol_highlight <- function(mol = rdkit_mol_from_smiles(),
                                    centreMoleculesBeforeDrawing,
                                    highlight = NULL,
                                    background = c(1, 1, 1)) {
-  ensure_RDKit_python()
+  rdkit_reticulate_python()
   if (is.null(mol) || reticulate::py_is_null_xptr(mol)) {
     stop("'mol' is NULL or invalid.")
   }
@@ -1052,7 +1064,7 @@ rdkit_plot_mol_highlight <- function(mol = rdkit_mol_from_smiles(),
 #' ChemmineR canonical atom IDs with parent-chain IUPAC locants.
 #'
 #' Requires a Python env with \code{rdkit} and \code{openclatura} (see
-#' [ensure_RDKit_python()]).
+#' [rdkit_reticulate_python()]).
 #'
 #' @section Limitations:
 #' Locants come only from openclatura's **parent-skeleton NUMBERING** step
@@ -1069,7 +1081,7 @@ rdkit_plot_mol_highlight <- function(mol = rdkit_mol_from_smiles(),
 #' C1--C17) is a different nomenclature and is not provided here.
 #'
 #' @param sdf A ChemmineR \code{SDF} or \code{SDFset}.
-#' @param condaenv,python Passed to [ensure_RDKit_python()] before import.
+#' @param condaenv,python Passed to [rdkit_reticulate_python()] before import.
 #'
 #' @return For an \code{SDF}: a data.frame with columns \code{Atom_id},
 #'   \code{element}, \code{rdkit_idx}, \code{locant}, \code{IUPAC_id}, and
@@ -1099,14 +1111,14 @@ get_sdf_IUPAC_index <- function(sdf,
   }
 
   parts <- rdkit_molecule_parts(sdf)
-  ensure_RDKit_python(condaenv = condaenv, python = python)
+  rdkit_reticulate_python(condaenv = condaenv, python = python)
   Chem <- get_RDKit_Chem(condaenv = condaenv, python = python)
   oc <- tryCatch(
     reticulate::import("openclatura", convert = TRUE),
     error = function(e) {
       stop(
         "Python package 'openclatura' is required. ",
-        "Install with: ", rdkit_canonical_python(),
+        "Install with: ", rdkit_cli_python(),
         " -m pip install openclatura\n",
         conditionMessage(e),
         call. = FALSE

@@ -1,8 +1,20 @@
+#' Map reaction SMILES with RXNMapper
+#'
+#' \strong{Deprecated:} temporarily unused. Prefer
+#' \code{\link{rdkit_mcs_pairs}} / \code{\link{rdkit_rxn_ids}} (CLI) or a
+#' future atom-map API.
+#'
+#' @param from.smiles Substrate SMILES (character vector).
+#' @param to.smiles Product SMILES (character vector).
+#' @param RXNMapper Callable from \code{\link{get_RXNMapper}}.
+#' @return RXNMapper result list, or \code{NA} if the reaction is too long.
 #' @export
+#' @keywords internal
 RXNMapper_map <- function(from.smiles ,
                            to.smiles,
                            RXNMapper = MSCC::get_RXNMapper()
                            ){
+  .Deprecated("rdkit_mcs_pairs / rdkit_rxn_ids (CLI) or a future atom-map API")
 
   #from.smiles.format <- sub(pattern = "\\.","-",from.smiles)
   #to.smiles.format  <- sub(pattern = "\\.","-",to.smiles)
@@ -33,9 +45,18 @@ RXNMapper_map <- function(from.smiles ,
 }
 
 
+#' Parse RXNMapper mapped reaction into canonical atom ids
+#'
+#' \strong{Deprecated:} temporarily unused. Prefer
+#' \code{\link{rdkit_mcs_pairs}} / \code{\link{rdkit_rxn_ids}} (CLI) or a
+#' future atom-map API.
+#'
+#' @param rxn.result Result from \code{\link{RXNMapper_map}}.
+#' @return Nested list of map numbers named by canonical atom ids.
 #' @export
+#' @keywords internal
 RXNMapper_mapped_rxn_parse <- function(rxn.result){
-
+  .Deprecated("rdkit_mcs_pairs / rdkit_rxn_ids (CLI) or a future atom-map API")
 
   rxn.result.split <- str_split(rxn.result$mapped_rxn,">>")[[1]]%>%
     sapply(function(x){

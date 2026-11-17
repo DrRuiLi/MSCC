@@ -1,13 +1,17 @@
-#' RDKit interpreter that matches ICEBERG.
+#' Python executable for RDKit CLI / subprocess calls
 #'
-#' @param python Optional path. When omitted, uses \code{MSCC_RDKIT_PYTHON}
-#'   if set, otherwise the ICEBERG CPU interpreter. \code{ensure_RDKit_python()}
-#'   selects the same executable for reticulate.
-#' @return The python executable.
+#' Resolves the interpreter used by \code{system2} for
+#' \code{inst/rdkit/canonical_mol.py} (canonical SMILES, molecule parts, MCS,
+#' rxn ids). This is not the reticulate binder; see
+#' \code{\link{rdkit_reticulate_python}}.
+#'
+#' @param python Optional path. When omitted, uses
+#'   \code{MSCC_RDKIT_CLI_PYTHON} if set, otherwise the ICEBERG CPU interpreter.
+#' @return The python executable path.
 #' @export
-rdkit_canonical_python <- function(python = NULL) {
+rdkit_cli_python <- function(python = NULL) {
   if (is.null(python) || !nzchar(python)) {
-    python <- Sys.getenv("MSCC_RDKIT_PYTHON", "")
+    python <- Sys.getenv("MSCC_RDKIT_CLI_PYTHON", "")
   }
   if (!nzchar(python)) {
     python <- "/mnt/nas/conda/envs/lirui_iceberg_cpu/bin/python"
@@ -31,7 +35,7 @@ rdkit_canonical_python <- function(python = NULL) {
   input <- tempfile("mscc-rdkit-")
   on.exit(unlink(input), add = TRUE)
   jsonlite::write_json(request, input, auto_unbox = TRUE)
-  python <- rdkit_canonical_python()
+  python <- rdkit_cli_python()
   err <- tempfile("mscc-rdkit-err-")
   on.exit(unlink(err), add = TRUE)
   out <- system2(

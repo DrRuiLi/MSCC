@@ -8,10 +8,10 @@
 | Field | Value |
 |-------|--------|
 | Name | **MSCC** (Mass Spectrometry Chemical Calculation) |
-| Version | 1.2.0 |
+| Version | 1.3.0 |
 | Author | Rui Li (`rli@sinh.ac.cn`) |
 | Repo | https://github.com/drruili/MSCC |
-| Type | R package (S4 + tidyverse + ChemmineR/igraph + Spectra) |
+| Type | R package (S4 + tidyverse + igraph + RDKit; optional reticulate / Spectra) |
 
 **Purpose:** Chemical-formula arithmetic, isotope/adduct handling for MS, molecular graph representation, CFM-ID spectrum prediction/annotation, and related metabolomics helpers (atom mapping, natural-abundance correction, interactive viewers).
 
@@ -22,10 +22,10 @@ SMILES / formula / SDF
         │
         ├─► chemform_*  ──► m/z, adducts, isotope patterns
         │
-        ├─► Molecule_igraph (SDF + igraph + isotopomers)
+        ├─► Molecule_igraph (RDKit CLI graph + igraph + isotopomers)
         │         │
-        │         ├─► atom maps / RXNMapper transfer
-        │         └─► vis_smiles / visNetwork
+        │         ├─► atom maps / MCS (CLI); RXNMapper deprecated
+        │         └─► rdkit_plot_* / visNetwork
         │
         └─► CFM_data (Docker CFM-ID)
                   │
@@ -37,11 +37,11 @@ SMILES / formula / SDF
 
 ### `Molecule_igraph` (`R/Molecule_igraph-class.R`)
 
-Slots: `molecule_info`, `sdf` (ChemmineR `SDF`), `igraph`, `isotopomer` (data.frame).
+Slots: `molecule_info`, `sdf` (legacy ChemmineR `SDF` where still used), `igraph`, `isotopomer` (data.frame).
 
-- Build via `get_Molecule_igraph_from_smiles()` / `get_Molecule_igraph_from_sdf()`.
+- Build via `get_Molecule_igraph_from_smiles()` / `get_Molecule_igraph_from_sdf()` (graphs from RDKit CLI `rdkit_molecule_parts()`).
 - Graph attrs via generics `vdata` / `edata` (defined in `R/00_graph_primitives.R`).
-- Isotopomer helpers: `Molecule_igraph_add_isotopomer()`, atom transfer via MCS or RXNMapper.
+- Isotopomer helpers: `Molecule_igraph_add_isotopomer()`; atom transfer via MCS (`rdkit_mcs_pairs`). RXNMapper path is deprecated.
 
 ### `CFM_data` (`R/dev_CFM.R`)
 
@@ -66,15 +66,16 @@ Typical entry: `get_CFM_data_from_smiles()` → `CFM_predict` / `CFM_annotate*` 
 | `dev_envipat_lc8.R` | enviPat isotope patterns (`chemform_isotopes_pattern_enviPat`) |
 | `migration_helpers.R` | Self-contained helpers (no MSdev); elem table, xcms isotope matching, polarity |
 | `accucor_wrapper.R` | Natural-isotope correction (`accucor_natural_correction`) |
-| `00_graph_primitives.R` | `vdata`/`edata`/`atom`/`get_element` generics; MCS/RXNMapper hooks |
+| `00_graph_primitives.R` | `vdata`/`edata`/`atom`/`get_element` generics; deprecated `get_RXNMapper` |
 | `Molecule_igraph-class.R` | S4 class + methods |
 | `Molecule_igraph-functions.R` | Build/filter/vis isotopomers; atom-transfer matrices |
 | `Molecule_vis.R` | SDF↔igraph, `vis_sdf_igraph` |
-| `dev_Chemmine.R` | SMILES↔SDF, MCS atom maps, `vis_smiles`, isotopologue formatting |
+| `dev_Chemmine.R` | Legacy SMILES↔SDF / vis helpers; prefer RDKit CLI entries |
 | `dev_CFM.R` | CFM-ID Docker API, `CFM_data` I/O, Spectra bridges |
 | `shiny_vis_cfm.R` | Shiny + plotly CFM viewer |
-| `dev_rdkit.R` | reticulate RDKit (`get_RDKit_Chem`, formula/mass/SMARTS) |
-| `dev_RXNmapper.R` | Reaction atom mapping via RXNMapper |
+| `rdkit_canonical.R` | CLI Python path + `system2` → `inst/rdkit/canonical_mol.py` |
+| `dev_rdkit.R` | reticulate RDKit (`rdkit_reticulate_python`, `get_RDKit_Chem`, plot/SMARTS) |
+| `dev_RXNmapper.R` | Deprecated RXNMapper wrappers (`RXNMapper_map`, …) |
 | `Bechmark.R` / `dev_NetID.R` | Dev/benchmark scratch (not primary API) |
 
 ## Packaged data (`data/`)
@@ -95,10 +96,14 @@ Access element table via `get_elem_table()` when schema harmonization is needed.
 2. **Adduct strings:** Prefer `[M+H]+` / `[M-H]-`; many APIs also accept `+`/`-` or polarity `0`/`1`.
 3. **Polarity:** `0` = negative, `1` = positive (`get_polarity_from_adduct`, `get_polarity_suffix`).
 4. **CFM collision energies:** `energy0`→CE 10, `energy1`→CE 20, `energy2`→CE 40.
-5. **RDKit:** Import submodules explicitly (`get_RDKit_Chem()`); do not invent a catch-all `get_RDKit()`.
-6. **CFM runtime:** Prediction/annotation needs a working CFM-ID Docker setup; local cache dirs are supported.
-7. **No MSdev dependency:** Do **not** rely on package `MSdev` (no `Imports`/`Suggests`/`Remotes`, no `MSdev::` calls). MSdev already depends on MSCC; adding the reverse creates a circular install loop. Use MSCC-local helpers in `migration_helpers.R` and CFM plotting via `plotly_CFM_spectra()` / `shiny_vis_cfm()`.
-8. **Demo molecule:** Glycine SMILES `NCC(O)=O` is the default in several helpers.
+5. **RDKit Python (two paths):**
+   - **CLI / subprocess:** `rdkit_cli_python()` → `system2` + `inst/rdkit/canonical_mol.py`. Env: `MSCC_RDKIT_CLI_PYTHON`, else ICEBERG `/mnt/nas/conda/envs/lirui_iceberg_cpu/bin/python`.
+   - **reticulate:** `rdkit_reticulate_python()` before first import. Env: `MSCC_RDKIT_RETICULATE_PYTHON` → `MSCC_RDKIT_CLI_PYTHON` → same ICEBERG path. Optional `condaenv=` / `python=` overrides.
+   - Import RDKit submodules explicitly (`get_RDKit_Chem()`); do not invent a catch-all `get_RDKit()`. Old names `rdkit_canonical_python` / `ensure_RDKit_python` / `MSCC_RDKIT_PYTHON` are gone.
+6. **RXNMapper:** `get_RXNMapper` / `RXNMapper_map` / `RXNMapper_mapped_rxn_parse` are **deprecated** (still exported). Prefer `rdkit_mcs_pairs()` / `rdkit_rxn_ids()` for now.
+7. **CFM runtime:** Prediction/annotation needs a working CFM-ID Docker setup; local cache dirs are supported.
+8. **No MSdev dependency:** Do **not** rely on package `MSdev` (no `Imports`/`Suggests`/`Remotes`, no `MSdev::` calls). MSdev already depends on MSCC; adding the reverse creates a circular install loop. Use MSCC-local helpers in `migration_helpers.R` and CFM plotting via `plotly_CFM_spectra()` / `shiny_vis_cfm()`.
+9. **Demo molecule:** Glycine SMILES `NCC(O)=O` is the default in several helpers.
 
 ## External stacks
 
@@ -108,7 +113,7 @@ Access element table via `get_elem_table()` when schema harmonization is needed.
 | Structure | ChemmineR (SDF), igraph, S4Vectors |
 | Spectra | Spectra |
 | Optional chem | enviPat, CHNOSZ, accucor, nnls |
-| Optional Python | reticulate → RDKit, RXNMapper |
+| Optional Python | CLI RDKit (`rdkit_cli_python`); reticulate RDKit (`rdkit_reticulate_python`); RXNMapper deprecated |
 | Optional UI | shiny, plotly, visNetwork |
 | Downstream (depends on MSCC) | MSdev — one-way only; MSCC must not depend back |
 | CFM-ID | Docker container (see `CFM_*` in `dev_CFM.R`) |
@@ -129,9 +134,10 @@ Access element table via `get_elem_table()` when schema harmonization is needed.
 | Molecule graph | `get_Molecule_igraph_from_smiles()` |
 | CFM predict | `get_CFM_data_from_smiles()` / `CFM_predict()` |
 | CFM UI | `shiny_vis_cfm()` |
-| RDKit | `rdkit_mol_from_smiles()`, `rdkit_mol_formula()` |
+| RDKit CLI | `rdkit_cli_python()`, `rdkit_molecule_parts()`, `rdkit_canonical_smiles()` |
+| RDKit reticulate | `rdkit_reticulate_python()`, `get_RDKit_Chem()`, `rdkit_mol_from_smiles()`, `rdkit_plot_mol()` |
 | Natural correction | `accucor_natural_correction()` |
-| Atom mapping | `get_atom_map()`, `get_Molecule_atom_transfer_by_atom_map()`, `RXNMapper_map()` |
+| Atom mapping | `rdkit_mcs_pairs()`, `rdkit_rxn_ids()` (RXNMapper APIs deprecated) |
 
 ## Agent guardrails
 

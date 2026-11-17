@@ -65,9 +65,15 @@ setGeneric("get_element", function(object, ...) standardGeneric("get_element"))
 
 #' Create RXNMapper callable
 #'
+#' \strong{Deprecated:} temporarily unused. Prefer
+#' \code{\link{rdkit_mcs_pairs}} / \code{\link{rdkit_rxn_ids}} (CLI) or a
+#' future atom-map API.
+#'
 #' @return Python callable from `rxnmapper`.
 #' @export
+#' @keywords internal
 get_RXNMapper <- function() {
+  .Deprecated("rdkit_mcs_pairs / rdkit_rxn_ids (CLI) or a future atom-map API")
   rxnmp <- reticulate::py_suppress_warnings(reticulate::import("rxnmapper"))
   rxn_mapper <- rxnmp$RXNMapper()
   rxn_mapper$get_attention_guided_atom_maps
