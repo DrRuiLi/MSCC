@@ -8,7 +8,7 @@
 | Field | Value |
 |-------|--------|
 | Name | **MSCC** (Mass Spectrometry Chemical Calculation) |
-| Version | 1.3.0 |
+| Version | 1.3.1 |
 | Author | Rui Li (`rli@sinh.ac.cn`) |
 | Repo | https://github.com/drruili/MSCC |
 | Type | R package (S4 + tidyverse + igraph + RDKit; optional reticulate / Spectra) |
