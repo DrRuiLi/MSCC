@@ -62,7 +62,14 @@ non-ring double bond is a symmetric pair of lines.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">ggplot_Molecule_igraph</span><span class="op">(</span><span class="va">mol.ig</span>, show_id <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">ggplot_Molecule_igraph</span><span class="op">(</span></span>
+<span>  <span class="va">mol.ig</span>,</span>
+<span>  show_id <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  highlight_ids <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  label_size <span class="op">=</span> <span class="fl">3.2</span>,</span>
+<span>  bond_linewidth <span class="op">=</span> <span class="fl">0.7</span>,</span>
+<span>  highlight_size <span class="op">=</span> <span class="fl">8</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -78,6 +85,26 @@ non-ring double bond is a symmetric pair of lines.</p>
 If <code>FALSE</code>, label heteroatoms with the element symbol. Default
 <code>TRUE</code>.</p></dd>
 
+
+<dt id="arg-highlight-ids">highlight_ids<a class="anchor" aria-label="anchor" href="#arg-highlight-ids"></a></dt>
+<dd><p>Optional atom ids to highlight, or a named
+numeric vector of mapping probabilities (names = vertex ids).
+Values <code>&gt; 0</code> get a filled disc under the atom; colour
+intensity follows the probability.</p></dd>
+
+
+<dt id="arg-label-size">label_size<a class="anchor" aria-label="anchor" href="#arg-label-size"></a></dt>
+<dd><p><code>geom_text</code> size. Default <code>3.2</code>.</p></dd>
+
+
+<dt id="arg-bond-linewidth">bond_linewidth<a class="anchor" aria-label="anchor" href="#arg-bond-linewidth"></a></dt>
+<dd><p>Bond <code>linewidth</code>. Default <code>0.7</code>.</p></dd>
+
+
+<dt id="arg-highlight-size">highlight_size<a class="anchor" aria-label="anchor" href="#arg-highlight-size"></a></dt>
+<dd><p>Highlight disc size in mm for <code>geom_point</code>.
+Default <code>8</code>.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
@@ -89,6 +116,7 @@ If <code>FALSE</code>, label heteroatoms with the element symbol. Default
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
 <span class="r-in"><span><span class="va">mig</span> <span class="op">&lt;-</span> <span class="fu">get_Molecule_igraph_from_smiles</span><span class="op">(</span><span class="st">"NCC(O)=O"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">ggplot_Molecule_igraph</span><span class="op">(</span><span class="va">mig</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">ggplot_Molecule_igraph</span><span class="op">(</span><span class="va">mig</span>, highlight_ids <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"C_2"</span>, <span class="st">"C_3"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>

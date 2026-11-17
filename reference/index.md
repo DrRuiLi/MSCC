@@ -114,6 +114,9 @@
 - [`ggplot_Molecule_igraph()`](https://drruili.github.io/MSCC/reference/ggplot_Molecule_igraph.md)
   : Plot a Molecule_igraph with ggplot geometry
 
+- [`ggplot_smiles()`](https://drruili.github.io/MSCC/reference/ggplot_smiles.md)
+  : Plot a SMILES string with ggplot geometry
+
 - [`isotope_mass_diff()`](https://drruili.github.io/MSCC/reference/isotope_mass_diff.md)
   : isotope_mass_diff
 

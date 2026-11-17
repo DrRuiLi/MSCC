@@ -11,7 +11,7 @@ which replaces the element symbol.
 ## Usage
 
 ``` r
-rdkit_plot_Molecule_igraph(mol.ig, show_id = TRUE, ...)
+rdkit_plot_Molecule_igraph(mol.ig, show_id = TRUE, highlight_ids = NULL, ...)
 ```
 
 ## Arguments
@@ -24,12 +24,19 @@ rdkit_plot_Molecule_igraph(mol.ig, show_id = TRUE, ...)
 
   If `TRUE`, label atoms with vertex ids. Default `TRUE`.
 
+- highlight_ids:
+
+  Optional atom ids to highlight, or a named numeric vector of mapping
+  probabilities (names = vertex ids). Values `> 0` are highlighted;
+  colour intensity follows the probability when names are supplied.
+  Bonds between highlighted atoms are filled too.
+
 - ...:
 
   Passed to
-  [`rdkit_plot_mol()`](https://drruili.github.io/MSCC/reference/rdkit_plot_mol.md).
-  With `show_id = TRUE`, `fixedFontSize` defaults to `28` and `padding`
-  to `0.16` unless those arguments are supplied.
+  [`rdkit_plot_mol()`](https://drruili.github.io/MSCC/reference/rdkit_plot_mol.md)
+  / the Cairo drawer. With `show_id = TRUE`, `fixedFontSize` defaults to
+  `28` and `padding` to `0.16` unless those arguments are supplied.
 
 ## Value
 
@@ -46,5 +53,6 @@ function stops if the atom count or element symbols disagree.
 if (FALSE) { # \dontrun{
 mig <- get_Molecule_igraph_from_smiles("NCC(O)=O")
 rdkit_plot_Molecule_igraph(mig)
+rdkit_plot_Molecule_igraph(mig, highlight_ids = c("C_2", "C_3"))
 } # }
 ```
