@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="index.html">MSCC</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.3.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -47,19 +47,19 @@
 </blockquote>
 <div class="section level2">
 <h2 id="package-identity">Package identity<a class="anchor" aria-label="anchor" href="#package-identity"></a></h2>
-<table class="table"><thead><tr><th>Field</th>
+<table class="table"><colgroup><col width="46%"><col width="53%"></colgroup><thead><tr><th>Field</th>
 <th>Value</th>
 </tr></thead><tbody><tr><td>Name</td>
 <td>
 <strong>MSCC</strong> (Mass Spectrometry Chemical Calculation)</td>
 </tr><tr><td>Version</td>
-<td>1.2.0</td>
+<td>1.3.1</td>
 </tr><tr><td>Author</td>
 <td>Rui Li (<code>rli@sinh.ac.cn</code>)</td>
 </tr><tr><td>Repo</td>
 <td><a href="https://github.com/drruili/MSCC" class="external-link uri">https://github.com/drruili/MSCC</a></td>
 </tr><tr><td>Type</td>
-<td>R package (S4 + tidyverse + ChemmineR/igraph + Spectra)</td>
+<td>R package (S4 + tidyverse + igraph + RDKit; optional reticulate / Spectra)</td>
 </tr></tbody></table><p><strong>Purpose:</strong> Chemical-formula arithmetic, isotope/adduct handling for MS, molecular graph representation, CFM-ID spectrum prediction/annotation, and related metabolomics helpers (atom mapping, natural-abundance correction, interactive viewers).</p>
 </div>
 <div class="section level2">
@@ -68,10 +68,10 @@
         │
         ├─► chemform_*  ──► m/z, adducts, isotope patterns
         │
-        ├─► Molecule_igraph (SDF + igraph + isotopomers)
+        ├─► Molecule_igraph (RDKit CLI graph + igraph + isotopomers)
         │         │
-        │         ├─► atom maps / RXNMapper transfer
-        │         └─► vis_smiles / visNetwork
+        │         ├─► atom maps / MCS (CLI); RXNMapper deprecated
+        │         └─► rdkit_plot_* / visNetwork
         │
         └─► CFM_data (Docker CFM-ID)
                   │
@@ -83,10 +83,10 @@
 <div class="section level3">
 <h3 id="molecule_igraph-rmolecule_igraph-classr">
 <code>Molecule_igraph</code> (<code>R/Molecule_igraph-class.R</code>)<a class="anchor" aria-label="anchor" href="#molecule_igraph-rmolecule_igraph-classr"></a></h3>
-<p>Slots: <code>molecule_info</code>, <code>sdf</code> (ChemmineR <code>SDF</code>), <code>igraph</code>, <code>isotopomer</code> (data.frame).</p>
-<ul><li>Build via <code>get_Molecule_igraph_from_smiles()</code> / <code>get_Molecule_igraph_from_sdf()</code>.</li>
+<p>Slots: <code>molecule_info</code>, <code>sdf</code> (legacy ChemmineR <code>SDF</code> where still used), <code>igraph</code>, <code>isotopomer</code> (data.frame).</p>
+<ul><li>Build via <code>get_Molecule_igraph_from_smiles()</code> / <code>get_Molecule_igraph_from_sdf()</code> (graphs from RDKit CLI <code><a href="reference/rdkit_molecule_parts.html">rdkit_molecule_parts()</a></code>).</li>
 <li>Graph attrs via generics <code>vdata</code> / <code>edata</code> (defined in <code>R/00_graph_primitives.R</code>).</li>
-<li>Isotopomer helpers: <code><a href="reference/Molecule_igraph_add_isotopomer.html">Molecule_igraph_add_isotopomer()</a></code>, atom transfer via MCS or RXNMapper.</li>
+<li>Isotopomer helpers: <code><a href="reference/Molecule_igraph_add_isotopomer.html">Molecule_igraph_add_isotopomer()</a></code>; atom transfer via MCS (<code>rdkit_mcs_pairs</code>). RXNMapper path is deprecated.</li>
 </ul></div>
 <div class="section level3">
 <h3 id="cfm_data-rdev_cfmr">
@@ -126,7 +126,8 @@
 <td>Natural-isotope correction (<code>accucor_natural_correction</code>)</td>
 </tr><tr><td><code>00_graph_primitives.R</code></td>
 <td>
-<code>vdata</code>/<code>edata</code>/<code>atom</code>/<code>get_element</code> generics; MCS/RXNMapper hooks</td>
+<code>vdata</code>/<code>edata</code>/<code>atom</code>/<code>get_element</code> generics; deprecated <code>get_RXNMapper</code>
+</td>
 </tr><tr><td><code>Molecule_igraph-class.R</code></td>
 <td>S4 class + methods</td>
 </tr><tr><td><code>Molecule_igraph-functions.R</code></td>
@@ -135,15 +136,18 @@
 <td>SDF↔︎igraph, <code>vis_sdf_igraph</code>
 </td>
 </tr><tr><td><code>dev_Chemmine.R</code></td>
-<td>SMILES↔︎SDF, MCS atom maps, <code>vis_smiles</code>, isotopologue formatting</td>
+<td>Legacy SMILES↔︎SDF / vis helpers; prefer RDKit CLI entries</td>
 </tr><tr><td><code>dev_CFM.R</code></td>
 <td>CFM-ID Docker API, <code>CFM_data</code> I/O, Spectra bridges</td>
 </tr><tr><td><code>shiny_vis_cfm.R</code></td>
 <td>Shiny + plotly CFM viewer</td>
+</tr><tr><td><code>rdkit_canonical.R</code></td>
+<td>CLI Python path + <code>system2</code> → <code>inst/rdkit/canonical_mol.py</code>
+</td>
 </tr><tr><td><code>dev_rdkit.R</code></td>
-<td>reticulate RDKit (<code>get_RDKit_Chem</code>, formula/mass/SMARTS)</td>
+<td>reticulate RDKit (<code>rdkit_reticulate_python</code>, <code>get_RDKit_Chem</code>, plot/SMARTS)</td>
 </tr><tr><td><code>dev_RXNmapper.R</code></td>
-<td>Reaction atom mapping via RXNMapper</td>
+<td>Deprecated RXNMapper wrappers (<code>RXNMapper_map</code>, …)</td>
 </tr><tr><td>
 <code>Bechmark.R</code> / <code>dev_NetID.R</code>
 </td>
@@ -176,7 +180,15 @@
 <li>
 <strong>CFM collision energies:</strong> <code>energy0</code>→CE 10, <code>energy1</code>→CE 20, <code>energy2</code>→CE 40.</li>
 <li>
-<strong>RDKit:</strong> Import submodules explicitly (<code><a href="reference/get_RDKit_Chem.html">get_RDKit_Chem()</a></code>); do not invent a catch-all <code>get_RDKit()</code>.</li>
+<strong>RDKit Python (two paths):</strong>
+<ul><li>
+<strong>CLI / subprocess:</strong> <code><a href="reference/rdkit_cli_python.html">rdkit_cli_python()</a></code> → <code>system2</code> + <code>inst/rdkit/canonical_mol.py</code>. Env: <code>MSCC_RDKIT_CLI_PYTHON</code>, else ICEBERG <code>/mnt/nas/conda/envs/lirui_iceberg_cpu/bin/python</code>.</li>
+<li>
+<strong>reticulate:</strong> <code><a href="reference/rdkit_reticulate_python.html">rdkit_reticulate_python()</a></code> before first import. Env: <code>MSCC_RDKIT_RETICULATE_PYTHON</code> → <code>MSCC_RDKIT_CLI_PYTHON</code> → same ICEBERG path. Optional <code>condaenv=</code> / <code>python=</code> overrides.</li>
+<li>Import RDKit submodules explicitly (<code><a href="reference/get_RDKit_Chem.html">get_RDKit_Chem()</a></code>); do not invent a catch-all <code>get_RDKit()</code>. Old names <code>rdkit_canonical_python</code> / <code>ensure_RDKit_python</code> / <code>MSCC_RDKIT_PYTHON</code> are gone.</li>
+</ul></li>
+<li>
+<strong>RXNMapper:</strong> <code>get_RXNMapper</code> / <code>RXNMapper_map</code> / <code>RXNMapper_mapped_rxn_parse</code> are <strong>deprecated</strong> (still exported). Prefer <code><a href="reference/rdkit_mcs_pairs.html">rdkit_mcs_pairs()</a></code> / <code><a href="reference/rdkit_rxn_ids.html">rdkit_rxn_ids()</a></code> for now.</li>
 <li>
 <strong>CFM runtime:</strong> Prediction/annotation needs a working CFM-ID Docker setup; local cache dirs are supported.</li>
 <li>
@@ -197,7 +209,7 @@
 </tr><tr><td>Optional chem</td>
 <td>enviPat, CHNOSZ, accucor, nnls</td>
 </tr><tr><td>Optional Python</td>
-<td>reticulate → RDKit, RXNMapper</td>
+<td>CLI RDKit (<code>rdkit_cli_python</code>); reticulate RDKit (<code>rdkit_reticulate_python</code>); RXNMapper deprecated</td>
 </tr><tr><td>Optional UI</td>
 <td>shiny, plotly, visNetwork</td>
 </tr><tr><td>Downstream (depends on MSCC)</td>
@@ -233,16 +245,19 @@
 </td>
 </tr><tr><td>CFM UI</td>
 <td><code>shiny_vis_cfm()</code></td>
-</tr><tr><td>RDKit</td>
+</tr><tr><td>RDKit CLI</td>
 <td>
-<code><a href="reference/rdkit_mol_from_smiles.html">rdkit_mol_from_smiles()</a></code>, <code><a href="reference/rdkit_mol_formula.html">rdkit_mol_formula()</a></code>
+<code><a href="reference/rdkit_cli_python.html">rdkit_cli_python()</a></code>, <code><a href="reference/rdkit_molecule_parts.html">rdkit_molecule_parts()</a></code>, <code><a href="reference/rdkit_canonical_smiles.html">rdkit_canonical_smiles()</a></code>
+</td>
+</tr><tr><td>RDKit reticulate</td>
+<td>
+<code><a href="reference/rdkit_reticulate_python.html">rdkit_reticulate_python()</a></code>, <code><a href="reference/get_RDKit_Chem.html">get_RDKit_Chem()</a></code>, <code><a href="reference/rdkit_mol_from_smiles.html">rdkit_mol_from_smiles()</a></code>, <code><a href="reference/rdkit_plot_mol.html">rdkit_plot_mol()</a></code>
 </td>
 </tr><tr><td>Natural correction</td>
 <td><code><a href="reference/accucor_natural_correction.html">accucor_natural_correction()</a></code></td>
 </tr><tr><td>Atom mapping</td>
 <td>
-<code>get_atom_map()</code>, <code>get_Molecule_atom_transfer_by_atom_map()</code>, <code>RXNMapper_map()</code>
-</td>
+<code><a href="reference/rdkit_mcs_pairs.html">rdkit_mcs_pairs()</a></code>, <code><a href="reference/rdkit_rxn_ids.html">rdkit_rxn_ids()</a></code> (RXNMapper APIs deprecated)</td>
 </tr></tbody></table></div>
 <div class="section level2">
 <h2 id="agent-guardrails">Agent guardrails<a class="anchor" aria-label="anchor" href="#agent-guardrails"></a></h2>

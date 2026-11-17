@@ -13,7 +13,7 @@ single catch-all get_RDKit() for the whole package."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">MSCC</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.3.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -58,10 +58,11 @@ single catch-all <code>get_RDKit()</code> for the whole package.</p>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>Requires a Python environment with <code>rdkit</code> configured for
-<span class="pkg">reticulate</span>. Helpers use the same interpreter as
-<code><a href="rdkit_canonical_python.html">rdkit_canonical_python</a></code>: <code>MSCC_RDKIT_PYTHON</code> when set,
-otherwise <code>/mnt/nas/conda/envs/lirui_iceberg_cpu/bin/python</code>.
-Call this <em>before</em> any other reticulate Python init in the session.</p>
+<span class="pkg">reticulate</span>. Call <code><a href="rdkit_reticulate_python.html">rdkit_reticulate_python</a></code> <em>before</em>
+any other reticulate Python init in the session. Default interpreter:
+<code>MSCC_RDKIT_RETICULATE_PYTHON</code>, then <code>MSCC_RDKIT_CLI_PYTHON</code>,
+then the ICEBERG CPU path (see <code><a href="rdkit_cli_python.html">rdkit_cli_python</a></code>).
+CLI / subprocess helpers use <code><a href="rdkit_cli_python.html">rdkit_cli_python</a></code> separately.</p>
     </div>
 
   </main></div>

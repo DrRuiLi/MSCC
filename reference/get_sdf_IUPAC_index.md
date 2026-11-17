@@ -20,7 +20,7 @@ get_sdf_IUPAC_index(sdf, condaenv = NULL, python = NULL)
 - condaenv, python:
 
   Passed to
-  [`ensure_RDKit_python()`](https://drruili.github.io/MSCC/reference/ensure_RDKit_python.md)
+  [`rdkit_reticulate_python()`](https://drruili.github.io/MSCC/reference/rdkit_reticulate_python.md)
   before import.
 
 ## Value
@@ -32,7 +32,7 @@ For an `SDF`: a data.frame with columns `Atom_id`, `element`,
 ## Details
 
 Requires a Python env with `rdkit` and `openclatura` (see
-[`ensure_RDKit_python()`](https://drruili.github.io/MSCC/reference/ensure_RDKit_python.md)).
+[`rdkit_reticulate_python()`](https://drruili.github.io/MSCC/reference/rdkit_reticulate_python.md)).
 
 ## Limitations
 

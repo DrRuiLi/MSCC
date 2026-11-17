@@ -15,6 +15,8 @@
 <url><loc>https://drruili.github.io/MSCC/reference/Chemform_calculation.html</loc></url>
 <url><loc>https://drruili.github.io/MSCC/reference/Molecule_igraph_add_isotopomer.html</loc></url>
 <url><loc>https://drruili.github.io/MSCC/reference/Molecule_igraph_vis_format.html</loc></url>
+<url><loc>https://drruili.github.io/MSCC/reference/RXNMapper_map.html</loc></url>
+<url><loc>https://drruili.github.io/MSCC/reference/RXNMapper_mapped_rxn_parse.html</loc></url>
 <url><loc>https://drruili.github.io/MSCC/reference/accucor_natural_correction.html</loc></url>
 <url><loc>https://drruili.github.io/MSCC/reference/atom.html</loc></url>
 <url><loc>https://drruili.github.io/MSCC/reference/chemform_adduct.html</loc></url>
@@ -35,7 +37,6 @@
 <url><loc>https://drruili.github.io/MSCC/reference/dot-isotope_label_compact.html</loc></url>
 <url><loc>https://drruili.github.io/MSCC/reference/edata-set.html</loc></url>
 <url><loc>https://drruili.github.io/MSCC/reference/edata.html</loc></url>
-<url><loc>https://drruili.github.io/MSCC/reference/ensure_RDKit_python.html</loc></url>
 <url><loc>https://drruili.github.io/MSCC/reference/get_RDKit_Chem.html</loc></url>
 <url><loc>https://drruili.github.io/MSCC/reference/get_RXNMapper.html</loc></url>
 <url><loc>https://drruili.github.io/MSCC/reference/get_ele_uniso.html</loc></url>
@@ -59,8 +60,8 @@
 <url><loc>https://drruili.github.io/MSCC/reference/make_vector.html</loc></url>
 <url><loc>https://drruili.github.io/MSCC/reference/num2str.html</loc></url>
 <url><loc>https://drruili.github.io/MSCC/reference/pipe.html</loc></url>
-<url><loc>https://drruili.github.io/MSCC/reference/rdkit_canonical_python.html</loc></url>
 <url><loc>https://drruili.github.io/MSCC/reference/rdkit_canonical_smiles.html</loc></url>
+<url><loc>https://drruili.github.io/MSCC/reference/rdkit_cli_python.html</loc></url>
 <url><loc>https://drruili.github.io/MSCC/reference/rdkit_has_substruct.html</loc></url>
 <url><loc>https://drruili.github.io/MSCC/reference/rdkit_mcs_pairs.html</loc></url>
 <url><loc>https://drruili.github.io/MSCC/reference/rdkit_mol_exact_mass.html</loc></url>
@@ -70,6 +71,7 @@
 <url><loc>https://drruili.github.io/MSCC/reference/rdkit_plot_Molecule_igraph.html</loc></url>
 <url><loc>https://drruili.github.io/MSCC/reference/rdkit_plot_mol.html</loc></url>
 <url><loc>https://drruili.github.io/MSCC/reference/rdkit_plot_mol_highlight.html</loc></url>
+<url><loc>https://drruili.github.io/MSCC/reference/rdkit_reticulate_python.html</loc></url>
 <url><loc>https://drruili.github.io/MSCC/reference/rdkit_rxn_ids.html</loc></url>
 <url><loc>https://drruili.github.io/MSCC/reference/sdf_igraph_add_background_color.html</loc></url>
 <url><loc>https://drruili.github.io/MSCC/reference/sdf_igraph_merge_all.html</loc></url>

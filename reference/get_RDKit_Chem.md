@@ -14,7 +14,7 @@ get_RDKit_Chem(condaenv = NULL, python = NULL)
 - condaenv, python:
 
   Passed to
-  [`ensure_RDKit_python()`](https://drruili.github.io/MSCC/reference/ensure_RDKit_python.md)
+  [`rdkit_reticulate_python()`](https://drruili.github.io/MSCC/reference/rdkit_reticulate_python.md)
   before import.
 
 ## Value

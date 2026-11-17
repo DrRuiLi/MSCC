@@ -157,16 +157,10 @@ GPL-2 © [Rui Li](mailto:rli@sinh.ac.cn)
 - [`edata()`](https://drruili.github.io/MSCC/reference/edata.md) : Edge
   attribute table for graph-like objects
 
-- [`ensure_RDKit_python()`](https://drruili.github.io/MSCC/reference/ensure_RDKit_python.md)
-  : Select the Python env used for RDKit (before first import)
-
 - [`get_RDKit_Chem()`](https://drruili.github.io/MSCC/reference/get_RDKit_Chem.md)
   :
 
   Import the `rdkit.Chem` Python module
-
-- [`get_RXNMapper()`](https://drruili.github.io/MSCC/reference/get_RXNMapper.md)
-  : Create RXNMapper callable
 
 - [`get_ele_uniso()`](https://drruili.github.io/MSCC/reference/get_ele_uniso.md)
   : Convert isotope notation to element symbol
@@ -213,11 +207,11 @@ GPL-2 © [Rui Li](mailto:rli@sinh.ac.cn)
 - [`%>%`](https://drruili.github.io/MSCC/reference/pipe.md) : Re-export
   the magrittr pipe
 
-- [`rdkit_canonical_python()`](https://drruili.github.io/MSCC/reference/rdkit_canonical_python.md)
-  : RDKit interpreter that matches ICEBERG.
-
 - [`rdkit_canonical_smiles()`](https://drruili.github.io/MSCC/reference/rdkit_canonical_smiles.md)
   : Canonical SMILES from the copied ICEBERG canonical_root.
+
+- [`rdkit_cli_python()`](https://drruili.github.io/MSCC/reference/rdkit_cli_python.md)
+  : Python executable for RDKit CLI / subprocess calls
 
 - [`rdkit_has_substruct()`](https://drruili.github.io/MSCC/reference/rdkit_has_substruct.md)
   : Test whether a mol matches a SMARTS pattern
@@ -245,6 +239,10 @@ GPL-2 © [Rui Li](mailto:rli@sinh.ac.cn)
 
 - [`rdkit_plot_mol_highlight()`](https://drruili.github.io/MSCC/reference/rdkit_plot_mol_highlight.md)
   : Plot an RDKit molecule with SMARTS highlights
+
+- [`rdkit_reticulate_python()`](https://drruili.github.io/MSCC/reference/rdkit_reticulate_python.md)
+  : Bind reticulate to the RDKit Python interpreter (before first
+  import)
 
 - [`rdkit_rxn_ids()`](https://drruili.github.io/MSCC/reference/rdkit_rxn_ids.md)
   : RXNMapper atom-map numbers named by canonical atom ids.

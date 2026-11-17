@@ -5,9 +5,10 @@
 library(MSCC)
 library(reticulate)
 
-# Default conda env for RDKit helpers (before any other reticulate Python init):
-ensure_RDKit_python("env_for_r")
-# or: options(MSCC.rdkit.condaenv = "env_for_r")
+# Bind reticulate before any other Python init (optional env overrides):
+# Sys.setenv(MSCC_RDKIT_RETICULATE_PYTHON = "/path/to/python")
+# Sys.setenv(MSCC_RDKIT_CLI_PYTHON = "/path/to/python")
+rdkit_reticulate_python()
 ```
 
 ## 1. Introduction
@@ -16,9 +17,13 @@ MSCC calls RDKit through **reticulate**. This vignette pairs the native
 Python API with the MSCC R wrappers in `dev_rdkit.R`.
 
 Requires a Python environment with `rdkit` (and `numpy` / Cairo-enabled
-Draw for plotting). Default helpers target the conda env `env_for_r`. On
-Windows,
-[`ensure_RDKit_python()`](https://drruili.github.io/MSCC/reference/ensure_RDKit_python.md)
+Draw for plotting). Defaults come from `MSCC_RDKIT_RETICULATE_PYTHON`,
+then `MSCC_RDKIT_CLI_PYTHON`, then the ICEBERG CPU interpreter
+([`rdkit_cli_python()`](https://drruili.github.io/MSCC/reference/rdkit_cli_python.md)
+/
+[`rdkit_reticulate_python()`](https://drruili.github.io/MSCC/reference/rdkit_reticulate_python.md)).
+On Windows,
+[`rdkit_reticulate_python()`](https://drruili.github.io/MSCC/reference/rdkit_reticulate_python.md)
 adds `Library/bin` to the DLL search path so `rdMolDraw2D` can load;
 prefer conda-forge builds of `rdkit` / `cairo` / `harfbuzz`.
 
